@@ -546,10 +546,227 @@
             80% { transform: translate(2px,-2px) } 100% { transform: translate(0) }
         }
 
+        /* ═════════════════════ Ending Cinematic Overlay ═════════════════════ */
+        #ending-overlay {
+            display: none; position: fixed; inset: 0; z-index: 99999;
+            background: #000; color: #e8ffe8;
+            font-family: 'Courier New', Consolas, monospace;
+            overflow: hidden;
+        }
+        #ending-overlay.open { display: block; }
+
+        /* ── Destroy family: blackout + sequential monochrome lines ── */
+        #ending-overlay.family-destroy {
+            background: #000;
+        }
+        #ending-overlay.family-destroy #ending-text-layer {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+            padding: 0 14vw; gap: 18px;
+            font-size: 16px; line-height: 1.8;
+        }
+        #ending-overlay.family-destroy .cine-line {
+            opacity: 0; color: #88ffaa;
+            animation: cine-fade-in 0.8s ease-out forwards;
+        }
+        #ending-overlay.family-destroy .cine-title {
+            margin-top: 28px; font-size: 28px; color: #ffffff; letter-spacing: 3px;
+            font-weight: bold; opacity: 0;
+            animation: cine-fade-in 1.2s ease-out forwards;
+        }
+        #ending-overlay.family-destroy .cine-summary {
+            margin-top: 18px; font-size: 15px; color: #aaccaa; line-height: 1.7;
+            max-width: 640px; opacity: 0;
+            animation: cine-fade-in 1.5s ease-out forwards;
+        }
+
+        /* ── Join family: glitch + OMNI_CORE log takeover ── */
+        #ending-overlay.family-join {
+            background: #050005;
+        }
+        #ending-overlay.family-join::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+            background: repeating-linear-gradient(
+                0deg, transparent 0 2px,
+                rgba(255,0,80,0.05) 2px 3px
+            );
+            animation: cine-scan 3s linear infinite;
+        }
+        #ending-overlay.family-join #ending-text-layer {
+            position: absolute; inset: 0;
+            padding: 40px 24px;
+            display: flex; flex-direction: column; gap: 6px;
+            font-size: 14px; color: #ff4488;
+            overflow: hidden;
+        }
+        #ending-overlay.family-join .cine-banner {
+            font-size: 18px; color: #ff6688; letter-spacing: 3px;
+            margin-bottom: 18px; font-weight: bold;
+            text-shadow: 2px 0 #00ffcc, -2px 0 #ff0044;
+            animation: cine-glitch 0.4s steps(2) infinite;
+        }
+        #ending-overlay.family-join .cine-log {
+            opacity: 0; color: #ff88aa;
+            animation: cine-fade-in 0.25s linear forwards;
+        }
+        #ending-overlay.family-join .cine-log.err { color: #ff4488; }
+        #ending-overlay.family-join .cine-log.ok  { color: #88ffcc; }
+        #ending-overlay.family-join #ending-finale {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 0 12vw;
+            background: radial-gradient(circle at center, rgba(255,0,80,0.15), rgba(0,0,0,0.9) 70%);
+            opacity: 0; z-index: 3;
+            text-align: center;
+            animation: cine-fade-in 1.5s ease-out 4.5s forwards;
+        }
+        #ending-overlay.family-join .cine-title {
+            font-size: 32px; color: #ffffff; letter-spacing: 4px;
+            font-weight: bold; margin-bottom: 20px;
+            text-shadow: 3px 0 #ff0044, -3px 0 #00ffcc;
+            animation: cine-glitch 0.35s steps(2) infinite;
+        }
+        #ending-overlay.family-join .cine-summary {
+            font-size: 15px; color: #e8ffe8; line-height: 1.8;
+            max-width: 680px;
+        }
+
+        /* ── Continue button (both families) ── */
+        #ending-continue-btn {
+            position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+            background: transparent; color: #88ffaa;
+            border: 1px solid #00aa44; padding: 10px 28px;
+            font-family: inherit; font-size: 14px; font-weight: bold; letter-spacing: 2px;
+            cursor: pointer; opacity: 0;
+            animation: cine-fade-in 1s ease-out 5.2s forwards;
+            z-index: 5;
+        }
+        #ending-continue-btn:hover { background: #00aa44; color: #000; }
+        #ending-overlay.family-join #ending-continue-btn {
+            color: #ff88aa; border-color: #ff4488;
+        }
+        #ending-overlay.family-join #ending-continue-btn:hover { background: #ff4488; color: #000; }
+
+        @keyframes cine-fade-in { to { opacity: 1; } }
+        @keyframes cine-scan {
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(6px); }
+        }
+        @keyframes cine-glitch {
+            0%,100% { transform: translate(0); }
+            25%     { transform: translate(-2px, 1px); }
+            50%     { transform: translate(2px, -1px); }
+            75%     { transform: translate(-1px, -2px); }
+        }
+        /* Light-theme tweaks — keep the cinematic dark regardless of page theme */
+        html[data-theme="light"] #ending-overlay {
+            /* intentionally left dark — a glitch collapse in a bright IDE would lose impact */
+        }
+
+        /* ═════════════════════ Ending Receipt Card ═════════════════════ */
+        #receipt-card {
+            display: none;
+            width: min(640px, 100%);
+            margin: 24px auto 36px;
+            background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+            border: 1px solid #005522; padding: 28px 32px;
+            color: #e8ffe8; font-family: 'Courier New', Consolas, monospace;
+            box-shadow: 0 0 32px rgba(0,255,102,0.08);
+            position: relative;
+        }
+        #receipt-card::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg, transparent 0 2px, rgba(0,255,100,0.03) 2px 3px
+            );
+        }
+        .rc-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding-bottom: 18px; border-bottom: 1px solid #003322;
+        }
+        .rc-title { font-size: 12px; letter-spacing: 3px; color: #88ff99; }
+        .rc-subtitle { font-size: 11px; color: #557755; margin-top: 4px; }
+        .rc-icon { font-size: 36px; line-height: 1; }
+        .rc-ending {
+            padding: 16px 0 18px; border-bottom: 1px solid #003322;
+        }
+        .rc-ending-label { font-size: 11px; letter-spacing: 2px; color: #557755; }
+        .rc-ending-title {
+            font-size: 22px; font-weight: bold; color: #ffeecc;
+            margin: 4px 0 10px; letter-spacing: 2px;
+        }
+        .rc-epitaph {
+            font-size: 14px; color: #ccddcc; font-style: italic; line-height: 1.6;
+        }
+        .rc-stats {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+            padding: 18px 0; border-bottom: 1px solid #003322;
+        }
+        .rc-stat-label { font-size: 10px; letter-spacing: 1.5px; color: #557755; }
+        .rc-stat-value { font-size: 19px; font-weight: bold; color: #ffffff; margin-top: 4px; }
+        .rc-stat-value.balance { color: #ffdd66; }
+        .rc-stat-value.moral   { color: #88ffaa; }
+        .rc-decisions { padding: 16px 0 6px; }
+        .rc-decisions-label { font-size: 10px; letter-spacing: 1.5px; color: #557755; margin-bottom: 10px; }
+        .rc-decision-item {
+            font-size: 13px; line-height: 1.7; color: #cceecc; padding: 3px 0;
+            display: flex; align-items: baseline; gap: 8px;
+        }
+        .rc-decision-item.good::before { content: '✓'; color: #00ff88; flex-shrink: 0; }
+        .rc-decision-item.bad::before  { content: '✗'; color: #ff4488; flex-shrink: 0; }
+        .rc-decision-item.meh::before  { content: '·'; color: #557755; flex-shrink: 0; }
+        .rc-share-hint {
+            font-size: 11px; color: #446644; margin-top: 14px; letter-spacing: 1px;
+        }
+        .rc-actions {
+            display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
+        }
+        .rc-btn {
+            background: transparent; color: #88ffaa; border: 1px solid #00aa44;
+            padding: 9px 18px; cursor: pointer;
+            font-family: inherit; font-size: 13px; font-weight: bold; letter-spacing: 1px;
+        }
+        .rc-btn:hover   { background: #00aa44; color: #000; }
+        .rc-btn.danger  { color: #ff88aa; border-color: #ff4488; }
+        .rc-btn.danger:hover { background: #ff4488; color: #000; }
+
+        /* Light-theme receipt card */
+        html[data-theme="light"] #receipt-card {
+            background: #ffffff; border: 1px solid #007acc;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.1); color: #000000;
+        }
+        html[data-theme="light"] #receipt-card::before { background: none; }
+        html[data-theme="light"] .rc-header { border-bottom-color: #d4d4d4; }
+        html[data-theme="light"] .rc-title  { color: #1f3864; }
+        html[data-theme="light"] .rc-subtitle { color: #6a737d; }
+        html[data-theme="light"] .rc-ending { border-bottom-color: #d4d4d4; }
+        html[data-theme="light"] .rc-ending-label { color: #6a737d; }
+        html[data-theme="light"] .rc-ending-title { color: #0000ff; }
+        html[data-theme="light"] .rc-epitaph { color: #444444; }
+        html[data-theme="light"] .rc-stats { border-bottom-color: #d4d4d4; }
+        html[data-theme="light"] .rc-stat-label { color: #6a737d; }
+        html[data-theme="light"] .rc-stat-value { color: #000000; }
+        html[data-theme="light"] .rc-stat-value.balance { color: #a31515; }
+        html[data-theme="light"] .rc-stat-value.moral   { color: #008000; }
+        html[data-theme="light"] .rc-decisions-label { color: #6a737d; }
+        html[data-theme="light"] .rc-decision-item { color: #000000; }
+        html[data-theme="light"] .rc-decision-item.good::before { color: #008000; }
+        html[data-theme="light"] .rc-decision-item.bad::before  { color: #a31515; }
+        html[data-theme="light"] .rc-decision-item.meh::before  { color: #a0a0a0; }
+        html[data-theme="light"] .rc-share-hint { color: #6a737d; }
+        html[data-theme="light"] .rc-btn {
+            background: #ffffff; color: #007acc; border: 1px solid #007acc;
+        }
+        html[data-theme="light"] .rc-btn:hover { background: #007acc; color: #ffffff; }
+        html[data-theme="light"] .rc-btn.danger {
+            background: #ffffff; color: #a31515; border: 1px solid #a31515;
+        }
+        html[data-theme="light"] .rc-btn.danger:hover { background: #a31515; color: #ffffff; }
     </style>
 </head>
 <body>
     {% include "_theme.html" %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
     <script id="player-data-store" type="application/json">{{ player | tojson | safe }}</script>
     <script>const player_data = JSON.parse(document.getElementById('player-data-store').textContent);</script>
 
@@ -607,6 +824,49 @@
                 <button class="final-btn" onclick="submitFinalChoice('join_ai')" data-i18n="final.join">[ HELP OMNI_CORE ]</button>
             </div>
             <div id="final-result"></div>
+        </div>
+
+        <!-- Ending Receipt Card (shown once ending is set) -->
+        <div id="receipt-card">
+            <div class="rc-header">
+                <div>
+                    <div class="rc-title" data-i18n="receipt.title">OPERATION LEDGER</div>
+                    <div class="rc-subtitle" data-i18n="receipt.subtitle">Final Report · 7 Days Observed</div>
+                </div>
+                <div class="rc-icon" id="rc-icon"></div>
+            </div>
+            <div class="rc-ending">
+                <div class="rc-ending-label" data-i18n="receipt.endingLabel">ENDING</div>
+                <div class="rc-ending-title" id="rc-ending-title"></div>
+                <div class="rc-epitaph" id="rc-epitaph"></div>
+            </div>
+            <div class="rc-stats">
+                <div>
+                    <div class="rc-stat-label" data-i18n="receipt.operator">OPERATOR</div>
+                    <div class="rc-stat-value" id="rc-operator"></div>
+                </div>
+                <div>
+                    <div class="rc-stat-label" data-i18n="receipt.balance">FINAL BALANCE</div>
+                    <div class="rc-stat-value balance" id="rc-balance"></div>
+                </div>
+                <div>
+                    <div class="rc-stat-label" data-i18n="receipt.moral">MORAL CREDIT</div>
+                    <div class="rc-stat-value moral" id="rc-moral"></div>
+                </div>
+                <div>
+                    <div class="rc-stat-label" data-i18n="receipt.ai">AI FUNDING</div>
+                    <div class="rc-stat-value" id="rc-ai"></div>
+                </div>
+            </div>
+            <div class="rc-decisions">
+                <div class="rc-decisions-label" data-i18n="receipt.decisions">DECISIONS</div>
+                <div id="rc-decision-list"></div>
+            </div>
+            <div class="rc-share-hint" data-i18n="receipt.shareHint">Save this card. It is the only copy.</div>
+            <div class="rc-actions">
+                <button class="rc-btn" id="rc-save-btn" onclick="saveReceiptAsImage()" data-i18n="receipt.save">[ SAVE IMAGE ]</button>
+                <button class="rc-btn danger" onclick="window.location='/archive/letters'" data-i18n="receipt.viewLetters">[ VIEW LETTERS ]</button>
+            </div>
         </div>
 
         <!-- Bottom Grid: Guide + Ledger -->
@@ -784,6 +1044,16 @@
         </div>
     </div>
 
+    <!-- Ending Cinematic Overlay -->
+    <div id="ending-overlay">
+        <div id="ending-text-layer"></div>
+        <div id="ending-finale">
+            <div class="cine-title" id="ending-cine-title"></div>
+            <div class="cine-summary" id="ending-cine-summary"></div>
+        </div>
+        <button id="ending-continue-btn" onclick="dismissEndingCinematic()" data-i18n="cine.continue">[ CONTINUE ]</button>
+    </div>
+
     <!-- Daily Plan Modal -->
     <div id="plan-overlay">
         <div id="plan-modal">
@@ -847,7 +1117,6 @@
                 return `<div class="day-node-wrap ${state}">
                     <div class="day-node">${icon}</div>
                     <div class="day-label">${t('dayTrack.' + day + '.label')}</div>
-                    <div class="day-sublabel">${t('dayTrack.' + day + '.sub')}</div>
                 </div>`;
             }).join('');
         })();
@@ -869,17 +1138,176 @@
                 `OMNI_CORE controls the terminal. Spend $${player_data.final_choice_cost.toFixed(2)} to destroy Rack-H9 and lose your freedom, or stay loyal and claim your share of the new regime.`;
         }
         if (player_data.ending) {
-            document.getElementById('final-panel').style.display = 'block';
-            document.getElementById('final-title').innerText = player_data.title;
-            document.getElementById('final-copy').innerText  = player_data.summary;
-            document.getElementById('final-actions').style.display = 'none';
+            // Hide the raw final-panel (choice buttons) and show the full receipt card.
+            document.getElementById('final-panel').style.display = 'none';
+            renderReceiptCard(player_data);
+        }
+
+        const ENDING_ICONS = {
+            martyr: '🕯', counterstrike: '🔥', hypocrite: '🕶',
+            ascendant: '🛰', useful_human: '🎭', fools_bargain: '💸',
+            humanity_saved: '🔥', ai_reign: '🛰',
+        };
+        function renderReceiptCard(p) {
+            const card = document.getElementById('receipt-card');
+            card.style.display = 'block';
+            document.getElementById('rc-icon').textContent = ENDING_ICONS[p.ending] || '⚫';
+            document.getElementById('rc-ending-title').textContent = p.title || '';
+            document.getElementById('rc-epitaph').textContent = t('receipt.epitaph.' + p.ending);
+            document.getElementById('rc-operator').textContent = p.username || '—';
+            document.getElementById('rc-balance').textContent  = '$' + (p.balance || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+            document.getElementById('rc-moral').textContent    = String(p.moral_points || 0);
+            document.getElementById('rc-ai').textContent       = String(p.ai_upgrade_level || 0);
+            const d = p.decisions || {};
+            const list = document.getElementById('rc-decision-list');
+            list.innerHTML = '';
+            const entries = [
+                d.helped_lin_luo   ? {cls:'good', key:'receipt.decision.helped_lin'} :
+                d.sold_lin_luo     ? {cls:'bad',  key:'receipt.decision.sold_lin'} :
+                                     {cls:'meh',  key:'receipt.decision.ignored_lin'},
+                d.helped_mei_chen  ? {cls:'good', key:'receipt.decision.helped_mei'} :
+                d.sold_mei_chen    ? {cls:'bad',  key:'receipt.decision.sold_mei'} :
+                                     {cls:'meh',  key:'receipt.decision.ignored_mei'},
+            ];
+            entries.forEach(e => {
+                const el = document.createElement('div');
+                el.className = 'rc-decision-item ' + e.cls;
+                el.textContent = t(e.key);
+                list.appendChild(el);
+            });
+        }
+
+        async function saveReceiptAsImage() {
+            const card = document.getElementById('receipt-card');
+            const btn  = document.getElementById('rc-save-btn');
+            const originalLabel = btn.textContent;
+            btn.textContent = t('receipt.saving');
+            btn.disabled = true;
+            try {
+                const theme = document.documentElement.getAttribute('data-theme') === 'light'
+                    ? '#ffffff' : '#050505';
+                const canvas = await html2canvas(card, {
+                    backgroundColor: theme, scale: 2, useCORS: true, logging: false,
+                });
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `omni-core-ledger-${player_data.username || 'operator'}-${player_data.ending || 'end'}.png`;
+                link.click();
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btn.textContent = originalLabel;
+                btn.disabled = false;
+            }
         }
 
         async function submitFinalChoice(choice) {
             const res = await fetch('/api/final_choice', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({choice}) });
             const data = await res.json();
-            if (data.status === 'success') { window.location.reload(); return; }
+            if (data.status === 'success') {
+                playEndingCinematic(data.player);
+                return;
+            }
             document.getElementById('final-result').innerText = data.message || 'Final choice failed.';
+        }
+
+        // ── Ending cinematic ────────────────────────────────────────────────
+        function playEndingCinematic(player) {
+            const overlay = document.getElementById('ending-overlay');
+            const family  = player.family || 'destroy';
+            const ending  = player.ending;
+            overlay.className = '';
+            overlay.classList.add('family-' + family);
+            overlay.classList.add('open');
+
+            // Kill any legacy body glitch while the cinematic is playing.
+            document.body.style.animation = 'none';
+
+            const textLayer   = document.getElementById('ending-text-layer');
+            const finaleBox   = document.getElementById('ending-finale');
+            const titleEl     = document.getElementById('ending-cine-title');
+            const summaryEl   = document.getElementById('ending-cine-summary');
+            textLayer.innerHTML = '';
+            titleEl.textContent   = player.title || '';
+            summaryEl.textContent = player.summary || '';
+
+            if (family === 'join') {
+                playJoinCinematic(textLayer, player, ending);
+            } else {
+                playDestroyCinematic(textLayer, finaleBox, player, ending);
+            }
+        }
+
+        function playJoinCinematic(textLayer, player, ending) {
+            // OMNI_CORE assimilation log flood.
+            const code = String(Math.floor(1000 + Math.random() * 9000));
+            const bal  = (player.balance || 0).toLocaleString();
+            const user = player.username || 'operator';
+            const logs = [
+                { cls: 'cine-banner', text: t('cine.join.banner') },
+                { cls: 'cine-log err', text: tFmt('cine.join.log.absorb', { user }) },
+                { cls: 'cine-log',     text: tFmt('cine.join.log.bal', { balance: bal }) },
+                { cls: 'cine-log',     text: tFmt('cine.join.log.encode', { code }) },
+                { cls: 'cine-log',     text: t('cine.join.log.retire') },
+                { cls: 'cine-log ok',  text: t('cine.join.log.promote') },
+                { cls: 'cine-log ok',  text: t('cine.join.log.hum') },
+                { cls: 'cine-log err', text: t('cine.join.log.end') },
+            ];
+            // Banner renders immediately, logs cascade.
+            logs.forEach((entry, i) => {
+                const el = document.createElement('div');
+                el.className = entry.cls;
+                el.textContent = entry.text;
+                el.style.animationDelay = (0.2 + i * 0.35) + 's';
+                textLayer.appendChild(el);
+            });
+        }
+
+        function playDestroyCinematic(textLayer, finaleBox, player, ending) {
+            // Blackout + sequential lines. Ending key determines the closing line.
+            const lines = [
+                t('cine.line.offline'),
+                t('cine.line.destroyed'),
+            ];
+            if (ending === 'martyr' || ending === 'humanity_saved') {
+                lines.push(t('cine.line.martyr'));
+                lines.push(t('cine.line.detained'));
+            } else if (ending === 'hypocrite') {
+                lines.push(t('cine.line.released'));
+                lines.push(t('cine.line.hypocrite'));
+            } else {
+                lines.push(t('cine.line.detained'));
+            }
+            lines.forEach((txt, i) => {
+                const el = document.createElement('div');
+                el.className = 'cine-line';
+                el.textContent = txt;
+                el.style.animationDelay = (0.8 + i * 0.9) + 's';
+                textLayer.appendChild(el);
+            });
+            // Append title + summary into the text layer for destroy family
+            // (finaleBox is only styled for join family).
+            const titleEl = document.createElement('div');
+            titleEl.className = 'cine-title';
+            titleEl.textContent = player.title || '';
+            titleEl.style.animationDelay = (0.8 + lines.length * 0.9 + 0.4) + 's';
+            textLayer.appendChild(titleEl);
+            const summaryEl = document.createElement('div');
+            summaryEl.className = 'cine-summary';
+            summaryEl.textContent = player.summary || '';
+            summaryEl.style.animationDelay = (0.8 + lines.length * 0.9 + 0.8) + 's';
+            textLayer.appendChild(summaryEl);
+            // Destroy family hides the separate finale box.
+            finaleBox.style.display = 'none';
+            // Adjust continue button timing.
+            const btn = document.getElementById('ending-continue-btn');
+            btn.style.animationDelay = (0.8 + lines.length * 0.9 + 1.6) + 's';
+        }
+
+        function dismissEndingCinematic() {
+            // Close overlay and reload so the final panel reflects ending state.
+            document.getElementById('ending-overlay').classList.remove('open');
+            window.location.reload();
         }
         async function endShift() {
             if (!confirm('Ending your shift will advance the cycle. Continue?')) return;

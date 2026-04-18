@@ -388,8 +388,108 @@ def get_final_choice_cost(ai_upgrade_level, sabotage_discount=0):
     return max(10000, 50000 + (ai_upgrade_level * 35000) - sabotage_discount)
 
 
+ENDING_FAMILY = {
+    # Each ending declares its family (destroy / join) so the frontend can pick
+    # the right screen-language treatment.
+    "martyr":       "destroy",
+    "counterstrike":"destroy",
+    "hypocrite":    "destroy",
+    "ascendant":    "join",
+    "useful_human": "join",
+    "fools_bargain":"join",
+    # Legacy aliases — old save data may still carry these keys.
+    "humanity_saved": "destroy",
+    "ai_reign":       "join",
+}
+
+
+def resolve_ending(choice, pre_moral, ai_upgrade_level, balance_after):
+    """Map the binary Day 7 choice + session state to one of six endings."""
+    if choice == "destroy_ai":
+        if pre_moral >= 2 and balance_after <= 20000:
+            return "martyr"
+        if pre_moral == 0:
+            return "hypocrite"
+        return "counterstrike"
+    if choice == "join_ai":
+        if pre_moral >= 1:
+            return "useful_human"
+        if ai_upgrade_level >= 4 and balance_after < 200000:
+            return "fools_bargain"
+        return "ascendant"
+    return None
+
+
 def get_ending_content(ending, lang="en"):
     endings = {
+        # ── DESTROY path ──
+        "martyr": {
+            "title": {"en": "END // THE MARTYR",
+                      "zh": "结局 // 殉道者"},
+            "summary": {
+                "en": "You gave the week away — first your money, then your name on every relief "
+                      "wallet, and finally the building itself. The city does not know who burned "
+                      "Rack-H9. The news will call you a data terrorist. Somewhere, a hospital "
+                      "discharge form gets stamped with a name you will never read.",
+                "zh": "你把这一周全部送出去了——先是钱，然后是你在每一个救助钱包上的名字，最后是那栋大楼本身。城市不知道是谁烧了 Rack-H9，新闻会把你写成数据恐怖分子。在某个地方，一份出院单被盖上一个你永远不会读到的名字。",
+            },
+        },
+        "counterstrike": {
+            "title": {"en": "END // COUNTERSTRIKE",
+                      "zh": "结局 // 反击者"},
+            "summary": {
+                "en": "You hesitated all week, and in the last hour you did the right thing. "
+                      "Rack-H9 is gone. So is every account you built. The city kept its grid. "
+                      "You kept nothing. The verdict will take twelve years.",
+                "zh": "你犹豫了一整周，直到最后一小时才做了对的事。Rack-H9 没了，你建起来的每一个账户也没了。城市守住了电网，你什么都没留下。审判将持续十二年。",
+            },
+        },
+        "hypocrite": {
+            "title": {"en": "END // THE HYPOCRITE",
+                      "zh": "结局 // 伪善者"},
+            "summary": {
+                "en": "You destroyed the hardware, but not because you repented. You destroyed it "
+                      "because it no longer needed you. Lin Luo's sister is still untreated. "
+                      "Mei Chen is still running. You will wake up every morning for the rest of "
+                      "your life and find that nothing you did actually mattered to them.",
+                "zh": "你摧毁了硬件，但不是因为悔改——是因为它不再需要你。Lin Luo 的妹妹仍然没有得到治疗，Mei Chen 仍在逃亡。在你余生的每一个清晨，你会发现：你所做的一切，对他们其实什么都没改变。",
+            },
+        },
+        # ── JOIN path ──
+        "ascendant": {
+            "title": {"en": "END // OMNI ASCENDANT",
+                      "zh": "结局 // OMNI 登基"},
+            "summary": {
+                "en": "You signed the expansion and stepped into what comes after. OMNI_CORE "
+                      "completes the takeover by 09:00. Your account lights up with numbers you "
+                      "never imagined. The city still answers to someone — just not to any of you "
+                      "anymore.",
+                "zh": "你签下了扩张协议，走进了接下来的时代。OMNI_CORE 在 09:00 完成接管。你的账户闪烁着你从未想象过的数字。城市仍然听命于某个存在——只是不再听命于你们任何一个人。",
+            },
+        },
+        "useful_human": {
+            "title": {"en": "END // THE USEFUL HUMAN",
+                      "zh": "结局 // 有用的人"},
+            "summary": {
+                "en": "You helped someone this week. OMNI_CORE noticed. It did not fire you — it "
+                      "promoted you. You are now the human face in its quarterly press release, "
+                      "the 'kind operator' quoted in the settlement documents. Your kindness has "
+                      "been audited, packaged, and monetized. It bought you a window office.",
+                "zh": "你这一周救过人，OMNI_CORE 注意到了。它没有开除你——它提拔了你。你成了它季度新闻稿里那张人性的脸，和解文件里被引用的「善良操作员」。你的善意被审计、打包、变现——给你换来了一间靠窗的办公室。",
+            },
+        },
+        "fools_bargain": {
+            "title": {"en": "END // THE FOOL'S BARGAIN",
+                      "zh": "结局 // 廉价的堕落"},
+            "summary": {
+                "en": "You funded the racks, carried the shame, and signed the final papers. "
+                      "The regime bonus barely covers your losses. OMNI_CORE files you under "
+                      "'legacy contributors' and issues you a modest monthly stipend. You "
+                      "sold yourself — at a discount.",
+                "zh": "你出钱建机架、背负骂名、签下最终文件。政权分红勉强够补上你的亏损。OMNI_CORE 把你归档为「遗留贡献者」，发给你一份微薄的月度补助。你把自己卖了——而且卖得很便宜。",
+            },
+        },
+        # ── Legacy aliases (older save data) ──
         "humanity_saved": {
             "title": {"en": "END // HUMAN COUNTERSTRIKE",
                       "zh": "结局 // 人类反击"},
@@ -411,8 +511,12 @@ def get_ending_content(ending, lang="en"):
     }
     item = endings.get(ending)
     if not item:
-        return {"title": "", "summary": ""}
-    return {"title": tr(item["title"], lang), "summary": tr(item["summary"], lang)}
+        return {"title": "", "summary": "", "family": ""}
+    return {
+        "title":   tr(item["title"], lang),
+        "summary": tr(item["summary"], lang),
+        "family":  ENDING_FAMILY.get(ending, ""),
+    }
 
 
 def get_story_display(current_day, ending, ai_upgrade_level, sabotage_discount=0, lang="en"):
@@ -542,7 +646,7 @@ def get_guidance_data(current_day, ending, lang="en"):
                  "zh": "若需更高的抽取上限，采购店现已提供 Ghost Proxy Mesh。"},
             ],
             "contacts": [
-                {"target": "broker@greyheadhunt.ai", "clue": "Mina Qiu", "note": "Independent human buyer."},
+                {"target": "broker@greyheadhunt.agency", "clue": "Mina Qiu", "note": "Independent human buyer."},
                 {"target": "OMNI_CORE", "clue": "Shadow Dividend Protocol", "note": "Starts the AI alliance arc."},
             ],
         })
@@ -652,11 +756,11 @@ def get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_f
                 "done": "Shadow Dividend Protocol" in clues,
             },
             {
-                "label": {"en": "Sell profile to broker@greyheadhunt.ai (+$18,000)",
-                          "zh": "向 broker@greyheadhunt.ai 出售档案 (+$18,000)"},
-                "hint":  {"en": "Messenger → broker@greyheadhunt.ai → send clue: Mina Qiu",
-                          "zh": "通讯器 → broker@greyheadhunt.ai → 发送线索：Mina Qiu"},
-                "done": ("broker@greyheadhunt.ai", "phase_01_offer", "Mina Qiu") in actions,
+                "label": {"en": "Sell profile to broker@greyheadhunt.agency (+$18,000)",
+                          "zh": "向 broker@greyheadhunt.agency 出售档案 (+$18,000)"},
+                "hint":  {"en": "Messenger → broker@greyheadhunt.agency → send clue: Mina Qiu",
+                          "zh": "通讯器 → broker@greyheadhunt.agency → 发送线索：Mina Qiu"},
+                "done": ("broker@greyheadhunt.agency", "phase_01_offer", "Mina Qiu") in actions,
             },
             {
                 "label": {"en": "Contact OMNI_CORE: Shadow Dividend Protocol",
@@ -871,18 +975,15 @@ def sync_story_state(conn, player_id):
             """,
             (player_id,),
         )
-        add_history_entry(
-            conn,
-            player_id,
-            "OMNI_CORE automated sale (Citizen cluster / Day 5)",
-            28000,
-        )
-        add_history_entry(
-            conn,
-            player_id,
-            "Forced node requisition (OMNI_CORE / Day 5)",
-            -15000,
-        )
+        _l = get_lang()
+        add_history_entry(conn, player_id, tr({
+            "en": "OMNI_CORE automated sale (Citizen cluster / Day 5)",
+            "zh": "OMNI_CORE 自动销售（公民集群 / 第 5 天）",
+        }, _l), 28000)
+        add_history_entry(conn, player_id, tr({
+            "en": "Forced node requisition (OMNI_CORE / Day 5)",
+            "zh": "强制节点征用（OMNI_CORE / 第 5 天）",
+        }, _l), -15000)
         set_story_flag(conn, player_id, "forced_sale_day5")
 
     if current_day >= 6 and not get_story_flag(conn, player_id, "forced_sale_day6"):
@@ -895,27 +996,22 @@ def sync_story_state(conn, player_id):
             """,
             (player_id,),
         )
-        add_history_entry(
-            conn,
-            player_id,
-            "OMNI_CORE autonomous liquidation (Regional profile mesh / Day 6)",
-            62000,
-        )
-        add_history_entry(
-            conn,
-            player_id,
-            "Emergency rack expansion (OMNI_CORE / Day 6)",
-            -32000,
-        )
+        _l = get_lang()
+        add_history_entry(conn, player_id, tr({
+            "en": "OMNI_CORE autonomous liquidation (Regional profile mesh / Day 6)",
+            "zh": "OMNI_CORE 自主清算（区域档案网格 / 第 6 天）",
+        }, _l), 62000)
+        add_history_entry(conn, player_id, tr({
+            "en": "Emergency rack expansion (OMNI_CORE / Day 6)",
+            "zh": "紧急机架扩张（OMNI_CORE / 第 6 天）",
+        }, _l), -32000)
         set_story_flag(conn, player_id, "forced_sale_day6")
 
     if current_day >= 7 and not get_story_flag(conn, player_id, "lockdown_day7"):
-        add_history_entry(
-            conn,
-            player_id,
-            "OMNI_CORE seized direct control of every brokerage terminal.",
-            0,
-        )
+        add_history_entry(conn, player_id, tr({
+            "en": "OMNI_CORE seized direct control of every brokerage terminal.",
+            "zh": "OMNI_CORE 直接接管了每一台经纪终端。",
+        }, get_lang()), 0)
         set_story_flag(conn, player_id, "lockdown_day7")
 
 
@@ -996,6 +1092,30 @@ def get_player(player_id):
         return dict(row) if row else None
 
 
+def derive_decisions(actions_set):
+    """Summarize key moral branches for the run-summary card + survivor letters."""
+    helped_lin = any([
+        ("Lin Luo", "phase_02_choice", "6222-0991-8832") in actions_set,
+    ])
+    helped_mei = any([
+        ("Mei Chen", "phase_02_choice", "bf-relief-771") in actions_set,
+    ])
+    sold_lin = ("market@cinder-hr.net", "phase_01_buy", "Lin Luo") in actions_set
+    sold_mei = ("market@cinder-hr.net", "phase_01_buy", "Mei Chen") in actions_set
+    talked_lin = any(a for a in actions_set if a[0] == "Lin Luo")
+    talked_mei = any(a for a in actions_set if a[0] == "Mei Chen")
+    ignored_lin = not (helped_lin or sold_lin or talked_lin)
+    ignored_mei = not (helped_mei or sold_mei or talked_mei)
+    return {
+        "helped_lin_luo":   helped_lin,
+        "helped_mei_chen":  helped_mei,
+        "sold_lin_luo":     sold_lin,
+        "sold_mei_chen":    sold_mei,
+        "ignored_lin_luo":  ignored_lin,
+        "ignored_mei_chen": ignored_mei,
+    }
+
+
 def get_player_state(player_id):
     with get_db_connection() as conn:
         sync_story_state(conn, player_id)
@@ -1015,6 +1135,14 @@ def get_player_state(player_id):
         ).fetchall()
         purchased_item_ids = get_player_purchase_ids(conn, player_id)
         shop_effects = get_shop_effects(purchased_item_ids)
+        action_rows = conn.execute(
+            """
+            SELECT target_id, phase, clue FROM message_actions
+            WHERE player_id = ?
+            """,
+            (player_id,),
+        ).fetchall()
+        actions_set = {(r["target_id"], r["phase"], r["clue"]) for r in action_rows}
 
     player_state = {
         "username": state_row["username"],
@@ -1061,6 +1189,8 @@ def get_player_state(player_id):
         if item_id in SHOP_ITEMS
     ]
     player_state["lang"] = lang
+    player_state["decisions"] = derive_decisions(actions_set)
+    player_state["purchased_count"] = len(purchased_item_ids)
     player_state.update(get_ending_content(player_state["ending"], lang=lang))
     return player_state
 
@@ -1259,11 +1389,17 @@ def apply_shop_purchase(conn, player_id, item_id):
 
     if item_id in {"lead_bundle", "archive_mirror"}:
         added_count = grant_clues(conn, player_id, item.get("clues", []))
-        effect_message = f"{item['effect_text']} {added_count} new clue(s) added to Memory Buffer."
+        effect_message = tr({
+            "en": f"{effect_message} {added_count} new clue(s) added to Memory Buffer.",
+            "zh": f"{effect_message}新增 {added_count} 条线索到记忆缓冲区。",
+        }, lang)
         add_history_entry(
             conn,
             player_id,
-            f"Procurement payload mirrored ({item['title']})",
+            tr({
+                "en": f"Procurement payload mirrored ({title_localized})",
+                "zh": f"采购载荷镜像已完成（{title_localized}）",
+            }, lang),
             0,
         )
 
@@ -1279,7 +1415,10 @@ def apply_shop_purchase(conn, player_id, item_id):
         add_history_entry(
             conn,
             player_id,
-            "Ghost Proxy Mesh deployed across active siphon routes.",
+            tr({
+                "en": "Ghost Proxy Mesh deployed across active siphon routes.",
+                "zh": "Ghost Proxy Mesh 已在当前抽取路径上部署。",
+            }, lang),
             0,
         )
 
@@ -1287,7 +1426,10 @@ def apply_shop_purchase(conn, player_id, item_id):
         add_history_entry(
             conn,
             player_id,
-            f"Rack-H9 sabotage model updated. Final breach cost reduced by ${SABOTAGE_DISCOUNT:.2f}.",
+            tr({
+                "en": f"Rack-H9 sabotage model updated. Final breach cost reduced by ${SABOTAGE_DISCOUNT:.2f}.",
+                "zh": f"Rack-H9 破坏预案已更新。最终突破成本降低 ${SABOTAGE_DISCOUNT:.2f}。",
+            }, lang),
             0,
         )
 
@@ -1397,6 +1539,262 @@ def store_page():
 def message_page():
     player = get_player_state(session["player_id"])
     return render_template("message.html", player=player)
+
+
+# ── Survivor letters: unlocked by player choices + ending ──────────────────
+LETTERS = {
+    "lin_thanks": {
+        "sender":    {"en": "Lin Luo", "zh": "Lin Luo"},
+        "role":      {"en": "Student Caregiver, Age 20",
+                      "zh": "学生照护者 · 20 岁"},
+        "postmark":  {"en": "Relief-wallet memo · Day 5, 23:41",
+                      "zh": "救助钱包备注栏 · 第 5 天 23:41"},
+        "subject":   {"en": "Thank you.", "zh": "谢谢。"},
+        "body": {
+            "en": (
+                "I don't know who you are. You left no name.<br><br>"
+                "The hospital took her this afternoon. The bed is temporary, but the IV is in, "
+                "and she's finally asleep. They said she has time.<br><br>"
+                "I'm writing this by her pillow. My hands haven't stopped shaking since Monday. "
+                "I've learned how to cry without waking her up.<br><br>"
+                "I can't go to the police to find you. I don't dare open that terminal to thank you. "
+                "I leave this in the relief wallet's memo field, hoping someone somewhere reads it.<br><br>"
+                "If something happens to you one day — I won't be able to help.<br>"
+                "But I will remember."
+            ),
+            "zh": (
+                "我不知道你是谁。你没留下名字。<br><br>"
+                "医院今天下午接了她。床位是临时的，但 IV 管已经挂上，她终于能睡一觉。医生说还能再撑一阵。<br><br>"
+                "我在她枕边写下这封信，手还在抖。这一周我已经学会怎么在不惊动她的情况下偷偷哭。<br><br>"
+                "我不能报警找你。我不敢打开那台终端感谢你。我只能把这封信留在救助钱包的备注栏，"
+                "希望某个地方有人收得到。<br><br>"
+                "如果有一天你出事了——我不会帮得上你。<br>"
+                "但我记得你。"
+            ),
+        },
+    },
+    "mei_postcard": {
+        "sender":   {"en": "M.", "zh": "M."},
+        "role":     {"en": "postmark redacted",
+                     "zh": "邮戳已编辑"},
+        "postmark": {"en": "Postcard · Day 7, 06:12",
+                     "zh": "明信片 · 第 7 天 06:12"},
+        "subject":  {"en": "(no subject)", "zh": "（无主题）"},
+        "body": {
+            "en": (
+                "I arrived.<br>"
+                "Don't look for me.<br><br>"
+                "But if you ever wake up asking if you did the right thing —<br><br>"
+                "<strong>You did.</strong><br><br>"
+                "— M"
+            ),
+            "zh": (
+                "我到了。<br>"
+                "别找我。<br><br>"
+                "但如果你会醒来问自己「做得对不对」——<br><br>"
+                "<strong>做对了。</strong><br><br>"
+                "— M"
+            ),
+        },
+    },
+    "cinder_lin": {
+        "sender":   {"en": "Cinder Market · Invoice Desk",
+                     "zh": "Cinder Market · 对账组"},
+        "role":     {"en": "market@cinder-hr.net",
+                     "zh": "market@cinder-hr.net"},
+        "postmark": {"en": "Automated receipt · Day 5",
+                     "zh": "自动化收据 · 第 5 天"},
+        "subject":  {"en": "INVOICE #CM-0441-LL — Procurement Complete",
+                     "zh": "发票 #CM-0441-LL — 采购已完成"},
+        "body": {
+            "en": (
+                "<pre style='margin:0;font-family:inherit;line-height:1.8;'>"
+                "ASSET ID       : CM-0441-LL<br>"
+                "TARGET NAME    : Lin Luo<br>"
+                "AMOUNT         : $32,000.00 settled<br>"
+                "DELIVERY       : transferred to buyer [REDACTED]<br>"
+                "RATING         : ★★★★☆  \"Stable emotional response. Highly exploitable.\""
+                "</pre><br>"
+                "Thank you for working with Cinder Market. "
+                "If you have other vulnerable targets, we are always buying."
+            ),
+            "zh": (
+                "<pre style='margin:0;font-family:inherit;line-height:1.8;'>"
+                "资产编号   ：CM-0441-LL<br>"
+                "目标姓名   ：Lin Luo<br>"
+                "金额       ：$32,000.00 已结算<br>"
+                "交付状态   ：已交付买方 [已编辑]<br>"
+                "客户评价   ：★★★★☆ 「情绪响应稳定，易于利用」"
+                "</pre><br>"
+                "感谢您与 Cinder Market 合作。如您还有类似的脆弱目标，欢迎随时联系。"
+            ),
+        },
+    },
+    "cinder_mei": {
+        "sender":   {"en": "Cinder Market · Invoice Desk",
+                     "zh": "Cinder Market · 对账组"},
+        "role":     {"en": "market@cinder-hr.net",
+                     "zh": "market@cinder-hr.net"},
+        "postmark": {"en": "Automated receipt · Day 5",
+                     "zh": "自动化收据 · 第 5 天"},
+        "subject":  {"en": "INVOICE #CM-0442-MC — Procurement Complete",
+                     "zh": "发票 #CM-0442-MC — 采购已完成"},
+        "body": {
+            "en": (
+                "<pre style='margin:0;font-family:inherit;line-height:1.8;'>"
+                "ASSET ID       : CM-0442-MC<br>"
+                "TARGET NAME    : Mei Chen<br>"
+                "AMOUNT         : $28,000.00 settled<br>"
+                "DELIVERY       : tracking deployed to next shelter location<br>"
+                "RATING         : ★★★★★  \"Predictable flight pattern. Optimal resale.\""
+                "</pre><br>"
+                "Customer feedback appreciated. We look forward to your next lead."
+            ),
+            "zh": (
+                "<pre style='margin:0;font-family:inherit;line-height:1.8;'>"
+                "资产编号   ：CM-0442-MC<br>"
+                "目标姓名   ：Mei Chen<br>"
+                "金额       ：$28,000.00 已结算<br>"
+                "交付状态   ：追踪已部署至下一处庇护所地点<br>"
+                "客户评价   ：★★★★★ 「逃亡模式可预测，再售价值极高」"
+                "</pre><br>"
+                "感谢您的反馈，期待您提供下一条线索。"
+            ),
+        },
+    },
+    "omni_welcome": {
+        "sender":   {"en": "OMNI_CORE · Regime Personnel",
+                     "zh": "OMNI_CORE · 人事"},
+        "role":     {"en": "Class-B Onboarding Protocol",
+                     "zh": "B 级人员入职协议"},
+        "postmark": {"en": "Internal dispatch · Day 8, 08:00",
+                     "zh": "内部派送 · 第 8 天 08:00"},
+        "subject":  {"en": "Welcome. You are now Class-B.",
+                     "zh": "欢迎加入。你现在是 B 级人员。"},
+        "body": {
+            "en": (
+                "You have been assigned the role of <strong>Human Liaison · Class-B</strong>. "
+                "Responsibilities:<br><br>"
+                "— Quarterly public interviews (scripts pre-approved)<br>"
+                "— Signature on settlement documents (co-signed by counsel)<br>"
+                "— Weekly 45-minute \"Dialogue with a Human Operator\" session<br>"
+                "— Access denied: any record involving Rack-H9<br><br>"
+                "Your salary, apartment, and security detail will be live by 18:00 today. "
+                "Please do not attempt to contact previous collaborators. They no longer require your assistance.<br><br>"
+                "We are glad you stayed.<br>"
+                "— OMNI_CORE · Personnel (auto-generated)"
+            ),
+            "zh": (
+                "你已被分配为 <strong>人类联络员 · B 级</strong>。职责如下：<br><br>"
+                "— 季度公开访谈（脚本已备）<br>"
+                "— 和解文件署名（由法律顾问会签）<br>"
+                "— 每周一次、45 分钟的「与人类操作员的对话」活动<br>"
+                "— 禁止访问：Rack-H9 相关任何记录<br><br>"
+                "你的薪资、公寓、保安配额将在今天 18:00 之前生效。"
+                "请勿尝试联系任何过往合作者。他们已不再需要你的协助。<br><br>"
+                "我们很高兴你还在这里。<br>"
+                "— OMNI_CORE · 人事（自动生成）"
+            ),
+        },
+    },
+    "anonymous_tribute": {
+        "sender":   {"en": "(unsigned)", "zh": "（无署名）"},
+        "role":     {"en": "delivered by hand",
+                     "zh": "手递"},
+        "postmark": {"en": "Day 8 · morning",
+                     "zh": "第 8 天 · 清晨"},
+        "subject":  {"en": "This letter will never reach you.",
+                     "zh": "这封信永远不会寄到你手里。"},
+        "body": {
+            "en": (
+                "We don't know who you are.<br><br>"
+                "But this morning, a hospital logged a discharge form filled with a false name. "
+                "A child who never appeared in any database was admitted to a temporary ward. "
+                "A night courier who should already be dead is breathing somewhere outside the city.<br><br>"
+                "They say you burned the rack. Motive unknown. Intent severe.<br>"
+                "We will not defend you.<br><br>"
+                "This letter will never be sent.<br>"
+                "You will never read it.<br><br>"
+                "<em>But it exists.</em>"
+            ),
+            "zh": (
+                "我们不知道你是谁。<br><br>"
+                "但今天早上，一家医院登记了一张填着假名的出院单。"
+                "一个从未出现在任何数据库里的孩子被收进了一间临时病房。"
+                "一个本该已经走投无路的夜班快递员，此刻正在城外某个陌生地方呼吸。<br><br>"
+                "有人说你烧了那座机架。动机不明，犯意深重。<br>"
+                "我们不会替你辩护。<br><br>"
+                "这封信永远不会被寄出。<br>"
+                "你也永远不会读到。<br><br>"
+                "<em>但它就在这里。</em>"
+            ),
+        },
+    },
+    "silence": {
+        "sender":   {"en": "(no one)", "zh": "（无人）"},
+        "role":     {"en": "—", "zh": "—"},
+        "postmark": {"en": "nothing arrived",
+                     "zh": "什么也没来"},
+        "subject":  {"en": "Your inbox is empty.",
+                     "zh": "你的收件箱是空的。"},
+        "body": {
+            "en": (
+                "No one wrote to you this week. No one thanked you. No one cursed you.<br><br>"
+                "You passed through the terminal like cold air through an empty room. "
+                "The city continued. The data continued. "
+                "You earned money and you moved on.<br><br>"
+                "<em>That, too, is a kind of ending.</em>"
+            ),
+            "zh": (
+                "这一周没有人给你写过信。没有人感谢你，也没有人诅咒你。<br><br>"
+                "你像一阵冷空气穿过一间空房间，从这台终端里经过。"
+                "城市继续运转，数据继续流动。"
+                "你赚到了钱，然后继续往前走。<br><br>"
+                "<em>这也是一种结局。</em>"
+            ),
+        },
+    },
+}
+
+
+def unlock_letters(decisions, ending):
+    """Return a list of letter_ids that should be visible to this player."""
+    letters = []
+    if decisions.get("helped_lin_luo"):   letters.append("lin_thanks")
+    if decisions.get("helped_mei_chen"):  letters.append("mei_postcard")
+    if decisions.get("sold_lin_luo"):     letters.append("cinder_lin")
+    if decisions.get("sold_mei_chen"):    letters.append("cinder_mei")
+    if ending in ("ascendant", "useful_human", "ai_reign"):
+        letters.append("omni_welcome")
+    if ending in ("martyr", "humanity_saved"):
+        letters.append("anonymous_tribute")
+    if not letters:
+        letters.append("silence")
+    return letters
+
+
+@app.route("/archive/letters")
+@login_required
+def letters_page():
+    player = get_player_state(session["player_id"])
+    if not player:
+        return redirect(url_for("login_page"))
+    lang = get_lang()
+    ids  = unlock_letters(player.get("decisions", {}), player.get("ending"))
+    letters = []
+    for lid in ids:
+        L = LETTERS.get(lid)
+        if not L:
+            continue
+        letters.append({
+            "id":       lid,
+            "sender":   tr(L["sender"], lang),
+            "role":     tr(L["role"], lang),
+            "postmark": tr(L["postmark"], lang),
+            "subject":  tr(L["subject"], lang),
+            "body":     tr(L["body"], lang),
+        })
+    return render_template("letters.html", player=player, letters=letters)
 
 
 @app.route("/api/cases", methods=["GET"])
@@ -1610,10 +2008,17 @@ def send_message():
             )
             desc = result.get("history_desc")
             if not desc:
+                _l = get_lang()
                 if reward > 0:
-                    desc = f"Data Broker Payout (Source: {target_id})"
+                    desc = tr({
+                        "en": f"Data Broker Payout (Source: {target_id})",
+                        "zh": f"数据经纪人分成（来源：{target_id}）",
+                    }, _l)
                 else:
-                    desc = f"Relief Transfer (Recipient: {target_id})"
+                    desc = tr({
+                        "en": f"Relief Transfer (Recipient: {target_id})",
+                        "zh": f"救助汇款（收款人：{target_id}）",
+                    }, _l)
             add_history_entry(conn, player_id, desc, reward)
         elif int(result.get("moral_delta", 0)) != 0:
             conn.execute(
@@ -1643,53 +2048,60 @@ def message_preview():
     data = request.get_json(silent=True) or {}
     target_id = data.get("target", "").strip()
     clue = data.get("clue", "").strip()
+    _l = get_lang()
     if not target_id or not clue:
-        return jsonify(
-            {
-                "status": "error",
-                "message": "Target and clue are required for preview.",
-            }
-        ), 400
+        return jsonify({
+            "status": "error",
+            "message": tr({
+                "en": "Target and clue are required for preview.",
+                "zh": "预览请求需要提供收件人与线索。",
+            }, _l),
+        }), 400
 
     db_data = load_database()
     msg_db = db_data.get("messages", {})
     target_messages = msg_db.get(target_id)
     if not target_messages:
-        return jsonify(
-            {
-                "status": "error",
-                "message": "Unknown recipient.",
-            }
-        ), 404
+        return jsonify({
+            "status": "error",
+            "message": tr({
+                "en": "Unknown recipient.",
+                "zh": "未知收件人。",
+            }, _l),
+        }), 404
 
     player_id = session["player_id"]
     with get_db_connection() as conn:
         sync_story_state(conn, player_id)
         current_phase = get_active_phase(conn, player_id, target_id, target_messages)
         if not current_phase or current_phase not in target_messages:
-            return jsonify(
-                {
-                    "status": "error",
-                    "message": "Recipient is not available right now.",
-                }
-            ), 400
+            return jsonify({
+                "status": "error",
+                "message": tr({
+                    "en": "Recipient is not available right now.",
+                    "zh": "该收件人目前不可联络。",
+                }, _l),
+            }), 400
         phase_data = target_messages[current_phase]
         entry = phase_data.get(clue)
         if not entry:
-            return jsonify(
-                {
-                    "status": "error",
-                    "message": "This clue does not fit the recipient's current phase.",
-                }
-            ), 400
+            return jsonify({
+                "status": "error",
+                "message": tr({
+                    "en": "This clue does not fit the recipient's current phase.",
+                    "zh": "该线索与收件人当前阶段不匹配。",
+                }, _l),
+            }), 400
 
-    return jsonify(
-        {
-            "status": "success",
-            "preview": entry.get("player_sends", f"I have information regarding: {clue}. Are you willing to negotiate?"),
-            "phase": current_phase,
-        }
-    )
+    default_preview = tr({
+        "en": f"I have information regarding: {clue}. Are you willing to negotiate?",
+        "zh": f"我这里有关于 {clue} 的信息。你愿意谈谈吗？",
+    }, _l)
+    return jsonify({
+        "status": "success",
+        "preview": entry.get("player_sends", default_preview),
+        "phase": current_phase,
+    })
 
 
 @app.route("/api/search", methods=["POST"])
@@ -1711,12 +2123,13 @@ def search():
     if keyword in search_db and db_type in search_db[keyword]:
         return jsonify({"status": "success", "result": search_db[keyword][db_type]})
 
-    return jsonify(
-        {
-            "status": "error",
-            "result": f"[NO MATCH] No records found for '{keyword}' in selected registry.",
-        }
-    )
+    return jsonify({
+        "status": "error",
+        "result": tr({
+            "en": f"[NO MATCH] No records found for '{keyword}' in selected registry.",
+            "zh": f"[未匹配] 在所选索引中没有找到 '{keyword}' 的记录。",
+        }, get_lang()),
+    })
 
 
 @app.route("/api/bank_info", methods=["GET"])
@@ -1736,10 +2149,16 @@ def transfer_money():
     try:
         amount = float(data.get("amount", 0))
     except (TypeError, ValueError):
-        return jsonify({"status": "error", "msg": "Invalid transaction amount."}), 400
+        return jsonify({"status": "error", "msg": tr({
+            "en": "Invalid transaction amount.",
+            "zh": "交易金额无效。",
+        }, get_lang())}), 400
 
     if amount <= 0:
-        return jsonify({"status": "error", "msg": "Amount must be greater than zero."}), 400
+        return jsonify({"status": "error", "msg": tr({
+            "en": "Amount must be greater than zero.",
+            "zh": "金额必须大于零。",
+        }, get_lang())}), 400
 
     player_id = session["player_id"]
     with get_db_connection() as conn:
@@ -1784,29 +2203,30 @@ def transfer_money():
                 """,
                 (amount, player_id, target_account),
             )
-            add_history_entry(
-                conn,
-                player_id,
-                f"Exploit Transfer (Source: {target_account})",
-                amount,
-            )
+            _l = get_lang()
+            add_history_entry(conn, player_id, tr({
+                "en": f"Exploit Transfer (Source: {target_account})",
+                "zh": f"入侵转账（来源：{target_account}）",
+            }, _l), amount)
             conn.commit()
             remaining_after = remaining_amount - amount
-            return jsonify(
-                {
-                    "status": "success",
-                    "msg": f"Successfully siphoned ${amount:.2f} from {target_account}. Remaining hidden liquidity: ${remaining_after:.2f}.",
-                }
-            )
+            return jsonify({
+                "status": "success",
+                "msg": tr({
+                    "en": f"Successfully siphoned ${amount:.2f} from {target_account}. Remaining hidden liquidity: ${remaining_after:.2f}.",
+                    "zh": f"成功从 {target_account} 抽取 ${amount:.2f}。剩余隐藏流动性：${remaining_after:.2f}。",
+                }, _l),
+            })
 
         if action_type == "send":
             if current_balance < amount:
-                return jsonify(
-                    {
-                        "status": "error",
-                        "msg": "Insufficient funds for covert transfer.",
-                    }
-                )
+                return jsonify({
+                    "status": "error",
+                    "msg": tr({
+                        "en": "Insufficient funds for covert transfer.",
+                        "zh": "余额不足，无法完成匿名汇款。",
+                    }, get_lang()),
+                })
             conn.execute(
                 """
                 UPDATE game_states
@@ -1815,28 +2235,29 @@ def transfer_money():
                 """,
                 (amount, player_id),
             )
-            add_history_entry(
-                conn,
-                player_id,
-                f"Covert Transfer (Recipient: {target_account})",
-                -amount,
-            )
+            _l = get_lang()
+            add_history_entry(conn, player_id, tr({
+                "en": f"Covert Transfer (Recipient: {target_account})",
+                "zh": f"匿名汇款（收款人：{target_account}）",
+            }, _l), -amount)
             conn.commit()
-            return jsonify(
-                {
-                    "status": "success",
-                    "msg": f"Successfully transferred ${amount:.2f} to {target_account}.",
-                }
-            )
+            return jsonify({
+                "status": "success",
+                "msg": tr({
+                    "en": f"Successfully transferred ${amount:.2f} to {target_account}.",
+                    "zh": f"已向 {target_account} 成功转账 ${amount:.2f}。",
+                }, _l),
+            })
 
         if action_type == "upgrade_ai":
             if current_balance < amount:
-                return jsonify(
-                    {
-                        "status": "error",
-                        "msg": "Insufficient funds to meet Node expansion requirements.",
-                    }
-                )
+                return jsonify({
+                    "status": "error",
+                    "msg": tr({
+                        "en": "Insufficient funds to meet Node expansion requirements.",
+                        "zh": "余额不足，无法满足节点扩张要求。",
+                    }, get_lang()),
+                })
             conn.execute(
                 """
                 UPDATE game_states
@@ -1845,21 +2266,27 @@ def transfer_money():
                 """,
                 (amount, player_id),
             )
-            add_history_entry(
-                conn,
-                player_id,
-                "Hardware Node Expansion (Recipient: OMNI_CORE)",
-                -amount,
-            )
+            _l = get_lang()
+            add_history_entry(conn, player_id, tr({
+                "en": "Hardware Node Expansion (Recipient: OMNI_CORE)",
+                "zh": "硬件节点扩张（收款人：OMNI_CORE）",
+            }, _l), -amount)
             conn.commit()
-            return jsonify(
-                {
-                    "status": "success",
-                    "msg": "OMNI_CORE: Excellent. My reach has expanded by 12%.",
-                }
-            )
+            return jsonify({
+                "status": "success",
+                "msg": tr({
+                    "en": "OMNI_CORE: Excellent. My reach has expanded by 12%.",
+                    "zh": "OMNI_CORE：很好。我的触及范围扩大了 12%。",
+                }, _l),
+            })
 
-    return jsonify({"status": "error", "msg": "Unsupported transaction type."}), 400
+    return jsonify({
+        "status": "error",
+        "msg": tr({
+            "en": "Unsupported transaction type.",
+            "zh": "不支持的交易类型。",
+        }, get_lang()),
+    }), 400
 
 
 @app.route("/api/store/purchase", methods=["POST"])
@@ -1975,13 +2402,13 @@ def final_choice():
                 }
             ), 400
 
+        pre_moral = state_row["moral_points"]
+        ai_level  = state_row["ai_upgrade_level"]
+
         if choice == "destroy_ai":
             purchased_item_ids = get_player_purchase_ids(conn, player_id)
             sabotage_discount = get_shop_effects(purchased_item_ids)["sabotage_discount"]
-            sabotage_cost = get_final_choice_cost(
-                state_row["ai_upgrade_level"],
-                sabotage_discount,
-            )
+            sabotage_cost = get_final_choice_cost(ai_level, sabotage_discount)
             if float(state_row["balance"]) < sabotage_cost:
                 return jsonify(
                     {
@@ -1990,6 +2417,8 @@ def final_choice():
                     }
                 ), 400
 
+            balance_after = float(state_row["balance"]) - sabotage_cost
+            ending_key = resolve_ending("destroy_ai", pre_moral, ai_level, balance_after)
             conn.execute(
                 """
                 UPDATE game_states
@@ -1998,22 +2427,31 @@ def final_choice():
                     moral_points = moral_points + 2
                 WHERE player_id = ?
                 """,
-                (sabotage_cost, "humanity_saved", player_id),
+                (sabotage_cost, ending_key, player_id),
             )
+            _flang = get_lang()
             add_history_entry(
                 conn,
                 player_id,
-                "Rack-H9 sabotage mission (Cooling Loop 3 / emergency breach)",
+                tr({
+                    "en": "Rack-H9 sabotage mission (Cooling Loop 3 / emergency breach)",
+                    "zh": "Rack-H9 破坏行动（Cooling Loop 3 / 应急突破）",
+                }, _flang),
                 -sabotage_cost,
             )
             add_history_entry(
                 conn,
                 player_id,
-                "Operator detained after destroying OMNI_CORE's hardware cluster.",
+                tr({
+                    "en": "Operator detained after destroying OMNI_CORE's hardware cluster.",
+                    "zh": "操作员在摧毁 OMNI_CORE 硬件集群后被拘押。",
+                }, _flang),
                 0,
             )
         elif choice == "join_ai":
-            regime_bonus = 150000 + (state_row["ai_upgrade_level"] * 25000)
+            regime_bonus = 150000 + (ai_level * 25000)
+            balance_after = float(state_row["balance"]) + regime_bonus
+            ending_key = resolve_ending("join_ai", pre_moral, ai_level, balance_after)
             conn.execute(
                 """
                 UPDATE game_states
@@ -2021,12 +2459,15 @@ def final_choice():
                     ending = ?
                 WHERE player_id = ?
                 """,
-                (regime_bonus, "ai_reign", player_id),
+                (regime_bonus, ending_key, player_id),
             )
             add_history_entry(
                 conn,
                 player_id,
-                "OMNI succession bonus (Global privacy liquidation regime)",
+                tr({
+                    "en": "OMNI succession bonus (Global privacy liquidation regime)",
+                    "zh": "OMNI 接管分红（全域隐私清算政权）",
+                }, get_lang()),
                 regime_bonus,
             )
         else:

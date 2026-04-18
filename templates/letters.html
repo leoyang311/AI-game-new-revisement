@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Survivor Archive</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #050505; color: #e8ffe8;
+            font-family: 'Courier New', Consolas, monospace;
+            margin: 0; padding: 0; min-height: 100vh; font-size: 15px;
+            display: flex; flex-direction: column;
+        }
+        #nav-bar {
+            background: #000d00; border-bottom: 1px solid #005500;
+            padding: 11px 24px; display: flex; align-items: center;
+            justify-content: space-between; flex-shrink: 0;
+        }
+        #nav-left { display: flex; align-items: center; gap: 18px; }
+        #nav-title { font-size: 13px; color: #88ff99; letter-spacing: 2px; }
+        #nav-right { display: flex; align-items: center; gap: 14px; }
+        #nav-back {
+            color: #88ff88; text-decoration: none;
+            border: 1px solid #003300; padding: 5px 12px; font-size: 13px;
+        }
+        #nav-back:hover { background: #002200; color: #fff; }
+
+        #page-wrap {
+            max-width: 780px; margin: 0 auto; padding: 36px 24px 80px; flex: 1;
+        }
+        .page-header { margin-bottom: 28px; text-align: center; }
+        .page-title {
+            font-size: 22px; color: #ffeecc; letter-spacing: 3px;
+            font-weight: bold; margin: 0 0 10px 0;
+        }
+        .page-subtitle { font-size: 13px; color: #6a8a6a; font-style: italic; }
+        .no-letters {
+            padding: 48px 24px; text-align: center;
+            color: #6a8a6a; font-size: 14px; font-style: italic;
+        }
+        .letter {
+            background: #0a0a0a; border: 1px solid #003322;
+            padding: 28px 32px; margin-bottom: 28px;
+            position: relative;
+        }
+        .letter::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg, transparent 0 2px, rgba(0,255,100,0.02) 2px 3px
+            );
+        }
+        .letter-meta {
+            display: grid; grid-template-columns: 80px 1fr;
+            gap: 4px 14px; padding-bottom: 14px;
+            border-bottom: 1px solid #003322; margin-bottom: 18px;
+            font-size: 12px;
+        }
+        .letter-meta-label { color: #557755; letter-spacing: 1.5px; }
+        .letter-meta-value { color: #cceecc; }
+        .letter-subject {
+            font-size: 17px; color: #ffeecc; font-weight: bold;
+            margin: 0 0 16px 0; letter-spacing: 0.5px;
+        }
+        .letter-body {
+            font-size: 14px; color: #d8e8d8; line-height: 1.9;
+        }
+        .letter-body strong { color: #ffeecc; }
+        .letter-body em { color: #ffcc88; font-style: italic; }
+        .letter-body pre {
+            background: #020802; border: 1px solid #003322;
+            padding: 12px 16px; margin: 12px 0;
+            font-size: 12px; color: #88ffaa;
+            white-space: pre-wrap;
+        }
+
+        /* Light theme */
+        html[data-theme="light"] body {
+            background: #ffffff !important; color: #000000 !important;
+            font-family: Consolas, 'Courier New', monospace !important;
+        }
+        html[data-theme="light"] #nav-bar {
+            background: #2d2d30 !important; border-bottom: 1px solid #007acc !important;
+        }
+        html[data-theme="light"] #nav-title { color: #ffffff !important; }
+        html[data-theme="light"] #nav-back {
+            color: #ffffff !important; border: 1px solid #5a5a5a !important; background: #3e3e42 !important;
+        }
+        html[data-theme="light"] #nav-back:hover { background: #505055 !important; }
+        html[data-theme="light"] .page-title { color: #0000ff !important; }
+        html[data-theme="light"] .page-subtitle { color: #6a737d !important; }
+        html[data-theme="light"] .no-letters { color: #6a737d !important; }
+        html[data-theme="light"] .letter {
+            background: #fafafa !important; border: 1px solid #d4d4d4 !important;
+        }
+        html[data-theme="light"] .letter::before { background: none !important; }
+        html[data-theme="light"] .letter-meta { border-bottom-color: #d4d4d4 !important; }
+        html[data-theme="light"] .letter-meta-label { color: #6a737d !important; }
+        html[data-theme="light"] .letter-meta-value { color: #000000 !important; }
+        html[data-theme="light"] .letter-subject { color: #0000ff !important; }
+        html[data-theme="light"] .letter-body { color: #222222 !important; }
+        html[data-theme="light"] .letter-body strong { color: #0000ff !important; }
+        html[data-theme="light"] .letter-body em { color: #a31515 !important; }
+        html[data-theme="light"] .letter-body pre {
+            background: #f3f3f3 !important; border-color: #d4d4d4 !important; color: #000000 !important;
+        }
+    </style>
+</head>
+<body>
+    {% include "_theme.html" %}
+    {% include "_i18n.html" %}
+
+    <div id="nav-bar">
+        <div id="nav-left">
+            <span id="nav-title" data-i18n="letters.navTitle">SURVIVOR ARCHIVE</span>
+        </div>
+        <div id="nav-right">
+            <a href="/" id="nav-back" data-i18n="letters.back">[ ← BACK TO TERMINAL ]</a>
+        </div>
+    </div>
+
+    <div id="page-wrap">
+        <div class="page-header">
+            <h1 class="page-title" data-i18n="letters.pageTitle">Letters the Terminal Never Forwarded</h1>
+            <div class="page-subtitle" data-i18n="letters.subtitle">Messages that existed, whether anyone read them or not.</div>
+        </div>
+
+        {% if not letters or (letters|length == 1 and letters[0].id == 'silence') %}
+        {% endif %}
+
+        {% for L in letters %}
+        <div class="letter">
+            <div class="letter-meta">
+                <div class="letter-meta-label" data-i18n="letters.from">FROM</div>
+                <div class="letter-meta-value">{{ L.sender }} · {{ L.role }}</div>
+                <div class="letter-meta-label" data-i18n="letters.postmark">POSTMARK</div>
+                <div class="letter-meta-value">{{ L.postmark }}</div>
+                <div class="letter-meta-label" data-i18n="letters.subject">SUBJECT</div>
+                <div class="letter-meta-value">{{ L.subject }}</div>
+            </div>
+            <div class="letter-body">{{ L.body | safe }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
