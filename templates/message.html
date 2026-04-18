@@ -224,6 +224,7 @@
 </head>
 <body>
     {% include "_theme.html" %}
+    {% include "_i18n.html" %}
     <script id="player-data-store" type="application/json">
         {{ player | tojson | safe }}
     </script>
@@ -234,14 +235,14 @@
     <!-- Top Nav -->
     <div id="nav-bar">
         <div id="nav-left">
-            <span id="nav-title">ENCRYPTED MESSENGER</span>
+            <span id="nav-title" data-i18n="msg.navTitle">ENCRYPTED MESSENGER</span>
             <span class="nav-tag" id="story-stage"></span>
         </div>
         <div id="nav-right">
-            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
-            <span><span class="nav-label">DAY </span><span class="nav-value" id="current-day"></span><span class="nav-label"> / 7</span></span>
-            <span><span class="nav-label">BALANCE </span><span class="nav-value balance">$<span id="nav-balance"></span></span></span>
-            <a href="/" id="nav-back">[ ← DESKTOP ]</a>
+            <span><span class="nav-label" data-i18n="nav.operator">OPERATOR</span>&nbsp;<span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label" data-i18n="nav.day">DAY</span>&nbsp;<span class="nav-value" id="current-day"></span><span class="nav-label"> / 7</span></span>
+            <span><span class="nav-label" data-i18n="nav.balance">BALANCE</span>&nbsp;<span class="nav-value balance">$<span id="nav-balance"></span></span></span>
+            <a href="/" id="nav-back" data-i18n="nav.back">[ ← DESKTOP ]</a>
         </div>
     </div>
 
@@ -251,11 +252,11 @@
         <!-- Left: Memory Buffer -->
         <div id="clue-panel">
             <div class="panel-hdr">
-                <h3>MEMORY BUFFER</h3>
-                <p>Click a clue to attach it.</p>
+                <h3 data-i18n="msg.clueBuffer">MEMORY BUFFER</h3>
+                <p data-i18n="msg.clueBuffer.desc">Click a clue to attach it.</p>
             </div>
             <div id="clue-list-wrap">
-                <div id="clue-empty">No clues in buffer yet.</div>
+                <div id="clue-empty" data-i18n="msg.noClues">No clues in buffer yet.</div>
                 <ul id="clue-list"></ul>
             </div>
         </div>
@@ -265,12 +266,12 @@
 
             <!-- Objective strip -->
             <div id="objective-bar">
-                <strong>Objective:</strong> <span id="obj-text"></span>
+                <strong data-i18n="msg.objectiveLabel">Objective:</strong> <span id="obj-text"></span>
             </div>
 
             <!-- Suggested contacts -->
             <div id="suggestions-bar">
-                <span id="suggestions-label">SUGGESTED:</span>
+                <span id="suggestions-label" data-i18n="msg.suggestionsLabel">SUGGESTED:</span>
                 <span id="sugg-chips"></span>
             </div>
 
@@ -281,11 +282,11 @@
                 </div>
                 <div id="contact-info">
                     <div id="contact-callsign">—</div>
-                    <div id="contact-role">Unknown contact</div>
+                    <div id="contact-role" data-i18n="msg.unknownContact">Unknown contact</div>
                     <div class="contact-badges" id="contact-badges"></div>
                     <div id="contact-status-row">
-                        <div class="contact-stat">CHANNEL <span>ENCRYPTED</span></div>
-                        <div class="contact-stat">RESPONSE <span id="contact-response-time">—</span></div>
+                        <div class="contact-stat"><span data-i18n="msg.channel">CHANNEL</span> <span data-i18n="msg.channelEnc">ENCRYPTED</span></div>
+                        <div class="contact-stat"><span data-i18n="msg.response">RESPONSE</span> <span id="contact-response-time">—</span></div>
                         <div id="contact-threat-bar" title="Threat level">
                             <div id="contact-threat-fill" style="width:0%"></div>
                         </div>
@@ -295,26 +296,26 @@
 
             <!-- Chat Log -->
             <div id="chat-log">
-                <div id="chat-empty">No transmissions yet.<br>Select a recipient above and a clue from the left panel, then transmit.</div>
+                <div id="chat-empty" data-i18n-html="msg.emptyChatHtml">No transmissions yet.<br>Select a recipient above and a clue from the left panel, then transmit.</div>
             </div>
 
             <!-- Compose Area -->
             <div id="compose-area">
                 <div id="compose-top">
-                    <label>RECIPIENT</label>
-                    <input type="text" id="target-id" placeholder="e.g. signals@helixtalent.biz or OMNI_CORE" autocomplete="off">
+                    <label data-i18n="msg.recipient">RECIPIENT</label>
+                    <input type="text" id="target-id" placeholder="e.g. signals@helixtalent.biz or OMNI_CORE" autocomplete="off" data-i18n-ph="msg.toPh">
                 </div>
 
                 <div id="active-clue-bar">
-                    <span id="active-clue-label">ACTIVE CLUE</span>
+                    <span id="active-clue-label" data-i18n="msg.activeClueLabel">ACTIVE CLUE</span>
                     <span id="active-clue-value" style="display:none;"></span>
-                    <span id="active-clue-none">— select a clue from the left panel —</span>
+                    <span id="active-clue-none" data-i18n="msg.selectClueHint">— select a clue from the left panel —</span>
                 </div>
 
                 <div id="preview-box"></div>
 
                 <div id="compose-bottom">
-                    <button id="send-btn" onclick="executeChat()">[ TRANSMIT ]</button>
+                    <button id="send-btn" onclick="executeChat()" data-i18n="msg.transmit">[ TRANSMIT ]</button>
                 </div>
             </div>
         </div>
@@ -513,7 +514,7 @@
             if (!target) return;
 
             const preview = document.getElementById('preview-box');
-            preview.textContent = 'Synthesizing transmission...';
+            preview.textContent = t('msg.synthesizing');
             preview.classList.add('visible');
 
             try {
@@ -534,15 +535,15 @@
 
         async function executeChat() {
             if (player_data.is_locked_down) {
-                appendSystemMsg('[SYSTEM] Transmission blocked. OMNI_CORE owns this channel.');
+                appendSystemMsg(t('msg.blocked'));
                 return;
             }
             const target = document.getElementById('target-id').value.trim();
-            if (!target) { appendSystemMsg('[SYSTEM] Recipient ID required.'); return; }
-            if (!activeClue) { appendSystemMsg('[SYSTEM] Select a clue from the left panel before transmitting.'); return; }
+            if (!target) { appendSystemMsg(t('msg.err.pickRecipient')); return; }
+            if (!activeClue) { appendSystemMsg(t('msg.err.pickClue')); return; }
 
             const previewText = document.getElementById('preview-box').textContent;
-            appendSentMsg(previewText && previewText !== 'Synthesizing transmission...'
+            appendSentMsg(previewText && previewText !== t('msg.synthesizing')
                 ? previewText
                 : `[${activeClue}] → ${target}`);
 
@@ -561,10 +562,10 @@
                         appendSystemMsg(`Transaction: ${sign}$${Math.abs(data.reward).toFixed(2)}`);
                     }
                 } else {
-                    appendSystemMsg(data.message || '[SYSTEM] Transmission failed.');
+                    appendSystemMsg(data.message || t('msg.failed'));
                 }
             } catch {
-                appendSystemMsg('[SYSTEM] Network error. Packet lost.');
+                appendSystemMsg(t('msg.err.connLost'));
             }
         }
 

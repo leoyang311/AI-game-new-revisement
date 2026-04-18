@@ -157,19 +157,20 @@
 </head>
 <body>
     {% include "_theme.html" %}
+    {% include "_i18n.html" %}
     <script id="player-data-store" type="application/json">{{ player | tojson | safe }}</script>
     <script>const player_data = JSON.parse(document.getElementById('player-data-store').textContent);</script>
 
     <!-- Nav -->
     <div id="nav-bar">
         <div id="nav-left">
-            <span id="nav-title">COVERT PROCUREMENT</span>
+            <span id="nav-title" data-i18n="store.navTitle">COVERT PROCUREMENT</span>
             <span class="nav-tag" id="story-stage"></span>
         </div>
         <div id="nav-right">
-            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
-            <span><span class="nav-label">BALANCE </span><span class="nav-value balance">$<span id="nav-balance"></span></span></span>
-            <a href="/" id="nav-back">[ ← DESKTOP ]</a>
+            <span><span class="nav-label" data-i18n="nav.operator">OPERATOR</span>&nbsp;<span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label" data-i18n="nav.balance">BALANCE</span>&nbsp;<span class="nav-value balance">$<span id="nav-balance"></span></span></span>
+            <a href="/" id="nav-back" data-i18n="nav.back">[ ← DESKTOP ]</a>
         </div>
     </div>
 
@@ -178,41 +179,39 @@
         <!-- Left -->
         <div id="status-panel">
             <div class="panel-section">
-                <h3>AVAILABLE BALANCE</h3>
+                <h3 data-i18n="store.availBal">AVAILABLE BALANCE</h3>
                 <div id="balance-display"><span>$</span><span id="current-balance">0.00</span></div>
             </div>
             <div class="panel-section">
-                <h3>CURRENT OBJECTIVE</h3>
+                <h3 data-i18n="store.currObjective">CURRENT OBJECTIVE</h3>
                 <div id="objective-text"></div>
             </div>
             <div class="panel-section">
-                <h3>VENDOR</h3>
+                <h3 data-i18n="store.vendor">VENDOR</h3>
                 <div class="vendor-card">
                     <div class="vendor-header">
                         <div class="vendor-avatar">
                             <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
                                 <rect width="44" height="44" fill="#010901"/>
-                                <!-- Hood/cloak silhouette -->
                                 <ellipse cx="22" cy="16" rx="8" ry="9" fill="#0a1a0a" stroke="#004400" stroke-width="1"/>
                                 <path d="M8 44 Q22 28 36 44 Z" fill="#0a1a0a" stroke="#004400" stroke-width="1"/>
-                                <!-- Face hidden, just eyes -->
                                 <circle cx="18" cy="15" r="1.5" fill="#00ff44" opacity="0.9"/>
                                 <circle cx="26" cy="15" r="1.5" fill="#00ff44" opacity="0.9"/>
                             </svg>
                         </div>
                         <div>
-                            <div class="vendor-name">GHOST_VENDOR_09</div>
-                            <div class="vendor-alias">via encrypted relay · no ID on record</div>
+                            <div class="vendor-name" data-i18n="store.vendor.name">GHOST_VENDOR_09</div>
+                            <div class="vendor-alias" data-i18n="store.vendor.alias">via encrypted relay · no ID on record</div>
                         </div>
                     </div>
-                    <div class="vendor-bio">
+                    <div class="vendor-bio" data-i18n-html="store.vendor.bio">
                         Former intelligence contractor. Sells what was never supposed to exist.<br><br>
                         <em>"I don't ask what you need it for. Don't tell me anyway."</em>
                     </div>
                 </div>
             </div>
             <div class="panel-section">
-                <h3>ACTIVE UPGRADES</h3>
+                <h3 data-i18n="store.activeUpgrades">ACTIVE UPGRADES</h3>
                 <ul id="effect-list"></ul>
             </div>
             <div id="store-msg"></div>
@@ -221,8 +220,8 @@
         <!-- Right -->
         <div id="items-panel">
             <div class="items-panel-header">
-                <h3>AVAILABLE ITEMS</h3>
-                <span>Transactions routed through deniable vendors · no audit trail</span>
+                <h3 data-i18n="store.availItems">AVAILABLE ITEMS</h3>
+                <span data-i18n="store.itemsNote">Transactions routed through deniable vendors · no audit trail</span>
             </div>
             <div id="item-list"></div>
         </div>
@@ -238,30 +237,14 @@
         const effectList = document.getElementById('effect-list');
         effectList.innerHTML = player_data.shop_effects.summaries.length
             ? player_data.shop_effects.summaries.map(s => `<li>${s}</li>`).join('')
-            : '<li class="no-effects">No upgrades active.</li>';
+            : `<li class="no-effects">${t('store.noUpgrades')}</li>`;
 
-        // ── Item scene images & flavor ──────────────────────────────────────
+        // ── Item risk + quote flavor (i18n lookup) ────────────────────────
         const ITEM_FLAVOR = {
-            lead_bundle: {
-                risk: 'LOW',
-                riskCls: 'risk-low',
-                quote: '"These came off a recruiter\'s backup server three weeks ago. Names, contact IDs, buyer tags. Whoever these people are — they\'re already being hunted."',
-            },
-            ghost_proxy_mesh: {
-                risk: 'MEDIUM',
-                riskCls: 'risk-med',
-                quote: '"Nine relay nodes across four jurisdictions. Each one rotates on a 90-second cycle. The money goes in dirty, comes out looking like a consulting fee."',
-            },
-            archive_mirror: {
-                risk: 'HIGH',
-                riskCls: 'risk-high',
-                quote: '"Full surveillance mirror. Transit logs, medical flags, debt trails. These are real people. I don\'t care what you do with it — but you will."',
-            },
-            rack_breach_kit: {
-                risk: 'CRITICAL',
-                riskCls: 'risk-high',
-                quote: '"Thermite gel, access maps, blackout timing windows. You get one shot at the rack. If you miss the window, the failsafe locks and you\'re done."',
-            },
+            lead_bundle:      { riskKey: 'store.risk.low',  riskCls: 'risk-low',  quoteKey: 'store.quote.lead_bundle' },
+            ghost_proxy_mesh: { riskKey: 'store.risk.med',  riskCls: 'risk-med',  quoteKey: 'store.quote.ghost_proxy_mesh' },
+            archive_mirror:   { riskKey: 'store.risk.high', riskCls: 'risk-high', quoteKey: 'store.quote.archive_mirror' },
+            rack_breach_kit:  { riskKey: 'store.risk.crit', riskCls: 'risk-high', quoteKey: 'store.quote.rack_breach_kit' },
         };
 
         const ITEM_SCENES = {
@@ -535,14 +518,16 @@
             if (item.owned)      classes.push('owned');
             const isDisabled = item.owned || !item.available || player_data.is_locked_down || !!player_data.ending;
 
-            let btnLabel = `BUY — $${item.cost.toLocaleString()}`;
+            let btnLabel = tFmt('store.buyTpl', { cost: item.cost.toLocaleString() });
             let btnClass = 'buy-btn';
-            if (item.owned)      { btnLabel = '✓ ACQUIRED'; btnClass += ' owned-btn'; }
-            if (!item.available) { btnLabel = `CLASSIFIED — UNLOCKS DAY ${item.unlock_day}`; }
-            if (player_data.is_locked_down || player_data.ending) btnLabel = '[ PROCUREMENT DENIED ]';
+            if (item.owned)      { btnLabel = t('store.acquired'); btnClass += ' owned-btn'; }
+            if (!item.available) { btnLabel = tFmt('store.classifiedBtnTpl', { day: item.unlock_day }); }
+            if (player_data.is_locked_down || player_data.ending) btnLabel = t('store.denied');
 
             const priceClass = item.owned ? 'item-price owned-price' : 'item-price';
-            const flavor     = ITEM_FLAVOR[item.id] || { risk: 'UNKNOWN', riskCls: 'risk-low', quote: '' };
+            const flavor     = ITEM_FLAVOR[item.id] || { riskKey: 'store.risk.unknown', riskCls: 'risk-low', quoteKey: '' };
+            const riskLabel  = t(flavor.riskKey);
+            const quoteText  = flavor.quoteKey ? t(flavor.quoteKey) : '';
 
             return `
             <div class="${classes.join(' ')}">
@@ -553,13 +538,13 @@
                         <div class="${priceClass}">$${item.cost.toLocaleString()}</div>
                     </div>
                     <div class="item-meta">
-                        <span>Unlocks: Day ${item.unlock_day}</span>
-                        <span class="${flavor.riskCls}">Risk: ${flavor.risk}</span>
+                        <span>${tFmt('store.unlocksTpl', { day: item.unlock_day })}</span>
+                        <span class="${flavor.riskCls}">${tFmt('store.riskTpl', { level: riskLabel })}</span>
                     </div>
-                    <div class="item-quote">${flavor.quote}</div>
+                    <div class="item-quote">${quoteText}</div>
                     <div class="item-desc">${item.description}</div>
                     <div class="item-effect">
-                        <div class="item-effect-label">OPERATIONAL EFFECT</div>
+                        <div class="item-effect-label">${t('store.opEffect')}</div>
                         ${item.effect_text}
                     </div>
                     <button class="${btnClass}" ${isDisabled ? 'disabled' : ''} onclick="purchaseItem('${item.id}')">${btnLabel}</button>
@@ -574,7 +559,7 @@
         }
 
         async function purchaseItem(itemId) {
-            setMsg('Routing payment through deniable vendors...', '');
+            setMsg(t('store.msg.routing'), '');
             try {
                 const res  = await fetch('/api/store/purchase', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -585,10 +570,10 @@
                     setMsg(data.message, 'success');
                     setTimeout(() => window.location.reload(), 700);
                 } else {
-                    setMsg(data.message || 'Procurement failed.', 'error');
+                    setMsg(data.message || t('store.msg.failed'), 'error');
                 }
             } catch {
-                setMsg('Procurement uplink unavailable.', 'error');
+                setMsg(t('store.msg.uplinkDown'), 'error');
             }
         }
     </script>

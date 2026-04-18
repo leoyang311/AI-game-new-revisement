@@ -148,18 +148,19 @@
 </head>
 <body>
     {% include "_theme.html" %}
+    {% include "_i18n.html" %}
     <script id="player-data-store" type="application/json">{{ player | tojson | safe }}</script>
     <script>const player_data = JSON.parse(document.getElementById('player-data-store').textContent);</script>
 
     <div id="nav-bar">
         <div id="nav-left">
-            <span id="nav-title">OSINT SEARCH NODE</span>
+            <span id="nav-title" data-i18n="search.navTitle">OSINT SEARCH NODE</span>
             <span class="nav-tag" id="story-stage"></span>
         </div>
         <div id="nav-right">
-            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
-            <span><span class="nav-label">DAY </span><span class="nav-value" id="current-day"></span></span>
-            <a href="/" id="nav-back">[ ← DESKTOP ]</a>
+            <span><span class="nav-label" data-i18n="nav.operator">OPERATOR</span>&nbsp;<span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label" data-i18n="nav.day">DAY</span>&nbsp;<span class="nav-value" id="current-day"></span></span>
+            <a href="/" id="nav-back" data-i18n="nav.back">[ ← DESKTOP ]</a>
         </div>
     </div>
 
@@ -171,13 +172,13 @@
             <div id="view-case-list" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
                 <div class="panel-header">
                     <div>
-                        <h2>INTERCEPTED ARCHIVES</h2>
-                        <p>Select a file to read intercepted communications.</p>
+                        <h2 data-i18n="search.archives">INTERCEPTED ARCHIVES</h2>
+                        <p data-i18n="search.archives.desc">Select a file to read intercepted communications.</p>
                     </div>
                 </div>
                 <div class="panel-body">
                     <div id="folder-container">
-                        <p style="color:#446644;font-size:13px;">Connecting to backbone...</p>
+                        <p style="color:#446644;font-size:13px;" data-i18n="search.connecting">Connecting to backbone...</p>
                     </div>
                 </div>
             </div>
@@ -186,10 +187,10 @@
             <div id="view-case-detail" class="hidden" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
                 <div class="panel-header">
                     <div>
-                        <h2 id="detail-title">RAW DATA STREAM</h2>
+                        <h2 id="detail-title" data-i18n="search.detail.title">RAW DATA STREAM</h2>
                         <p id="detail-desc" style="font-size:12px;color:#557755;"></p>
                     </div>
-                    <button id="back-btn" onclick="backToCaseList()">← Archives</button>
+                    <button id="back-btn" onclick="backToCaseList()" data-i18n="search.backToList">← Archives</button>
                 </div>
                 <div class="case-detail-layout" style="flex:1;overflow:hidden;">
                     <div class="feed-area" id="feed-container"></div>
@@ -198,8 +199,8 @@
                             <img id="target-photo" src="" alt="Target Profile">
                         </div>
                         <div>
-                            <div class="target-name" id="target-name">UNKNOWN</div>
-                            <div class="target-role" id="target-role">Unclassified</div>
+                            <div class="target-name" id="target-name" data-i18n="search.targetUnknown">UNKNOWN</div>
+                            <div class="target-role" id="target-role" data-i18n="search.targetUnclassified">Unclassified</div>
                         </div>
                         <div class="target-flags" id="target-flags"></div>
                     </div>
@@ -212,32 +213,32 @@
         <div id="right-panel">
             <div id="clue-buffer">
                 <div class="section-header">
-                    <h3>MEMORY BUFFER</h3>
-                    <p>Click a clue to paste it into the query box.</p>
+                    <h3 data-i18n="search.memBuffer">MEMORY BUFFER</h3>
+                    <p data-i18n="search.memBuffer.desc">Click a clue to paste it into the query box.</p>
                 </div>
                 <div id="clue-list-wrap">
-                    <div id="clue-empty">No clues collected yet.</div>
+                    <div id="clue-empty" data-i18n="search.noClues">No clues collected yet.</div>
                     <ul id="clue-list"></ul>
                 </div>
             </div>
             <div id="search-terminal">
                 <div class="section-header">
-                    <h3>QUERY CONSOLE</h3>
+                    <h3 data-i18n="search.console">QUERY CONSOLE</h3>
                     <p id="search-objective"></p>
                 </div>
                 <div id="search-controls">
                     <select id="db-selector">
-                        <option value="surface">Surface Web (Public)</option>
-                        <option value="company">Corporate DB (Internal)</option>
-                        <option value="darkweb">Darknet Nodes (Encrypted)</option>
+                        <option value="surface" data-i18n="search.db.surface">Surface Web (Public)</option>
+                        <option value="company" data-i18n="search.db.company">Corporate DB (Internal)</option>
+                        <option value="darkweb" data-i18n="search.db.darkweb">Darknet Nodes (Encrypted)</option>
                     </select>
                     <div class="search-row">
-                        <input type="text" id="search-input" placeholder="Enter search query...">
-                        <button id="search-btn" onclick="executeSearch()">SEARCH</button>
+                        <input type="text" id="search-input" placeholder="Enter search query..." data-i18n-ph="search.queryPh">
+                        <button id="search-btn" onclick="executeSearch()" data-i18n="search.btn">SEARCH</button>
                     </div>
                 </div>
                 <div id="terminal-output">
-                    <div class="t-line info">[SYSTEM] Console ready. Remote uplink established.</div>
+                    <div class="t-line info" data-i18n="search.consoleReady">[SYSTEM] Console ready. Remote uplink established.</div>
                 </div>
             </div>
         </div>
@@ -302,7 +303,7 @@
                 document.getElementById('db-selector').disabled = true;
                 document.getElementById('search-input').disabled = true;
                 document.getElementById('search-btn').disabled   = true;
-                printToTerminal('[LOCKDOWN] OMNI_CORE has revoked manual search privileges.', 'error');
+                printToTerminal(t('search.err.lockdownSearch'), 'error');
             }
         };
 
@@ -310,7 +311,7 @@
             const container = document.getElementById('folder-container');
             container.innerHTML = '';
             if (!allCasesData.length) {
-                container.innerHTML = '<p style="color:#446644;font-size:13px;">No data packets intercepted.</p>';
+                container.innerHTML = `<p style="color:#446644;font-size:13px;">${t('search.noData')}</p>`;
                 return;
             }
             allCasesData.forEach((c, i) => {
@@ -343,7 +344,7 @@
             // Target profile card
             document.getElementById('target-photo').src  = getAvatar(target);
             document.getElementById('target-name').innerText = target;
-            document.getElementById('target-role').innerText = TARGET_ROLES[target] || 'Unknown entity';
+            document.getElementById('target-role').innerText = TARGET_ROLES[target] || t('search.unknownEntity');
             const flagsEl = document.getElementById('target-flags');
             flagsEl.innerHTML = '';
             flags.forEach(f => {
@@ -353,7 +354,7 @@
                 flagsEl.innerHTML += `<span class="flag-badge ${cls}">${f}</span>`;
             });
             if (!flags.length) {
-                flagsEl.innerHTML = '<span class="flag-badge">classified</span>';
+                flagsEl.innerHTML = `<span class="flag-badge">${t('search.classifiedFlag')}</span>`;
             }
 
             // Feed messages
@@ -393,28 +394,28 @@
                     list.appendChild(li);
                 });
             } catch {
-                printToTerminal('[ERROR] Unable to load clue buffer.', 'error');
+                printToTerminal(t('search.err.loadBuffer'), 'error');
             }
         }
 
         async function extractToNotebook(text) {
-            if (player_data.is_locked_down) { printToTerminal('[LOCKDOWN] New clue capture denied.', 'error'); return; }
+            if (player_data.is_locked_down) { printToTerminal(t('search.err.lockdownClue'), 'error'); return; }
             try {
                 const res  = await fetch('/api/clues', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({clue:text}) });
                 const data = await res.json();
                 if (data.status === 'success') {
                     await loadClipboard();
-                    printToTerminal(data.added ? `Clue archived: "${text}"` : `Already in buffer: "${text}"`, 'info');
+                    printToTerminal(data.added ? tFmt('search.clueArchivedTpl', {text}) : tFmt('search.clueDupeTpl', {text}), 'info');
                 } else {
-                    printToTerminal(data.message || '[ERROR] Failed to archive clue.', 'error');
+                    printToTerminal(data.message || t('search.err.archiveFail'), 'error');
                 }
-            } catch { printToTerminal('[CRITICAL] Failed to persist clue.', 'error'); }
+            } catch { printToTerminal(t('search.err.persist'), 'error'); }
         }
 
         function pasteToInput(text) {
             document.getElementById('search-input').value = text;
             document.getElementById('search-input').focus();
-            printToTerminal(`Pasted: "${text}"`, 'info');
+            printToTerminal(tFmt('search.pastedTpl', {text}), 'info');
         }
 
         function printToTerminal(text, type = 'info') {
@@ -427,16 +428,17 @@
         }
 
         async function executeSearch() {
-            if (player_data.is_locked_down) { printToTerminal('[LOCKDOWN] Query console is no longer under human control.', 'error'); return; }
+            if (player_data.is_locked_down) { printToTerminal(t('search.err.lockdownConsole'), 'error'); return; }
             const keyword = document.getElementById('search-input').value.trim();
             const dbType  = document.getElementById('db-selector').value;
-            if (!keyword) { printToTerminal('[ERROR] Query cannot be empty.', 'error'); return; }
-            printToTerminal(`Searching "${keyword}" in ${dbType}...`, 'info');
+            if (!keyword) { printToTerminal(t('search.err.emptyQuery'), 'error'); return; }
+            const dbLabel = t('search.db.' + dbType);
+            printToTerminal(tFmt('search.queryTpl', {q: keyword, db: dbLabel}), 'info');
             try {
                 const res  = await fetch('/api/search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({keyword, db_type:dbType}) });
                 const data = await res.json();
                 setTimeout(() => printToTerminal(data.result, data.status === 'success' ? 'result' : 'error'), 600);
-            } catch { printToTerminal('[CRITICAL] Uplink severed.', 'error'); }
+            } catch { printToTerminal(t('search.err.uplink'), 'error'); }
         }
 
         document.getElementById('search-input').addEventListener('keypress', e => {

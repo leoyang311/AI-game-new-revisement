@@ -77,16 +77,17 @@
 </head>
 <body>
     {% include "_theme.html" %}
+    {% include "_i18n.html" %}
     <div class="login-shell">
-        <div>[ MULTI-OPERATOR ACCESS GATEWAY ]</div>
-        <h1>Authenticate Operator</h1>
-        <p>Each player name maps to an independent persistent run. Reuse a previous name to continue that player's save.</p>
+        <div data-i18n="login.gateway">[ MULTI-OPERATOR ACCESS GATEWAY ]</div>
+        <h1 data-i18n="login.title">Authenticate Operator</h1>
+        <p data-i18n="login.desc">Each player name maps to an independent persistent run. Reuse a previous name to continue that player's save.</p>
         <form method="post" action="/login">
-            <label for="username">Operator Name</label>
-            <input id="username" name="username" type="text" minlength="2" maxlength="24" required placeholder="Enter operator handle">
-            <button type="submit">[ ESTABLISH SESSION ]</button>
+            <label for="username" data-i18n="login.label">Operator Name</label>
+            <input id="username" name="username" type="text" minlength="2" maxlength="24" required placeholder="Enter operator handle" data-i18n-ph="login.placeholder">
+            <button type="submit" data-i18n="login.submit">[ ESTABLISH SESSION ]</button>
         </form>
-        <div class="hint">Prototype mode: no password yet. Use distinct names for distinct players.</div>
+        <div class="hint" data-i18n="login.hint">Prototype mode: no password yet. Use distinct names for distinct players.</div>
         {% if error %}
         <div class="error">{{ error }}</div>
         {% endif %}

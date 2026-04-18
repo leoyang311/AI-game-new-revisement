@@ -122,6 +122,7 @@
 </head>
 <body>
     {% include "_theme.html" %}
+    {% include "_i18n.html" %}
     <script id="player-data-store" type="application/json">
         {{ player | tojson | safe }}
     </script>
@@ -132,13 +133,13 @@
     <!-- Top Nav -->
     <div id="nav-bar">
         <div id="nav-left">
-            <span id="nav-title">OFFSHORE ROUTING</span>
+            <span id="nav-title" data-i18n="bank.navTitle">OFFSHORE ROUTING</span>
             <span class="nav-tag" id="story-stage"></span>
         </div>
         <div id="nav-right">
-            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
-            <span><span class="nav-label">DAY </span><span class="nav-value" id="current-day"></span><span class="nav-label"> / 7</span></span>
-            <a href="/" id="nav-back">[ ← DESKTOP ]</a>
+            <span><span class="nav-label" data-i18n="nav.operator">OPERATOR</span>&nbsp;<span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label" data-i18n="nav.day">DAY</span>&nbsp;<span class="nav-value" id="current-day"></span><span class="nav-label"> / 7</span></span>
+            <a href="/" id="nav-back" data-i18n="nav.back">[ ← DESKTOP ]</a>
         </div>
     </div>
 
@@ -148,8 +149,8 @@
         <!-- Left: Operation Panel -->
         <div id="op-panel">
             <div class="panel-section">
-                <h3>OPERATION GUIDE</h3>
-                <div class="guide-box" id="bank-guide">
+                <h3 data-i18n="bank.guide.title">OPERATION GUIDE</h3>
+                <div class="guide-box" id="bank-guide" data-i18n-html="bank.guide.body">
                     <strong>Siphon</strong> — steal from a named target account. Each account has a hidden random cap.<br><br>
                     <strong>Wire Transfer</strong> — send money to a victim or relief wallet.<br><br>
                     <strong>Node Expansion</strong> — fund OMNI_CORE hardware (increases Day 7 sabotage cost).<br><br>
@@ -158,24 +159,24 @@
             </div>
 
             <div class="panel-section">
-                <h3>EXECUTE TRANSACTION</h3>
+                <h3 data-i18n="bank.exec.title">EXECUTE TRANSACTION</h3>
                 <div class="form-row">
-                    <label>Transaction Type</label>
+                    <label data-i18n="bank.typeLabel">Transaction Type</label>
                     <select id="action-type">
-                        <option value="steal">Siphon — Exploit Target Account</option>
-                        <option value="send">Wire — Covert Transfer</option>
-                        <option value="upgrade_ai" id="ai-option" class="hidden">Node Expansion — Fund OMNI_CORE</option>
+                        <option value="steal" data-i18n="bank.type.steal">Siphon — Exploit Target Account</option>
+                        <option value="send" data-i18n="bank.type.send">Wire — Covert Transfer</option>
+                        <option value="upgrade_ai" id="ai-option" class="hidden" data-i18n="bank.type.upgrade">Node Expansion — Fund OMNI_CORE</option>
                     </select>
                 </div>
                 <div class="form-row">
-                    <label>Target Account / Wallet</label>
-                    <input type="text" id="target-account" placeholder="e.g. 6222-0991-8832 or bf-relief-771">
+                    <label data-i18n="bank.targetLabel">Target Account / Wallet</label>
+                    <input type="text" id="target-account" placeholder="e.g. 6222-0991-8832 or bf-relief-771" data-i18n-ph="bank.targetPh">
                 </div>
                 <div class="form-row">
-                    <label>Amount (USD)</label>
-                    <input type="number" id="transfer-amount" placeholder="0.00" min="1">
+                    <label data-i18n="bank.amountLabel">Amount (USD)</label>
+                    <input type="number" id="transfer-amount" placeholder="0.00" min="1" data-i18n-ph="bank.amountPh">
                 </div>
-                <button id="exec-btn" onclick="executeTransaction()">[ EXECUTE ]</button>
+                <button id="exec-btn" onclick="executeTransaction()" data-i18n="bank.exec.btn">[ EXECUTE ]</button>
                 <div id="sys-msg"></div>
             </div>
         </div>
@@ -183,22 +184,22 @@
         <!-- Right: Overview Panel -->
         <div id="overview-panel">
             <div id="balance-bar">
-                <span id="balance-label">AVAILABLE BALANCE</span>
+                <span id="balance-label" data-i18n="bank.availBal">AVAILABLE BALANCE</span>
                 <span id="balance-currency">$</span>
                 <span id="balance-amount">0.00</span>
             </div>
             <div id="ledger-section">
                 <div id="ledger-header">
-                    <h3>LEDGER HISTORY</h3>
-                    <span>Most recent first</span>
+                    <h3 data-i18n="bank.ledgerHist">LEDGER HISTORY</h3>
+                    <span data-i18n="bank.mostRecent">Most recent first</span>
                 </div>
                 <div id="ledger-table-wrap">
                     <table>
                         <thead>
                             <tr>
-                                <th>TIME</th>
-                                <th>DESCRIPTION</th>
-                                <th>AMOUNT</th>
+                                <th data-i18n="ledger.time">TIME</th>
+                                <th data-i18n="ledger.desc">DESCRIPTION</th>
+                                <th data-i18n="ledger.amount">AMOUNT</th>
                             </tr>
                         </thead>
                         <tbody id="ledger-body"></tbody>
@@ -221,7 +222,7 @@
         }
         if (player_data.is_locked_down || player_data.ending) {
             document.querySelectorAll('input, select, #exec-btn').forEach(el => el.disabled = true);
-            setMsg('FATAL ERROR: MANUAL FUND ROUTING DENIED. OMNI_CORE POSSESSES ROOT ACCESS.', 'error');
+            setMsg(t('bank.msg.fatal'), 'error');
         }
 
         function setMsg(text, type = '') {
@@ -256,9 +257,9 @@
             const amount  = document.getElementById('transfer-amount').value;
 
             if ((type !== 'upgrade_ai' && !account) || !amount || amount <= 0) {
-                setMsg('Invalid account or amount.', 'error'); return;
+                setMsg(t('bank.msg.invalid'), 'error'); return;
             }
-            setMsg('Routing through encrypted proxies...');
+            setMsg(t('bank.msg.routing'));
             try {
                 const res  = await fetch('/api/transfer', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -276,7 +277,7 @@
                     }
                 }, 800);
             } catch {
-                setMsg('Connection to banking API lost.', 'error');
+                setMsg(t('bank.msg.connLost'), 'error');
             }
         }
 

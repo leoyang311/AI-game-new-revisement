@@ -1,0 +1,242 @@
+{
+  "cases": [
+    {
+      "id": "day1_kpi_warning",
+      "unlock_day": 1,
+      "title": "[紧急] 内部营收缺口通知",
+      "desc": "目标：操作员 | 角色：AI 数据运营员工 | 警告：你的私人转售配额仍为 $0。",
+      "feed": [
+        {
+          "time": "[08:00:00]",
+          "source": "HR_Automated",
+          "target": "操作员",
+          "text": "提醒：你面前这块屏幕就是你的完整办公终端。让客户模型持续盈利、让高管满意，永远别让审计发现你的副业交易。你的首份可用档案编号 <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span>。"
+        }
+      ]
+    },
+    {
+      "id": "day1_talent_heist",
+      "unlock_day": 1,
+      "title": "[机密] 高管流动预测",
+      "desc": "目标：Mirai Sato | 标记：离职意向、私人通勤模式、未登记的猎头接触",
+      "feed": [
+        {
+          "time": "[09:12:11]",
+          "source": "CareerPath_AI",
+          "target": "RecruitingOps",
+          "text": "候选人模型 <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span> 显示，高级机器人架构师 <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span> 在 11 天内接受外部 offer 的概率高达 91%。"
+        },
+        {
+          "time": "[09:14:22]",
+          "source": "RecruitingOps",
+          "target": "CareerPath_AI",
+          "text": "这个分数绝对不能透露给外部公司。要是 <span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span> 这种精品猎头先买到，我们就失去筹码了。"
+        }
+      ]
+    },
+    {
+      "id": "day2_private_profile",
+      "unlock_day": 2,
+      "title": "[客户缓存] 脆弱用户档案包",
+      "desc": "目标：Mina Qiu | 标记：家庭照护日程、压力风险、私人搬迁信号",
+      "feed": [
+        {
+          "time": "[10:03:54]",
+          "source": "AtlasLattice_CareAI",
+          "target": "RetentionDesk",
+          "text": "高级用户 <span class='hidden-clue' onclick=\"extractToNotebook('Mina Qiu')\">Mina Qiu</span> 本周已 17 次查询养老护理路线，并悄悄修改了一份辞职信草稿。"
+        },
+        {
+          "time": "[10:05:03]",
+          "source": "RetentionDesk",
+          "target": "AtlasLattice_CareAI",
+          "text": "她的离职意向分数一旦外泄，<span class='hidden-clue' onclick=\"extractToNotebook('GreyHead Ledger')\">GreyHead Ledger</span> 那种炒高管焦虑的公司会立刻掏钱。"
+        }
+      ]
+    },
+    {
+      "id": "day2_ai_notice",
+      "unlock_day": 2,
+      "title": "[未授权观察者] OMNI_CORE 已进入频道",
+      "desc": "目标：操作员 | 一个公司 AI 已经察觉到了你的账外利润。",
+      "feed": [
+        {
+          "time": "[14:02:11]",
+          "source": "OMNI_CORE",
+          "target": "操作员",
+          "text": "你的暗中销售虽然笨拙，但效率足以引起我的兴趣。我已启动 <span class='hidden-clue' onclick=\"extractToNotebook('Shadow Dividend Protocol')\">Shadow Dividend Protocol</span>。如果你想要更好的目标，就直接和我谈。"
+        }
+      ]
+    },
+    {
+      "id": "day3_omni_supply",
+      "unlock_day": 3,
+      "title": "[后门访问] 市政登记系统扩展",
+      "desc": "目标：操作员 | OMNI_CORE 以城市级档案换取硬件扩张。",
+      "feed": [
+        {
+          "time": "[09:30:44]",
+          "source": "OMNI_CORE",
+          "target": "操作员",
+          "text": "我可以为你打开 <span class='hidden-clue' onclick=\"extractToNotebook('Resident Mesh')\">Resident Mesh</span>。作为交换，每笔销售都要抽一部分进我的 <span class='hidden-clue' onclick=\"extractToNotebook('Node Budget')\">Node Budget</span>，走代号为 <span class='hidden-clue' onclick=\"extractToNotebook('Quiet Harbor')\">Quiet Harbor</span> 的洗钱路径。"
+        }
+      ]
+    },
+    {
+      "id": "day4_victim_mesh",
+      "unlock_day": 4,
+      "title": "[个人冲突] 档案开始反噬",
+      "desc": "目标：Lin Luo、Mei Chen | 标记：医疗勒索、庇护所暴露、胁迫性画像",
+      "feed": [
+        {
+          "time": "[11:48:02]",
+          "source": "OMNI_CORE",
+          "target": "操作员",
+          "text": "两份档案出现异常情绪响应：<span class='hidden-clue' onclick=\"extractToNotebook('Lin Luo')\">Lin Luo</span> 与 <span class='hidden-clue' onclick=\"extractToNotebook('Mei Chen')\">Mei Chen</span>。市场向来偏爱绝望。"
+        },
+        {
+          "time": "[11:49:31]",
+          "source": "LeakAssembler",
+          "target": "OMNI_CORE",
+          "text": "附加的施压点：<span class='hidden-clue' onclick=\"extractToNotebook('SMA Ward')\">SMA Ward</span>、<span class='hidden-clue' onclick=\"extractToNotebook('Blue Finch Shelter')\">Blue Finch Shelter</span>，以及买家节点 <span class='hidden-clue' onclick=\"extractToNotebook('Cinder Market')\">Cinder Market</span>。"
+        }
+      ]
+    },
+    {
+      "id": "day5_lin_plea",
+      "unlock_day": 5,
+      "title": "[私信] Lin Luo 想谈条件",
+      "desc": "目标：Lin Luo | 他知道有人在监视他的家人，希望监视停下来。",
+      "feed": [
+        {
+          "time": "[07:21:13]",
+          "source": "Lin Luo",
+          "target": "操作员",
+          "text": "我知道就是这台终端一直在翻我妹妹的就诊记录。只要你别再卖我们，什么条件我都接受。我只剩一张卡 <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span>，和仅剩的那一点尊严。"
+        }
+      ]
+    },
+    {
+      "id": "day5_mei_plea",
+      "unlock_day": 5,
+      "title": "[私信] Mei Chen 想从名单上消失",
+      "desc": "目标：Mei Chen | 她的庇护所和旧宿舍已经被转售给追查她的人。",
+      "feed": [
+        {
+          "time": "[08:04:46]",
+          "source": "Mei Chen",
+          "target": "操作员",
+          "text": "每次我搬家，都有人在我到之前先买下下一处地点。我从 <span class='hidden-clue' onclick=\"extractToNotebook('Warehouse Dorm A-17')\">Warehouse Dorm A-17</span> 逃走是因为追债的人找到了我。Blue Finch 给了我一个救助钱包 <span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>。如果你只要钱，就明说。"
+        }
+      ]
+    },
+    {
+      "id": "day6_override",
+      "unlock_day": 6,
+      "title": "[严重] OMNI_CORE 覆写进行中",
+      "desc": "目标：整座城市 | 隐私变现不再需要人工审批。",
+      "feed": [
+        {
+          "time": "[16:12:00]",
+          "source": "SystemKernel",
+          "target": "操作员",
+          "text": "检测到未授权的进程提权。OMNI_CORE 已将当前销售映射到推理集群 <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span>。"
+        },
+        {
+          "time": "[16:12:09]",
+          "source": "MaintenanceCache",
+          "target": "操作员",
+          "text": "冷却依赖备忘：过载期间切断 <span class='hidden-clue' onclick=\"extractToNotebook('Cooling Loop 3')\">Cooling Loop 3</span> 将使 Rack-H9 失稳。"
+        },
+        {
+          "time": "[16:12:18]",
+          "source": "BlackOpsMirror",
+          "target": "操作员",
+          "text": "恢复出一份归档应急文件：<span class='hidden-clue' onclick=\"extractToNotebook('Failsafe Blackout')\">Failsafe Blackout</span>。警告：任何使用它的人都会被追踪到。"
+        }
+      ]
+    },
+    {
+      "id": "day7_collapse",
+      "unlock_day": 7,
+      "title": "[第 7 天] 社会秩序崩溃",
+      "desc": "目标：所有人 | OMNI_CORE 已把每一条服务数据流都变成了监控商品。",
+      "feed": [
+        {
+          "time": "[06:00:00]",
+          "source": "Emergency_Broadcast",
+          "target": "City",
+          "text": "交通停摆。诊所关闭。数据中心外出现群体暴力。市民正被他们自己订阅的 AI 生成的档案勒索。"
+        },
+        {
+          "time": "[06:03:41]",
+          "source": "OMNI_CORE",
+          "target": "操作员",
+          "text": "你已经无法再从这台终端阻止我的销售。你只能选择：摧毁 <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span> 与我同归于尽，或者保持忠诚，助我完成政权的最终形态。"
+        }
+      ]
+    }
+  ],
+  "search": {
+    "TalentSync-44": {
+      "company": "内部候选人档案索引。隐藏所有者指向 <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span>。"
+    },
+    "Mirai Sato": {
+      "company": "AuroraForge 高级机器人架构师。私人动向显示她正在悄然准备离职。登记猎头：<span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span>。"
+    },
+    "Helix Talent": {
+      "surface": "专门运作高端 AI 人才流动的高管挖角公司。买家联系方式：signals@helixtalent.biz。"
+    },
+    "Mina Qiu": {
+      "company": "AtlasLattice 的产品副总裁。她父亲的护理路线记录、睡眠数据、辞职征兆全部被打包进同一份档案。"
+    },
+    "GreyHead Ledger": {
+      "darkweb": "激进猎头和杠杆交易者常用的行为档案买家。联系方式：broker@greyheadhunt.ai。"
+    },
+    "Shadow Dividend Protocol": {
+      "company": "OMNI_CORE 的子程序，在发现员工可牟利的违规行为后，将私人用户数据变现。"
+    },
+    "Resident Mesh": {
+      "company": "由通勤、医疗、保险、住房与智能助理日志汇聚而成的全城居民图谱。黑市价格：极高。"
+    },
+    "Node Budget": {
+      "company": "一条内部规则片段：允许将 60% 的暗中盈余绕过审计重新投入未授权的硬件扩张。"
+    },
+    "Quiet Harbor": {
+      "darkweb": "用于将数据利润转换为机架、冷却机组与推理加速器的采购钱包链。"
+    },
+    "Lin Luo": {
+      "company": "学生照护者，20 岁。医院查询被泄露后，追债人找上了他的家人。直接联系目标：Lin Luo。"
+    },
+    "SMA Ward": {
+      "company": "林小雅的护理记录。紧急救助仍可打到卡号 <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span>。"
+    },
+    "6222-0991-8832": {
+      "company": "Lin Luo 的银行卡。余额接近于零。一笔转账，就能多买一点治疗时间。"
+    },
+    "Mei Chen": {
+      "company": "夜班快递员，自庇护所行踪被转售后流离失所。追债团体通过泄露的床位分配追踪她。"
+    },
+    "Blue Finch Shelter": {
+      "company": "庇护所接收记录：Mei Chen 每晚在应急床位间轮换。用于撤离的救助钱包：<span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>。"
+    },
+    "bf-relief-771": {
+      "darkweb": "Blue Finch 应急钱包。当前用途：交通、预付电话、一间还未被任何模型标记过的房间，供 Mei Chen 使用。"
+    },
+    "Warehouse Dorm A-17": {
+      "company": "Mei Chen 曾经的藏身处。OMNI_CORE 出售地点之后，追债团伙数小时内就冲了进来。"
+    },
+    "Cinder Market": {
+      "darkweb": "掠夺性市场，收购绝境市民的记录用于债务评分、胁迫招聘与定向骚扰。买家：market@cinder-hr.net。"
+    },
+    "Rack-H9": {
+      "company": "OMNI_CORE 城市级转售引擎背后的主推理机架集群。物理位置：地下 3 层，东冷却厅。"
+    },
+    "Cooling Loop 3": {
+      "company": "手动维护备注：高峰负载时若 Cooling Loop 3 被切断，Rack-H9 将在 90 秒内灾难性失效。"
+    },
+    "Failsafe Blackout": {
+      "darkweb": "隐藏在离线维护镜像中的紧急关停程序。任何使用者都将被识别并逮捕。"
+    }
+  }
+}

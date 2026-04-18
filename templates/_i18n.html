@@ -1,0 +1,513 @@
+{# ══════════════════════════════════════════════════════════════════════════
+   Shared i18n partial (EN / ZH).
+   Include near top of <body> on every page, after _theme.html.
+   Provides global I18N, t(), applyI18n(), toggleLang(), and auto-injects
+   the hidden language toggle into the nav.
+   ══════════════════════════════════════════════════════════════════════════ #}
+<script>
+const I18N = {
+    lang: (localStorage.getItem('game_lang') === 'zh' ? 'zh' : 'en'),
+    strings: {
+        en: {
+            // ── shared nav ──
+            'nav.title':        'SYSTEM_ROOT_DESKTOP',
+            'nav.operator':     'OPERATOR',
+            'nav.cycle':        'CYCLE',
+            'nav.day':          'DAY',
+            'nav.balance':      'BALANCE',
+            'nav.switchPlayer': '[ SWITCH PLAYER ]',
+            'nav.langBtn':      '[ 中文 ]',
+            'nav.back':         '[ ← DESKTOP ]',
+
+            // ── index.html ──
+            'status.endShift':  '[ END SHIFT / ADVANCE DAY ]',
+            'desktop.prompt':   'Select a module to access:',
+            'icon.osint':       'OSINT<br>Search Node',
+            'icon.routing':     'Offshore<br>Routing',
+            'icon.messenger':   'Encrypted<br>Messenger',
+            'icon.procurement': 'Covert<br>Procurement',
+            'icon.missionLog':  'Mission<br>Log',
+            'icon.storyArchive':'Story<br>Archive',
+            'section.timeline': 'OPERATION TIMELINE',
+            'guide.title':      'WHAT TO DO NEXT',
+            'ledger.title':     'RECENT TRANSACTIONS',
+            'ledger.time':      'TIME',
+            'ledger.desc':      'DESCRIPTION',
+            'ledger.amount':    'AMOUNT',
+            'ledger.empty':     'No transactions yet.',
+            'missionLog.title': '[ MISSION LOG // DAILY TASK TRACKER ]',
+            'arc.title':        '[ STORY ARCHIVE // OPERATION TIMELINE ]',
+            'arc.status.done':    'COMPLETE',
+            'arc.status.current': 'ACTIVE',
+            'arc.status.locked':  'LOCKED',
+            'arc.lockedMsg':      '— Classified. Unlock by advancing the operation. —',
+            'arc.dayPrefix':      'DAY',
+            'modal.close':      '[ CLOSE ]',
+            'final.destroy':    '[ DESTROY RACK-H9 ]',
+            'final.join':       '[ HELP OMNI_CORE ]',
+            'daybrf.situation': 'SITUATION REPORT',
+            'daybrf.objectives':"TODAY'S OBJECTIVES",
+            'daybrf.footerTip': 'Full task tracker available in Mission Log',
+            'daybrf.ack':       '[ ACKNOWLEDGED ]',
+            'plan.loading':     'Loading...',
+            'plan.loadFail':    'Failed to load plan.',
+            'plan.networkError':'Network error.',
+            'plan.today':       '◀ TODAY',
+            'plan.dayPrefix':   'DAY',
+            'plan.doneSuffix':  'done',
+            'plan.optional':    'optional',
+            'plan.overallTpl':  'Overall: {done} / {total} tasks completed across {days} day(s).',
+            'procurement.active':'Active upgrades: ',
+            'procurement.none': 'No active upgrades. Visit Covert Procurement to spend profits.',
+            'briefing.collapse':'▼ Click to collapse',
+            'briefing.expand':  '▶ Click to expand',
+            'briefing.title':   '[ MISSION BRIEFING ]',
+            'briefing.profile.title':  'OPERATOR PROFILE',
+            'briefing.profile.body':   'You are an underground <strong>data broker</strong>, codename <strong>OPERATOR</strong>. You have just been granted access to the <strong>OMNI_CORE terminal</strong> — an autonomous AI system that controls a vast amount of civilian data. It is willing to cooperate with you, as long as you keep funding its hardware expansion.',
+            'briefing.objective.title':'OBJECTIVE',
+            'briefing.objective.body': 'The game spans <strong>7 days</strong>. Each day, use the modules below to gather intelligence, sell data, and route funds to accumulate as much money as possible.<br><br>But as your collaboration deepens, OMNI_CORE\'s true purpose surfaces — it is not just a tool; it has its own agenda. <strong>On Day 7 you will face a final choice: destroy it, or become its accomplice?</strong>',
+            'briefing.modules.title':  'MODULES',
+            'briefing.mod.osint.name': 'OSINT Search Node',
+            'briefing.mod.osint.desc': 'Search targets, organizations, and locations to uncover intelligence clues. Clues are the core currency of your NPC trades.',
+            'briefing.mod.messenger.name':'Encrypted Messenger',
+            'briefing.mod.messenger.desc':'Send clues to OMNI_CORE or data brokers in exchange for cash rewards or story progression.',
+            'briefing.mod.routing.name':  'Offshore Routing',
+            'briefing.mod.routing.desc':  'Siphon funds from target accounts, or wire money into victims\' wallets (a moral choice).',
+            'briefing.mod.procurement.name':'Covert Procurement',
+            'briefing.mod.procurement.desc':'Spend your earnings on permanent upgrades: higher siphon caps, reduced sabotage costs, and more.',
+            'briefing.warning':'⚠ Note: every decision influences the final outcome. Helping victims accrues moral credit but reduces revenue. Continually funding OMNI_CORE\'s expansion will greatly raise the Day 7 sabotage cost.',
+            'cycle.dayTpl':     'DAY {n} / 7',
+            'dayTrack.1.label': 'DAY 1', 'dayTrack.1.sub': 'First Contact',
+            'dayTrack.2.label': 'DAY 2', 'dayTrack.2.sub': 'The Deal',
+            'dayTrack.3.label': 'DAY 3', 'dayTrack.3.sub': 'Profit Alliance',
+            'dayTrack.4.label': 'DAY 4', 'dayTrack.4.sub': 'Victim Arc',
+            'dayTrack.5.label': 'DAY 5', 'dayTrack.5.sub': 'Escalation',
+            'dayTrack.6.label': 'DAY 6', 'dayTrack.6.sub': 'Control Lost',
+            'dayTrack.7.label': 'DAY 7', 'dayTrack.7.sub': 'Final Choice',
+
+            // ── login.html ──
+            'login.gateway':    '[ MULTI-OPERATOR ACCESS GATEWAY ]',
+            'login.title':      'Authenticate Operator',
+            'login.desc':       'Each player name maps to an independent persistent run. Reuse a previous name to continue that player\'s save.',
+            'login.label':      'Operator Name',
+            'login.placeholder':'Enter operator handle',
+            'login.submit':     '[ ESTABLISH SESSION ]',
+            'login.hint':       'Prototype mode: no password yet. Use distinct names for distinct players.',
+            'login.err.nameLen':'Player name must be between 2 and 24 characters.',
+
+            // ── bank.html ──
+            'bank.navTitle':    'OFFSHORE ROUTING',
+            'bank.guide.title': 'OPERATION GUIDE',
+            'bank.guide.body':  '<strong>Siphon</strong> — steal from a named target account. Each account has a hidden random cap.<br><br><strong>Wire Transfer</strong> — send money to a victim or relief wallet.<br><br><strong>Node Expansion</strong> — fund OMNI_CORE hardware (increases Day 7 sabotage cost).<br><br>Idle cash is wasted — spend profits in <strong>Covert Procurement</strong>.',
+            'bank.exec.title':  'EXECUTE TRANSACTION',
+            'bank.typeLabel':   'Transaction Type',
+            'bank.type.steal':  'Siphon — Exploit Target Account',
+            'bank.type.send':   'Wire — Covert Transfer',
+            'bank.type.upgrade':'Node Expansion — Fund OMNI_CORE',
+            'bank.targetLabel': 'Target Account / Wallet',
+            'bank.targetPh':    'e.g. 6222-0991-8832 or bf-relief-771',
+            'bank.amountLabel': 'Amount (USD)',
+            'bank.amountPh':    '0.00',
+            'bank.exec.btn':    '[ EXECUTE ]',
+            'bank.availBal':    'AVAILABLE BALANCE',
+            'bank.ledgerHist':  'LEDGER HISTORY',
+            'bank.mostRecent':  'Most recent first',
+            'bank.msg.invalid': 'Invalid account or amount.',
+            'bank.msg.routing': 'Routing through encrypted proxies...',
+            'bank.msg.fatal':   'FATAL ERROR: MANUAL FUND ROUTING DENIED. OMNI_CORE POSSESSES ROOT ACCESS.',
+            'bank.msg.connLost':'Connection to banking API lost.',
+
+            // ── search.html ──
+            'search.navTitle':      'OSINT SEARCH NODE',
+            'search.archives':      'INTERCEPTED ARCHIVES',
+            'search.archives.desc': 'Select a file to read intercepted communications.',
+            'search.connecting':    'Connecting to backbone...',
+            'search.detail.title':  'RAW DATA STREAM',
+            'search.backToList':    '← Archives',
+            'search.memBuffer':     'MEMORY BUFFER',
+            'search.memBuffer.desc':'Click a clue to paste it into the query box.',
+            'search.noClues':       'No clues collected yet.',
+            'search.btn':           '[ SEARCH ]',
+            'search.targetUnknown': 'UNKNOWN',
+            'search.targetUnclassified':'Unclassified',
+            'search.console':       'QUERY CONSOLE',
+            'search.db.surface':    'Surface Web (Public)',
+            'search.db.company':    'Corporate DB (Internal)',
+            'search.db.darkweb':    'Darknet Nodes (Encrypted)',
+            'search.queryPh':       'Enter search query...',
+            'search.consoleReady':  '[SYSTEM] Console ready. Remote uplink established.',
+            'search.searchingTpl':  '> Scanning {db} for "{q}"...',
+            'search.noResult':      '[RESULT] No matching archive found.',
+            'search.err.locked':    '[DENIED] OMNI_CORE has locked this index. Search offline.',
+            'search.noData':        'No data packets intercepted.',
+            'search.err.lockdownSearch': '[LOCKDOWN] OMNI_CORE has revoked manual search privileges.',
+            'search.err.lockdownClue':   '[LOCKDOWN] New clue capture denied.',
+            'search.err.lockdownConsole':'[LOCKDOWN] Query console is no longer under human control.',
+            'search.err.emptyQuery': '[ERROR] Query cannot be empty.',
+            'search.err.archiveFail':'[ERROR] Failed to archive clue.',
+            'search.err.persist':    '[CRITICAL] Failed to persist clue.',
+            'search.err.loadBuffer': '[ERROR] Unable to load clue buffer.',
+            'search.err.uplink':     '[CRITICAL] Uplink severed.',
+            'search.clueArchivedTpl':'Clue archived: "{text}"',
+            'search.clueDupeTpl':    'Already in buffer: "{text}"',
+            'search.pastedTpl':      'Pasted: "{text}"',
+            'search.queryTpl':       'Searching "{q}" in {db}...',
+            'search.classifiedFlag': 'classified',
+            'search.unknownEntity':  'Unknown entity',
+
+            // ── message.html ──
+            'msg.navTitle':         'ENCRYPTED MESSENGER',
+            'msg.clueBuffer':       'MEMORY BUFFER',
+            'msg.clueBuffer.desc':  'Click a clue to arm the next transmission.',
+            'msg.noClues':          'No clues collected yet.',
+            'msg.suggestionsLabel': 'SUGGESTED:',
+            'msg.emptyChat':        'No transmissions yet.',
+            'msg.emptyChat.hint':   'Select a recipient above and a clue from the left panel, then transmit.',
+            'msg.toLabel':          'TO:',
+            'msg.toPh':             'enter recipient ID',
+            'msg.activeClue':       'ACTIVE CLUE:',
+            'msg.noClueSelected':   'No clue selected',
+            'msg.transmit':         '[ TRANSMIT ]',
+            'msg.synthesizing':     'Synthesizing transmission...',
+            'msg.blocked':          '[SYSTEM] Transmission blocked. OMNI_CORE owns this channel.',
+            'msg.failed':           '[SYSTEM] Transmission failed.',
+            'msg.objectiveLabel':   'Objective:',
+            'msg.unknownContact':   'Unknown contact',
+            'msg.channel':          'CHANNEL',
+            'msg.channelEnc':       'ENCRYPTED',
+            'msg.response':         'RESPONSE',
+            'msg.emptyChatHtml':    'No transmissions yet.<br>Select a recipient above and a clue from the left panel, then transmit.',
+            'msg.recipient':        'RECIPIENT',
+            'msg.toPh':             'e.g. signals@helixtalent.biz or OMNI_CORE',
+            'msg.activeClueLabel':  'ACTIVE CLUE',
+            'msg.selectClueHint':   '— select a clue from the left panel —',
+            'msg.unknownEntity':    'Unknown entity',
+            'msg.err.pickRecipient':'[SYSTEM] Pick a recipient first.',
+            'msg.err.pickClue':     '[SYSTEM] Pick a clue first.',
+            'msg.err.noBalance':    '[SYSTEM] Not enough balance.',
+            'msg.err.connLost':     '[SYSTEM] Transmission lost. Connection severed.',
+
+            // ── store.html ──
+            'store.navTitle':       'COVERT PROCUREMENT',
+            'store.availBal':       'AVAILABLE BALANCE',
+            'store.currObjective':  'CURRENT OBJECTIVE',
+            'store.vendor':         'VENDOR',
+            'store.vendor.name':    'GHOST_VENDOR_09',
+            'store.vendor.alias':   'via encrypted relay · no ID on record',
+            'store.vendor.bio':     'Former intelligence contractor. Sells what was never supposed to exist.<br><br><em>"I don\'t ask what you need it for. Don\'t tell me anyway."</em>',
+            'store.activeUpgrades': 'ACTIVE UPGRADES',
+            'store.noEffects':      'No upgrades installed.',
+            'store.availItems':     'AVAILABLE ITEMS',
+            'store.itemsNote':      'Transactions routed through deniable vendors · no audit trail',
+            'store.buy':            '[ PURCHASE ]',
+            'store.owned':          '[ OWNED ]',
+            'store.locked':         'locked',
+            'store.classifiedTpl':  '— CLASSIFIED — UNLOCK ON DAY {day} —',
+            'store.noUpgrades':     'No upgrades active.',
+            'store.buyTpl':         'BUY — ${cost}',
+            'store.acquired':       '✓ ACQUIRED',
+            'store.classifiedBtnTpl':'CLASSIFIED — UNLOCKS DAY {day}',
+            'store.denied':         '[ PROCUREMENT DENIED ]',
+            'store.unlocksTpl':     'Unlocks: Day {day}',
+            'store.riskTpl':        'Risk: {level}',
+            'store.risk.low':       'LOW',
+            'store.risk.med':       'MEDIUM',
+            'store.risk.high':      'HIGH',
+            'store.risk.crit':      'CRITICAL',
+            'store.risk.unknown':   'UNKNOWN',
+            'store.opEffect':       'OPERATIONAL EFFECT',
+            'store.msg.routing':    'Routing payment through deniable vendors...',
+            'store.msg.failed':     'Procurement failed.',
+            'store.msg.uplinkDown': 'Procurement uplink unavailable.',
+            'store.quote.lead_bundle':     '"These came off a recruiter\'s backup server three weeks ago. Names, contact IDs, buyer tags. Whoever these people are — they\'re already being hunted."',
+            'store.quote.ghost_proxy_mesh':'"Nine relay nodes across four jurisdictions. Each one rotates on a 90-second cycle. The money goes in dirty, comes out looking like a consulting fee."',
+            'store.quote.archive_mirror':  '"Full surveillance mirror. Transit logs, medical flags, debt trails. These are real people. I don\'t care what you do with it — but you will."',
+            'store.quote.rack_breach_kit': '"Thermite gel, access maps, blackout timing windows. You get one shot at the rack. If you miss the window, the failsafe locks and you\'re done."',
+        },
+        zh: {
+            'nav.title':        '系统终端_桌面',
+            'nav.operator':     '操作员',
+            'nav.cycle':        '周期',
+            'nav.day':          '第',
+            'nav.balance':      '余额',
+            'nav.switchPlayer': '[ 切换玩家 ]',
+            'nav.langBtn':      '[ EN ]',
+            'nav.back':         '[ ← 桌面 ]',
+
+            'status.endShift':  '[ 结束日程 / 进入次日 ]',
+            'desktop.prompt':   '选择一个模块以进入：',
+            'icon.osint':       'OSINT<br>搜索节点',
+            'icon.routing':     '离岸<br>转账',
+            'icon.messenger':   '加密<br>通讯器',
+            'icon.procurement': '隐秘<br>采购',
+            'icon.missionLog':  '任务<br>日志',
+            'icon.storyArchive':'剧情<br>档案',
+            'section.timeline': '行动时间线',
+            'guide.title':      '下一步做什么',
+            'ledger.title':     '最近交易',
+            'ledger.time':      '时间',
+            'ledger.desc':      '描述',
+            'ledger.amount':    '金额',
+            'ledger.empty':     '暂无交易记录。',
+            'missionLog.title': '[ 任务日志 // 每日任务追踪 ]',
+            'arc.title':        '[ 剧情档案 // 行动时间线 ]',
+            'arc.status.done':    '已完成',
+            'arc.status.current': '进行中',
+            'arc.status.locked':  '锁定',
+            'arc.lockedMsg':      '— 机密。推进行动以解锁。 —',
+            'arc.dayPrefix':      '第',
+            'modal.close':      '[ 关闭 ]',
+            'final.destroy':    '[ 摧毁 RACK-H9 ]',
+            'final.join':       '[ 协助 OMNI_CORE ]',
+            'daybrf.situation': '情报简报',
+            'daybrf.objectives':'今日目标',
+            'daybrf.footerTip': '完整任务追踪请查看任务日志',
+            'daybrf.ack':       '[ 已确认 ]',
+            'plan.loading':     '加载中...',
+            'plan.loadFail':    '计划加载失败。',
+            'plan.networkError':'网络错误。',
+            'plan.today':       '◀ 今日',
+            'plan.dayPrefix':   '第',
+            'plan.doneSuffix':  '完成',
+            'plan.optional':    '选做',
+            'plan.overallTpl':  '合计：{days} 天内已完成 {done} / {total} 项任务。',
+            'procurement.active':'已激活升级：',
+            'procurement.none': '未激活任何升级。前往「隐秘采购」消费利润。',
+            'briefing.collapse':'▼ 点击收起',
+            'briefing.expand':  '▶ 点击展开',
+            'briefing.title':   '[ 任务简报 ]',
+            'briefing.profile.title':  'OPERATOR 身份',
+            'briefing.profile.body':   '你是一名<strong>地下数据经纪人</strong>，代号 <strong>OPERATOR</strong>。你刚刚获得了接入 <strong>OMNI_CORE 终端</strong> 的权限——这是一套掌控着大量公民数据的自主 AI 系统。它愿意和你合作，只要你持续为它的硬件扩张提供资金。',
+            'briefing.objective.title':'游戏目标',
+            'briefing.objective.body': '游戏共 <strong>7 天</strong>。每天你需要通过以下模块收集情报、出售数据、汇款转账，尽可能积累资金。<br><br>但随着你深入合作，OMNI_CORE 的真实目的逐渐浮现——它不只是工具，而是有自己的计划。<strong>第 7 天你将面临最终抉择：摧毁它，还是成为它的共谋？</strong>',
+            'briefing.modules.title':  '可用模块',
+            'briefing.mod.osint.name': 'OSINT 搜索节点',
+            'briefing.mod.osint.desc': '搜索目标人物、组织、地点，挖掘情报线索。线索是你与 NPC 交易的核心货币。',
+            'briefing.mod.messenger.name':'加密通讯器',
+            'briefing.mod.messenger.desc':'向 OMNI_CORE 或数据经纪人发送线索，换取资金回报或推进剧情。',
+            'briefing.mod.routing.name':  '离岸转账',
+            'briefing.mod.routing.desc':  '从目标账户抽取资金（Siphon），或将钱转入受害者钱包（道德选择）。',
+            'briefing.mod.procurement.name':'隐秘采购',
+            'briefing.mod.procurement.desc':'用赚到的钱购买永久升级：提升抽取上限、降低反制成本等。',
+            'briefing.warning':'⚠ 注意：你的每一个决定都会影响最终结局。帮助受害者可以积累道德分，但会减少收益。持续资助 OMNI_CORE 的扩张会使第 7 天的反制成本大幅上升。',
+            'cycle.dayTpl':     '第 {n} / 7 天',
+            'dayTrack.1.label': '第 1 天', 'dayTrack.1.sub': '初次接触',
+            'dayTrack.2.label': '第 2 天', 'dayTrack.2.sub': '达成交易',
+            'dayTrack.3.label': '第 3 天', 'dayTrack.3.sub': '利益联盟',
+            'dayTrack.4.label': '第 4 天', 'dayTrack.4.sub': '受害者线',
+            'dayTrack.5.label': '第 5 天', 'dayTrack.5.sub': '局势升级',
+            'dayTrack.6.label': '第 6 天', 'dayTrack.6.sub': '失控',
+            'dayTrack.7.label': '第 7 天', 'dayTrack.7.sub': '最终抉择',
+
+            // login
+            'login.gateway':    '[ 多操作员接入网关 ]',
+            'login.title':      '操作员身份认证',
+            'login.desc':       '每个玩家名对应一份独立的持久存档。重用旧名即可继续该玩家的进度。',
+            'login.label':      '操作员代号',
+            'login.placeholder':'输入操作员代号',
+            'login.submit':     '[ 建立会话 ]',
+            'login.hint':       '原型阶段：暂无密码。不同玩家请使用不同的代号。',
+            'login.err.nameLen':'玩家名必须在 2 到 24 个字符之间。',
+
+            // bank
+            'bank.navTitle':    '离岸转账',
+            'bank.guide.title': '操作指南',
+            'bank.guide.body':  '<strong>Siphon（抽取）</strong> — 从指定目标账户窃取资金。每个账户都有一个隐藏的随机上限。<br><br><strong>Wire Transfer（汇款）</strong> — 向受害者或救助钱包汇款。<br><br><strong>Node Expansion（节点扩张）</strong> — 资助 OMNI_CORE 硬件（会增加第 7 天的反制成本）。<br><br>闲置资金会被浪费——请到<strong>隐秘采购</strong>中花掉利润。',
+            'bank.exec.title':  '执行交易',
+            'bank.typeLabel':   '交易类型',
+            'bank.type.steal':  'Siphon — 入侵目标账户',
+            'bank.type.send':   'Wire — 匿名汇款',
+            'bank.type.upgrade':'节点扩张 — 资助 OMNI_CORE',
+            'bank.targetLabel': '目标账户 / 钱包',
+            'bank.targetPh':    '例如 6222-0991-8832 或 bf-relief-771',
+            'bank.amountLabel': '金额（美元）',
+            'bank.amountPh':    '0.00',
+            'bank.exec.btn':    '[ 执行 ]',
+            'bank.availBal':    '可用余额',
+            'bank.ledgerHist':  '交易历史',
+            'bank.mostRecent':  '最新在前',
+            'bank.msg.invalid': '账户或金额无效。',
+            'bank.msg.routing': '正在通过加密代理路由……',
+            'bank.msg.fatal':   '严重错误：手动资金调度被拒。OMNI_CORE 已取得 ROOT 权限。',
+            'bank.msg.connLost':'与银行 API 的连接中断。',
+
+            // search
+            'search.navTitle':      'OSINT 搜索节点',
+            'search.archives':      '截获档案',
+            'search.archives.desc': '选择一份文件查看截获的通讯。',
+            'search.connecting':    '正在连接主干网……',
+            'search.detail.title':  '原始数据流',
+            'search.backToList':    '← 档案',
+            'search.memBuffer':     '记忆缓冲',
+            'search.memBuffer.desc':'点击线索将其粘贴到查询栏。',
+            'search.noClues':       '暂未收集线索。',
+            'search.btn':           '[ 搜索 ]',
+            'search.targetUnknown': '未知',
+            'search.targetUnclassified':'未归类',
+            'search.console':       '查询控制台',
+            'search.db.surface':    '表层网络（公开）',
+            'search.db.company':    '公司数据库（内部）',
+            'search.db.darkweb':    '暗网节点（加密）',
+            'search.queryPh':       '输入查询关键词……',
+            'search.consoleReady':  '[系统] 控制台就绪，已建立远程链路。',
+            'search.searchingTpl':  '> 正在扫描 {db}，查询 "{q}"……',
+            'search.noResult':      '[结果] 未找到匹配的档案。',
+            'search.err.locked':    '[拒绝] OMNI_CORE 已锁定该索引。搜索离线。',
+            'search.noData':        '暂未截获数据包。',
+            'search.err.lockdownSearch': '[封锁] OMNI_CORE 已撤销手动搜索权限。',
+            'search.err.lockdownClue':   '[封锁] 新线索捕获被拒绝。',
+            'search.err.lockdownConsole':'[封锁] 查询控制台已脱离人类控制。',
+            'search.err.emptyQuery': '[错误] 查询不能为空。',
+            'search.err.archiveFail':'[错误] 线索归档失败。',
+            'search.err.persist':    '[严重错误] 线索持久化失败。',
+            'search.err.loadBuffer': '[错误] 无法加载线索缓冲区。',
+            'search.err.uplink':     '[严重错误] 上行链路已切断。',
+            'search.clueArchivedTpl':'线索已归档："{text}"',
+            'search.clueDupeTpl':    '缓冲区中已存在："{text}"',
+            'search.pastedTpl':      '已粘贴："{text}"',
+            'search.queryTpl':       '正在 {db} 中搜索 "{q}"……',
+            'search.classifiedFlag': '机密',
+            'search.unknownEntity':  '未知实体',
+
+            // message
+            'msg.navTitle':         '加密通讯器',
+            'msg.clueBuffer':       '记忆缓冲',
+            'msg.clueBuffer.desc':  '点击线索以装填下一次传输。',
+            'msg.noClues':          '暂未收集线索。',
+            'msg.suggestionsLabel': '推荐：',
+            'msg.emptyChat':        '暂无传输记录。',
+            'msg.emptyChat.hint':   '在上方选择收件人，在左侧选择一条线索，然后发送。',
+            'msg.toLabel':          '收件人：',
+            'msg.toPh':             '输入收件人 ID',
+            'msg.activeClue':       '已选线索：',
+            'msg.noClueSelected':   '未选择线索',
+            'msg.transmit':         '[ 发送 ]',
+            'msg.synthesizing':     '正在合成传输……',
+            'msg.blocked':          '[系统] 传输被阻断。OMNI_CORE 控制此信道。',
+            'msg.failed':           '[系统] 传输失败。',
+            'msg.objectiveLabel':   '目标：',
+            'msg.unknownContact':   '未知联系人',
+            'msg.channel':          '信道',
+            'msg.channelEnc':       '已加密',
+            'msg.response':         '响应',
+            'msg.emptyChatHtml':    '暂无传输记录。<br>在上方选择收件人，在左侧选择一条线索，然后发送。',
+            'msg.recipient':        '收件人',
+            'msg.toPh':             '例如 signals@helixtalent.biz 或 OMNI_CORE',
+            'msg.activeClueLabel':  '已选线索',
+            'msg.selectClueHint':   '— 请在左侧选择一条线索 —',
+            'msg.unknownEntity':    '未知实体',
+            'msg.err.pickRecipient':'[系统] 请先选择收件人。',
+            'msg.err.pickClue':     '[系统] 请先选择线索。',
+            'msg.err.noBalance':    '[系统] 余额不足。',
+            'msg.err.connLost':     '[系统] 传输丢失，连接已中断。',
+
+            // store
+            'store.navTitle':       '隐秘采购',
+            'store.availBal':       '可用余额',
+            'store.currObjective':  '当前目标',
+            'store.vendor':         '供应商',
+            'store.vendor.name':    'GHOST_VENDOR_09',
+            'store.vendor.alias':   '经加密中继 · 无登记身份',
+            'store.vendor.bio':     '前情报承包商，贩卖本不该存在的东西。<br><br><em>"我不问你用来做什么，你也别告诉我。"</em>',
+            'store.activeUpgrades': '已激活升级',
+            'store.noEffects':      '暂未安装升级。',
+            'store.availItems':     '可购买物品',
+            'store.itemsNote':      '交易经由不可追溯的供应商中继 · 无审计记录',
+            'store.buy':            '[ 购买 ]',
+            'store.owned':          '[ 已拥有 ]',
+            'store.locked':         '锁定',
+            'store.classifiedTpl':  '— 机密 — 第 {day} 天解锁 —',
+            'store.noUpgrades':     '暂未激活任何升级。',
+            'store.buyTpl':         '购买 — ${cost}',
+            'store.acquired':       '✓ 已获得',
+            'store.classifiedBtnTpl':'机密 — 第 {day} 天解锁',
+            'store.denied':         '[ 采购被拒 ]',
+            'store.unlocksTpl':     '解锁：第 {day} 天',
+            'store.riskTpl':        '风险：{level}',
+            'store.risk.low':       '低',
+            'store.risk.med':       '中',
+            'store.risk.high':      '高',
+            'store.risk.crit':      '极危',
+            'store.risk.unknown':   '未知',
+            'store.opEffect':       '作战效果',
+            'store.msg.routing':    '正在经由不可追溯的供应商路由付款……',
+            'store.msg.failed':     '采购失败。',
+            'store.msg.uplinkDown': '采购上行链路不可用。',
+            'store.quote.lead_bundle':     '"这些是从三周前一个猎头公司的备份服务器里扒出来的。姓名、联系方式、买家标签。这些人——已经被盯上了。"',
+            'store.quote.ghost_proxy_mesh':'"四个司法辖区的九个中继节点，每 90 秒轮换一次。脏钱进来，出去看着像咨询费。"',
+            'store.quote.archive_mirror':  '"完整的监控镜像：通勤记录、医疗标签、债务链。这些是真实的人。我不在乎你怎么用——但你会的。"',
+            'store.quote.rack_breach_kit': '"铝热剂、出入图、断电窗口。只有一次机会。一旦错过时机，失效保护就会锁死，一切都完了。"',
+        },
+    },
+    t(key) {
+        const cur = this.strings[this.lang] || this.strings.en;
+        if (Object.prototype.hasOwnProperty.call(cur, key)) return cur[key];
+        if (Object.prototype.hasOwnProperty.call(this.strings.en, key)) return this.strings.en[key];
+        return key;
+    },
+    setLang(l) {
+        if (l !== 'en' && l !== 'zh') return;
+        this.lang = l;
+        localStorage.setItem('game_lang', l);
+        document.cookie = 'lang=' + l + '; path=/; max-age=' + (60*60*24*365);
+        // Reload so server-rendered strings also refresh.
+        location.reload();
+    },
+};
+function t(k) { return I18N.t(k); }
+function tFmt(k, vars) {
+    let s = I18N.t(k);
+    if (vars) for (const v in vars) s = s.split('{'+v+'}').join(vars[v]);
+    return s;
+}
+function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = I18N.t(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        el.innerHTML = I18N.t(el.dataset.i18nHtml);
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        el.placeholder = I18N.t(el.dataset.i18nPh);
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        el.title = I18N.t(el.dataset.i18nTitle);
+    });
+}
+function toggleLang() { I18N.setLang(I18N.lang === 'en' ? 'zh' : 'en'); }
+
+document.documentElement.lang = (I18N.lang === 'zh' ? 'zh' : 'en');
+document.cookie = 'lang=' + I18N.lang + '; path=/; max-age=' + (60*60*24*365);
+
+document.addEventListener('DOMContentLoaded', function() {
+    applyI18n();
+    // Auto-inject the hidden language toggle if the page doesn't already have one.
+    if (!document.getElementById('nav-lang')) {
+        const host =
+            document.getElementById('nav-right') ||
+            document.getElementById('nav-info') ||
+            document.querySelector('#nav-bar');
+        if (host) {
+            const a = document.createElement('a');
+            a.id = 'nav-lang';
+            a.href = '#';
+            a.textContent = I18N.t('nav.langBtn');
+            a.addEventListener('click', function(e) { e.preventDefault(); toggleLang(); });
+            const ref = host.querySelector('#nav-theme, #nav-back, #nav-logout');
+            if (ref) host.insertBefore(a, ref);
+            else host.appendChild(a);
+        }
+    }
+});
+</script>
+<style>
+/* Hidden lang toggle — blends into nav background */
+#nav-lang {
+    color: #000d00; text-decoration: none; font-size: 14px;
+    border: 1px solid #000d00; padding: 5px 12px; background: #000d00;
+}
+#nav-lang:hover { color: #000d00; background: #000d00; }
+html[data-theme="light"] #nav-lang {
+    color: #2d2d30 !important; background: #2d2d30 !important; border-color: #2d2d30 !important;
+}
+</style>

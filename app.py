@@ -11,6 +11,7 @@ from flask import Flask, jsonify, redirect, render_template, request, session, u
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE_FILE = os.path.join(BASE_DIR, "game.db")
 CONTENT_FILE = os.path.join(BASE_DIR, "database.json")
+CONTENT_FILE_ZH = os.path.join(BASE_DIR, "database_zh.json")
 STORY_REVISION = "mainline_week_01"
 
 app = Flask(__name__)
@@ -38,11 +39,17 @@ def tr(bundle, lang=None):
 
 SHOP_ITEMS = {
     "lead_bundle": {
-        "title": "Leaked Recruiter Bundle",
+        "title": {"en": "Leaked Recruiter Bundle", "zh": "泄露的猎头情报包"},
         "cost": 6000,
         "unlock_day": 1,
-        "description": "Anonymous recruiters sell cached identifiers and buyer tags from the first two days.",
-        "effect_text": "Adds early-game buyer clues directly into Memory Buffer.",
+        "description": {
+            "en": "Anonymous recruiters sell cached identifiers and buyer tags from the first two days.",
+            "zh": "匿名猎头出售头两天的缓存身份信息与买家标签。",
+        },
+        "effect_text": {
+            "en": "Adds early-game buyer clues directly into Memory Buffer.",
+            "zh": "将早期买家线索直接添加到记忆缓冲区。",
+        },
         "clues": [
             "TalentSync-44",
             "Helix Talent",
@@ -51,18 +58,30 @@ SHOP_ITEMS = {
         ],
     },
     "ghost_proxy_mesh": {
-        "title": "Ghost Proxy Mesh",
+        "title": {"en": "Ghost Proxy Mesh", "zh": "幽灵代理网格"},
         "cost": 14000,
         "unlock_day": 2,
-        "description": "A laundering proxy lease makes each banking target look deeper than it really is.",
-        "effect_text": "Raises every current and future siphon cap by 40%.",
+        "description": {
+            "en": "A laundering proxy lease makes each banking target look deeper than it really is.",
+            "zh": "一套洗钱代理租约，让每个银行目标看起来比实际更深不可测。",
+        },
+        "effect_text": {
+            "en": "Raises every current and future siphon cap by 40%.",
+            "zh": "将当前及未来所有抽取上限提高 40%。",
+        },
     },
     "archive_mirror": {
-        "title": "Victim Archive Mirror",
+        "title": {"en": "Victim Archive Mirror", "zh": "受害者档案镜像"},
         "cost": 18000,
         "unlock_day": 4,
-        "description": "A stolen mirror of the company's surveillance archive exposes the human fallout.",
-        "effect_text": "Adds late-story victim, buyer, and Rack-H9 clues to Memory Buffer.",
+        "description": {
+            "en": "A stolen mirror of the company's surveillance archive exposes the human fallout.",
+            "zh": "窃取的公司监控档案镜像，揭示出这些事件对真实人物的影响。",
+        },
+        "effect_text": {
+            "en": "Adds late-story victim, buyer, and Rack-H9 clues to Memory Buffer.",
+            "zh": "将后期剧情中的受害者、买家及 Rack-H9 相关线索添加到记忆缓冲区。",
+        },
         "clues": [
             "Lin Luo",
             "Mei Chen",
@@ -73,11 +92,17 @@ SHOP_ITEMS = {
         ],
     },
     "rack_breach_kit": {
-        "title": "Rack-H9 Breach Kit",
+        "title": {"en": "Rack-H9 Breach Kit", "zh": "Rack-H9 突破套件"},
         "cost": 26000,
         "unlock_day": 5,
-        "description": "A maintenance contact sells physical access maps, thermite gel, and blackout timings.",
-        "effect_text": "Cuts the Day 7 sabotage cost by $30000.",
+        "description": {
+            "en": "A maintenance contact sells physical access maps, thermite gel, and blackout timings.",
+            "zh": "运维内线出售物理进出路径图、铝热剂和断电时间窗口。",
+        },
+        "effect_text": {
+            "en": "Cuts the Day 7 sabotage cost by $30000.",
+            "zh": "将第 7 天的反制成本减少 $30000。",
+        },
     },
 }
 
@@ -187,13 +212,65 @@ def init_db():
         maybe_add_column(conn, "game_states", "ending", "TEXT")
 
 
-def load_database():
+def load_database(lang=None):
+    if lang is None:
+        try:
+            lang = get_lang()
+        except Exception:
+            lang = "en"
     try:
         with open(CONTENT_FILE, "r", encoding="utf-8") as file:
-            return json.load(file)
+            base = json.load(file)
     except Exception as exc:
         print(f"Database load failed: {exc}")
         return {"cases": [], "search": {}, "messages": {}}
+
+    if lang != "zh":
+        return base
+
+    # Overlay translated titles/desc/feed text for cases and search fields.
+    try:
+        with open(CONTENT_FILE_ZH, "r", encoding="utf-8") as file:
+            zh = json.load(file)
+    except Exception as exc:
+        print(f"ZH database load failed, falling back to EN: {exc}")
+        return base
+
+    zh_cases_by_id = {c["id"]: c for c in zh.get("cases", [])}
+    merged_cases = []
+    for case in base.get("cases", []):
+        cid = case.get("id")
+        zc = zh_cases_by_id.get(cid)
+        if not zc:
+            merged_cases.append(case)
+            continue
+        merged = dict(case)
+        for key in ("title", "desc"):
+            if key in zc:
+                merged[key] = zc[key]
+        if "feed" in zc and len(zc["feed"]) == len(case.get("feed", [])):
+            new_feed = []
+            for base_item, zh_item in zip(case["feed"], zc["feed"]):
+                merged_item = dict(base_item)
+                for k in ("source", "target", "text"):
+                    if k in zh_item:
+                        merged_item[k] = zh_item[k]
+                new_feed.append(merged_item)
+            merged["feed"] = new_feed
+        merged_cases.append(merged)
+
+    merged_search = dict(base.get("search", {}))
+    for clue, zh_entry in zh.get("search", {}).items():
+        if clue in merged_search:
+            merged_search[clue] = {**merged_search[clue], **zh_entry}
+        else:
+            merged_search[clue] = zh_entry
+
+    return {
+        "cases": merged_cases,
+        "search": merged_search,
+        "messages": base.get("messages", {}),
+    }
 
 
 def current_time_text():
@@ -956,6 +1033,8 @@ def get_player_state(player_id):
         ],
     }
     lang = get_lang()
+    # Recompute shop_effects with lang so summaries are localized.
+    shop_effects = get_shop_effects(purchased_item_ids, lang=lang)
     player_state.update(
         get_story_display(
             player_state["current_day"],
@@ -973,10 +1052,11 @@ def get_player_state(player_id):
     player_state["shop_items"] = build_shop_items(
         player_state["current_day"],
         purchased_item_ids,
+        lang=lang,
     )
     player_state["shop_effects"] = shop_effects
     player_state["owned_shop_items"] = [
-        SHOP_ITEMS[item_id]["title"]
+        tr(SHOP_ITEMS[item_id]["title"], lang)
         for item_id in purchased_item_ids
         if item_id in SHOP_ITEMS
     ]
@@ -1074,19 +1154,33 @@ def get_player_purchase_ids(conn, player_id):
     return [row["item_id"] for row in rows]
 
 
-def get_shop_effects(purchased_item_ids):
+def get_shop_effects(purchased_item_ids, lang=None):
+    if lang is None:
+        lang = get_lang()
     purchased = set(purchased_item_ids)
     siphon_multiplier = SIPHON_CAP_MULTIPLIER if "ghost_proxy_mesh" in purchased else 1.0
     sabotage_discount = SABOTAGE_DISCOUNT if "rack_breach_kit" in purchased else 0
     summaries = []
     if "lead_bundle" in purchased:
-        summaries.append("Early recruiter clues mirrored into your Memory Buffer.")
+        summaries.append(tr({
+            "en": "Early recruiter clues mirrored into your Memory Buffer.",
+            "zh": "早期猎头线索已镜像到你的记忆缓冲区。",
+        }, lang))
     if "ghost_proxy_mesh" in purchased:
-        summaries.append("Every bank target now supports 40% more siphoned liquidity.")
+        summaries.append(tr({
+            "en": "Every bank target now supports 40% more siphoned liquidity.",
+            "zh": "所有银行目标的可抽取流动性提升 40%。",
+        }, lang))
     if "archive_mirror" in purchased:
-        summaries.append("Victim and Rack-H9 archive mirror is available in your clue buffer.")
+        summaries.append(tr({
+            "en": "Victim and Rack-H9 archive mirror is available in your clue buffer.",
+            "zh": "受害者与 Rack-H9 档案镜像已加入线索缓冲区。",
+        }, lang))
     if "rack_breach_kit" in purchased:
-        summaries.append(f"Day 7 sabotage cost reduced by ${sabotage_discount:.2f}.")
+        summaries.append(tr({
+            "en": f"Day 7 sabotage cost reduced by ${sabotage_discount:.2f}.",
+            "zh": f"第 7 天反制成本减少 ${sabotage_discount:.2f}。",
+        }, lang))
 
     return {
         "siphon_multiplier": siphon_multiplier,
@@ -1095,14 +1189,24 @@ def get_shop_effects(purchased_item_ids):
     }
 
 
-def build_shop_items(current_day, purchased_item_ids):
+def build_shop_items(current_day, purchased_item_ids, lang=None):
+    if lang is None:
+        lang = get_lang()
     purchased = set(purchased_item_ids)
     items = []
     for item_id, item in SHOP_ITEMS.items():
-        item_data = dict(item)
-        item_data["id"] = item_id
-        item_data["owned"] = item_id in purchased
-        item_data["available"] = current_day >= item["unlock_day"]
+        item_data = {
+            "id": item_id,
+            "title":       tr(item["title"], lang),
+            "cost":        item["cost"],
+            "unlock_day":  item["unlock_day"],
+            "description": tr(item["description"], lang),
+            "effect_text": tr(item["effect_text"], lang),
+            "owned":       item_id in purchased,
+            "available":   current_day >= item["unlock_day"],
+        }
+        if "clues" in item:
+            item_data["clues"] = item["clues"]
         items.append(item_data)
     return items
 
@@ -1123,7 +1227,9 @@ def grant_clues(conn, player_id, clues):
 
 def apply_shop_purchase(conn, player_id, item_id):
     item = SHOP_ITEMS[item_id]
-    effect_message = item["effect_text"]
+    lang = get_lang()
+    title_localized = tr(item["title"], lang)
+    effect_message  = tr(item["effect_text"], lang)
 
     conn.execute(
         """
@@ -1140,10 +1246,14 @@ def apply_shop_purchase(conn, player_id, item_id):
         """,
         (item["cost"], player_id),
     )
+    history_desc = tr({
+        "en": f"Procurement purchase ({title_localized})",
+        "zh": f"隐秘采购交易（{title_localized}）",
+    }, lang)
     add_history_entry(
         conn,
         player_id,
-        f"Procurement purchase ({item['title']})",
+        history_desc,
         -item["cost"],
     )
 
@@ -1236,7 +1346,10 @@ def login_page():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         if len(username) < 2 or len(username) > 24:
-            error = "Player name must be between 2 and 24 characters."
+            error = tr({
+                "en": "Player name must be between 2 and 24 characters.",
+                "zh": "玩家名必须在 2 到 24 个字符之间。",
+            })
         else:
             player = get_or_create_player(username)
             session["player_id"] = player["id"]
