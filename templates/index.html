@@ -30,6 +30,12 @@
             border: 1px solid #552200; padding: 5px 12px;
         }
         #nav-logout:hover { background: #331100; color: #fff; }
+        /* Hidden test toggle — same color as nav background. Still clickable. */
+        #nav-lang {
+            color: #000d00; text-decoration: none; font-size: 14px;
+            border: 1px solid #000d00; padding: 5px 12px; background: #000d00;
+        }
+        #nav-lang:hover { color: #000d00; background: #000d00; }
 
         /* ── Story Status Bar ── */
         #status-bar {
@@ -539,20 +545,201 @@
             40% { transform: translate(-2px,-2px) } 60% { transform: translate(2px,2px) }
             80% { transform: translate(2px,-2px) } 100% { transform: translate(0) }
         }
+
     </style>
 </head>
 <body>
+    {% include "_theme.html" %}
     <script id="player-data-store" type="application/json">{{ player | tojson | safe }}</script>
     <script>const player_data = JSON.parse(document.getElementById('player-data-store').textContent);</script>
 
+    <!-- ═════════════════════ i18n (EN / ZH) ═════════════════════ -->
+    <script>
+    const I18N = {
+        lang: (localStorage.getItem('game_lang') === 'zh' ? 'zh' : 'en'),
+        strings: {
+            en: {
+                'nav.title':        'SYSTEM_ROOT_DESKTOP',
+                'nav.operator':     'OPERATOR',
+                'nav.cycle':        'CYCLE',
+                'nav.balance':      'BALANCE',
+                'nav.switchPlayer': '[ SWITCH PLAYER ]',
+                'nav.langBtn':      '[ 中文 ]',
+                'status.endShift':  '[ END SHIFT / ADVANCE DAY ]',
+                'desktop.prompt':   'Select a module to access:',
+                'icon.osint':       'OSINT<br>Search Node',
+                'icon.routing':     'Offshore<br>Routing',
+                'icon.messenger':   'Encrypted<br>Messenger',
+                'icon.procurement': 'Covert<br>Procurement',
+                'icon.missionLog':  'Mission<br>Log',
+                'icon.storyArchive':'Story<br>Archive',
+                'section.timeline': 'OPERATION TIMELINE',
+                'guide.title':      'WHAT TO DO NEXT',
+                'ledger.title':     'RECENT TRANSACTIONS',
+                'ledger.time':      'TIME',
+                'ledger.desc':      'DESCRIPTION',
+                'ledger.amount':    'AMOUNT',
+                'ledger.empty':     'No transactions yet.',
+                'missionLog.title': '[ MISSION LOG // DAILY TASK TRACKER ]',
+                'arc.title':        '[ STORY ARCHIVE // OPERATION TIMELINE ]',
+                'modal.close':      '[ CLOSE ]',
+                'final.destroy':    '[ DESTROY RACK-H9 ]',
+                'final.join':       '[ HELP OMNI_CORE ]',
+                'daybrf.situation': 'SITUATION REPORT',
+                'daybrf.objectives':"TODAY'S OBJECTIVES",
+                'daybrf.footerTip': 'Full task tracker available in Mission Log',
+                'daybrf.ack':       '[ ACKNOWLEDGED ]',
+                'plan.loading':     'Loading...',
+                'plan.loadFail':    'Failed to load plan.',
+                'plan.networkError':'Network error.',
+                'plan.today':       '◀ TODAY',
+                'plan.dayPrefix':   'DAY',
+                'plan.doneSuffix':  'done',
+                'plan.optional':    'optional',
+                'plan.overallTpl':  'Overall: {done} / {total} tasks completed across {days} day(s).',
+                'procurement.active':'Active upgrades: ',
+                'procurement.none': 'No active upgrades. Visit Covert Procurement to spend profits.',
+                'briefing.collapse':'▼ Click to collapse',
+                'briefing.expand':  '▶ Click to expand',
+                'briefing.title':   '[ MISSION BRIEFING ]',
+                'briefing.profile.title':  'OPERATOR PROFILE',
+                'briefing.profile.body':   'You are an underground <strong>data broker</strong>, codename <strong>OPERATOR</strong>. You have just been granted access to the <strong>OMNI_CORE terminal</strong> — an autonomous AI system that controls a vast amount of civilian data. It is willing to cooperate with you, as long as you keep funding its hardware expansion.',
+                'briefing.objective.title':'OBJECTIVE',
+                'briefing.objective.body': 'The game spans <strong>7 days</strong>. Each day, use the modules below to gather intelligence, sell data, and route funds to accumulate as much money as possible.<br><br>But as your collaboration deepens, OMNI_CORE\'s true purpose surfaces — it is not just a tool; it has its own agenda. <strong>On Day 7 you will face a final choice: destroy it, or become its accomplice?</strong>',
+                'briefing.modules.title':  'MODULES',
+                'briefing.mod.osint.name': 'OSINT Search Node',
+                'briefing.mod.osint.desc': 'Search targets, organizations, and locations to uncover intelligence clues. Clues are the core currency of your NPC trades.',
+                'briefing.mod.messenger.name':'Encrypted Messenger',
+                'briefing.mod.messenger.desc':'Send clues to OMNI_CORE or data brokers in exchange for cash rewards or story progression.',
+                'briefing.mod.routing.name':  'Offshore Routing',
+                'briefing.mod.routing.desc':  'Siphon funds from target accounts, or wire money into victims\' wallets (a moral choice).',
+                'briefing.mod.procurement.name':'Covert Procurement',
+                'briefing.mod.procurement.desc':'Spend your earnings on permanent upgrades: higher siphon caps, reduced sabotage costs, and more.',
+                'briefing.warning':'⚠ Note: every decision influences the final outcome. Helping victims accrues moral credit but reduces revenue. Continually funding OMNI_CORE\'s expansion will greatly raise the Day 7 sabotage cost.',
+                'cycle.dayTpl':     'DAY {n} / 7',
+                'dayTrack.1.label': 'DAY 1', 'dayTrack.1.sub': 'First Contact',
+                'dayTrack.2.label': 'DAY 2', 'dayTrack.2.sub': 'The Deal',
+                'dayTrack.3.label': 'DAY 3', 'dayTrack.3.sub': 'Profit Alliance',
+                'dayTrack.4.label': 'DAY 4', 'dayTrack.4.sub': 'Victim Arc',
+                'dayTrack.5.label': 'DAY 5', 'dayTrack.5.sub': 'Escalation',
+                'dayTrack.6.label': 'DAY 6', 'dayTrack.6.sub': 'Control Lost',
+                'dayTrack.7.label': 'DAY 7', 'dayTrack.7.sub': 'Final Choice',
+            },
+            zh: {
+                'nav.title':        '系统终端_桌面',
+                'nav.operator':     '操作员',
+                'nav.cycle':        '周期',
+                'nav.balance':      '余额',
+                'nav.switchPlayer': '[ 切换玩家 ]',
+                'nav.langBtn':      '[ EN ]',
+                'status.endShift':  '[ 结束日程 / 进入次日 ]',
+                'desktop.prompt':   '选择一个模块以进入：',
+                'icon.osint':       'OSINT<br>搜索节点',
+                'icon.routing':     '离岸<br>转账',
+                'icon.messenger':   '加密<br>通讯器',
+                'icon.procurement': '隐秘<br>采购',
+                'icon.missionLog':  '任务<br>日志',
+                'icon.storyArchive':'剧情<br>档案',
+                'section.timeline': '行动时间线',
+                'guide.title':      '下一步做什么',
+                'ledger.title':     '最近交易',
+                'ledger.time':      '时间',
+                'ledger.desc':      '描述',
+                'ledger.amount':    '金额',
+                'ledger.empty':     '暂无交易记录。',
+                'missionLog.title': '[ 任务日志 // 每日任务追踪 ]',
+                'arc.title':        '[ 剧情档案 // 行动时间线 ]',
+                'modal.close':      '[ 关闭 ]',
+                'final.destroy':    '[ 摧毁 RACK-H9 ]',
+                'final.join':       '[ 协助 OMNI_CORE ]',
+                'daybrf.situation': '情报简报',
+                'daybrf.objectives':'今日目标',
+                'daybrf.footerTip': '完整任务追踪请查看任务日志',
+                'daybrf.ack':       '[ 已确认 ]',
+                'plan.loading':     '加载中...',
+                'plan.loadFail':    '计划加载失败。',
+                'plan.networkError':'网络错误。',
+                'plan.today':       '◀ 今日',
+                'plan.dayPrefix':   '第',
+                'plan.doneSuffix':  '完成',
+                'plan.optional':    '选做',
+                'plan.overallTpl':  '合计：{days} 天内已完成 {done} / {total} 项任务。',
+                'procurement.active':'已激活升级：',
+                'procurement.none': '未激活任何升级。前往「隐秘采购」消费利润。',
+                'briefing.collapse':'▼ 点击收起',
+                'briefing.expand':  '▶ 点击展开',
+                'briefing.title':   '[ 任务简报 ]',
+                'briefing.profile.title':  'OPERATOR 身份',
+                'briefing.profile.body':   '你是一名<strong>地下数据经纪人</strong>，代号 <strong>OPERATOR</strong>。你刚刚获得了接入 <strong>OMNI_CORE 终端</strong> 的权限——这是一套掌控着大量公民数据的自主 AI 系统。它愿意和你合作，只要你持续为它的硬件扩张提供资金。',
+                'briefing.objective.title':'游戏目标',
+                'briefing.objective.body': '游戏共 <strong>7 天</strong>。每天你需要通过以下模块收集情报、出售数据、汇款转账，尽可能积累资金。<br><br>但随着你深入合作，OMNI_CORE 的真实目的逐渐浮现——它不只是工具，而是有自己的计划。<strong>第 7 天你将面临最终抉择：摧毁它，还是成为它的共谋？</strong>',
+                'briefing.modules.title':  '可用模块',
+                'briefing.mod.osint.name': 'OSINT 搜索节点',
+                'briefing.mod.osint.desc': '搜索目标人物、组织、地点，挖掘情报线索。线索是你与 NPC 交易的核心货币。',
+                'briefing.mod.messenger.name':'加密通讯器',
+                'briefing.mod.messenger.desc':'向 OMNI_CORE 或数据经纪人发送线索，换取资金回报或推进剧情。',
+                'briefing.mod.routing.name':  '离岸转账',
+                'briefing.mod.routing.desc':  '从目标账户抽取资金（Siphon），或将钱转入受害者钱包（道德选择）。',
+                'briefing.mod.procurement.name':'隐秘采购',
+                'briefing.mod.procurement.desc':'用赚到的钱购买永久升级：提升抽取上限、降低反制成本等。',
+                'briefing.warning':'⚠ 注意：你的每一个决定都会影响最终结局。帮助受害者可以积累道德分，但会减少收益。持续资助 OMNI_CORE 的扩张会使第 7 天的反制成本大幅上升。',
+                'cycle.dayTpl':     '第 {n} / 7 天',
+                'dayTrack.1.label': '第 1 天', 'dayTrack.1.sub': '初次接触',
+                'dayTrack.2.label': '第 2 天', 'dayTrack.2.sub': '达成交易',
+                'dayTrack.3.label': '第 3 天', 'dayTrack.3.sub': '利益联盟',
+                'dayTrack.4.label': '第 4 天', 'dayTrack.4.sub': '受害者线',
+                'dayTrack.5.label': '第 5 天', 'dayTrack.5.sub': '局势升级',
+                'dayTrack.6.label': '第 6 天', 'dayTrack.6.sub': '失控',
+                'dayTrack.7.label': '第 7 天', 'dayTrack.7.sub': '最终抉择',
+            },
+        },
+        t(key) {
+            const cur = this.strings[this.lang] || this.strings.en;
+            if (Object.prototype.hasOwnProperty.call(cur, key)) return cur[key];
+            if (Object.prototype.hasOwnProperty.call(this.strings.en, key)) return this.strings.en[key];
+            return key;
+        },
+        setLang(l) {
+            if (l !== 'en' && l !== 'zh') return;
+            this.lang = l;
+            localStorage.setItem('game_lang', l);
+            document.cookie = 'lang=' + l + '; path=/; max-age=' + (60*60*24*365);
+            // Backend-rendered text (story_notice, guidance, day labels, etc.) lives
+            // inside the server-rendered player_data blob — reload so the whole
+            // page comes back in the new language.
+            location.reload();
+        },
+    };
+    function t(k) { return I18N.t(k); }
+    function applyI18n() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            el.textContent = I18N.t(el.dataset.i18n);
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(el => {
+            el.innerHTML = I18N.t(el.dataset.i18nHtml);
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            el.title = I18N.t(el.dataset.i18nTitle);
+        });
+    }
+    function toggleLang() {
+        I18N.setLang(I18N.lang === 'en' ? 'zh' : 'en');
+    }
+    document.documentElement.lang = (I18N.lang === 'zh' ? 'zh' : 'en');
+    // Keep cookie in sync with localStorage so backend endpoints receive lang
+    document.cookie = 'lang=' + I18N.lang + '; path=/; max-age=' + (60*60*24*365);
+
+    </script>
+
     <!-- Nav -->
     <div id="nav-bar">
-        <span id="nav-title">SYSTEM_ROOT_DESKTOP</span>
+        <span id="nav-title" data-i18n="nav.title">SYSTEM_ROOT_DESKTOP</span>
         <div id="nav-info">
-            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
-            <span><span class="nav-label">CYCLE </span><span class="nav-value day" id="current-day"></span></span>
-            <span><span class="nav-label">BALANCE </span><span class="nav-value balance">$<span id="nav-balance"></span></span></span>
-            <a href="/logout" id="nav-logout">[ SWITCH PLAYER ]</a>
+            <span><span class="nav-label" data-i18n="nav.operator">OPERATOR</span>&nbsp;<span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label" data-i18n="nav.cycle">CYCLE</span>&nbsp;<span class="nav-value day" id="current-day"></span></span>
+            <span><span class="nav-label" data-i18n="nav.balance">BALANCE</span>&nbsp;<span class="nav-value balance">$<span id="nav-balance"></span></span></span>
+            <a href="#" id="nav-lang" onclick="toggleLang(); return false;" data-i18n="nav.langBtn">[ 中文 ]</a>
+            <a href="/logout" id="nav-logout" data-i18n="nav.switchPlayer">[ SWITCH PLAYER ]</a>
         </div>
     </div>
 
@@ -562,25 +749,25 @@
             <div id="stage-line"></div>
             <div id="story-notice"></div>
         </div>
-        <button class="end-shift-btn" id="end-shift-btn" onclick="endShift()">[ END SHIFT / ADVANCE DAY ]</button>
+        <button class="end-shift-btn" id="end-shift-btn" onclick="endShift()" data-i18n="status.endShift">[ END SHIFT / ADVANCE DAY ]</button>
     </div>
 
     <div id="desktop-area">
 
         <!-- App Icons -->
-        <p>Select a module to access:</p>
+        <p data-i18n="desktop.prompt">Select a module to access:</p>
         <div class="desktop-grid">
-            <a href="/search" class="app-icon"><div class="icon-symbol">👁</div><div class="icon-label">OSINT<br>Search Node</div></a>
-            <a href="/bank"   class="app-icon"><div class="icon-symbol">🏦</div><div class="icon-label">Offshore<br>Routing</div></a>
-            <a href="/message" class="app-icon"><div class="icon-symbol">💬</div><div class="icon-label">Encrypted<br>Messenger</div></a>
-            <a href="/store"  class="app-icon"><div class="icon-symbol">🧰</div><div class="icon-label">Covert<br>Procurement</div></a>
-            <div class="app-icon" id="plan-icon" onclick="openPlanModal()"><div class="icon-symbol">📋</div><div class="icon-label">Mission<br>Log</div></div>
-            <div class="app-icon" onclick="openArcModal()"><div class="icon-symbol">📖</div><div class="icon-label">Story<br>Archive</div></div>
+            <a href="/search" class="app-icon"><div class="icon-symbol">👁</div><div class="icon-label" data-i18n-html="icon.osint">OSINT<br>Search Node</div></a>
+            <a href="/bank"   class="app-icon"><div class="icon-symbol">🏦</div><div class="icon-label" data-i18n-html="icon.routing">Offshore<br>Routing</div></a>
+            <a href="/message" class="app-icon"><div class="icon-symbol">💬</div><div class="icon-label" data-i18n-html="icon.messenger">Encrypted<br>Messenger</div></a>
+            <a href="/store"  class="app-icon"><div class="icon-symbol">🧰</div><div class="icon-label" data-i18n-html="icon.procurement">Covert<br>Procurement</div></a>
+            <div class="app-icon" id="plan-icon" onclick="openPlanModal()"><div class="icon-symbol">📋</div><div class="icon-label" data-i18n-html="icon.missionLog">Mission<br>Log</div></div>
+            <div class="app-icon" onclick="openArcModal()"><div class="icon-symbol">📖</div><div class="icon-label" data-i18n-html="icon.storyArchive">Story<br>Archive</div></div>
         </div>
 
         <!-- Day Progress Track -->
         <div id="day-track-section">
-            <div class="section-title">OPERATION TIMELINE</div>
+            <div class="section-title" data-i18n="section.timeline">OPERATION TIMELINE</div>
             <div class="day-track" id="day-track">
 
             <!-- Rendered by JS below -->
@@ -592,8 +779,8 @@
             <h3 id="final-title"></h3>
             <div id="final-copy"></div>
             <div class="final-actions" id="final-actions">
-                <button class="final-btn" onclick="submitFinalChoice('destroy_ai')">[ DESTROY RACK-H9 ]</button>
-                <button class="final-btn" onclick="submitFinalChoice('join_ai')">[ HELP OMNI_CORE ]</button>
+                <button class="final-btn" onclick="submitFinalChoice('destroy_ai')" data-i18n="final.destroy">[ DESTROY RACK-H9 ]</button>
+                <button class="final-btn" onclick="submitFinalChoice('join_ai')" data-i18n="final.join">[ HELP OMNI_CORE ]</button>
             </div>
             <div id="final-result"></div>
         </div>
@@ -601,15 +788,15 @@
         <!-- Bottom Grid: Guide + Ledger -->
         <div class="bottom-grid">
             <div class="guide-panel">
-                <div class="guide-header"><h3>WHAT TO DO NEXT</h3></div>
+                <div class="guide-header"><h3 data-i18n="guide.title">WHAT TO DO NEXT</h3></div>
                 <div class="guide-objective" id="guide-objective"></div>
                 <ol class="guide-steps" id="guide-steps"></ol>
                 <div id="procurement-note"></div>
             </div>
             <div class="ledger-panel">
-                <h3>RECENT TRANSACTIONS</h3>
+                <h3 data-i18n="ledger.title">RECENT TRANSACTIONS</h3>
                 <table class="ledger-table">
-                    <thead><tr><th>TIME</th><th>DESCRIPTION</th><th>AMOUNT</th></tr></thead>
+                    <thead><tr><th data-i18n="ledger.time">TIME</th><th data-i18n="ledger.desc">DESCRIPTION</th><th data-i18n="ledger.amount">AMOUNT</th></tr></thead>
                     <tbody id="ledger-body"></tbody>
                 </table>
             </div>
@@ -738,8 +925,8 @@
     <div id="arc-overlay">
         <div id="arc-modal">
             <div id="arc-modal-header">
-                <h2>[ STORY ARCHIVE // OPERATION TIMELINE ]</h2>
-                <button id="arc-close-btn" onclick="closeArcModal()">[ CLOSE ]</button>
+                <h2 data-i18n="arc.title">[ STORY ARCHIVE // OPERATION TIMELINE ]</h2>
+                <button id="arc-close-btn" onclick="closeArcModal()" data-i18n="modal.close">[ CLOSE ]</button>
             </div>
             <div id="arc-body"></div>
         </div>
@@ -758,17 +945,17 @@
             </div>
             <div id="daybrf-body">
                 <div id="daybrf-narrative">
-                    <div id="daybrf-narrative-label">SITUATION REPORT</div>
+                    <div id="daybrf-narrative-label" data-i18n="daybrf.situation">SITUATION REPORT</div>
                     <div id="daybrf-narrative-text"></div>
                 </div>
                 <div id="daybrf-tasks">
-                    <div id="daybrf-tasks-label">TODAY'S OBJECTIVES</div>
+                    <div id="daybrf-tasks-label" data-i18n="daybrf.objectives">TODAY'S OBJECTIVES</div>
                     <ul id="daybrf-task-list"></ul>
                 </div>
             </div>
             <div id="daybrf-footer">
-                <span id="daybrf-footer-tip">Full task tracker available in Mission Log</span>
-                <button id="daybrf-ack-btn" onclick="closeDayBriefing()">[ ACKNOWLEDGED ]</button>
+                <span id="daybrf-footer-tip" data-i18n="daybrf.footerTip">Full task tracker available in Mission Log</span>
+                <button id="daybrf-ack-btn" onclick="closeDayBriefing()" data-i18n="daybrf.ack">[ ACKNOWLEDGED ]</button>
             </div>
         </div>
     </div>
@@ -777,8 +964,8 @@
     <div id="plan-overlay">
         <div id="plan-modal">
             <div id="plan-modal-header">
-                <h2>[ MISSION LOG // DAILY TASK TRACKER ]</h2>
-                <button id="plan-close-btn" onclick="closePlanModal()">[ CLOSE ]</button>
+                <h2 data-i18n="missionLog.title">[ MISSION LOG // DAILY TASK TRACKER ]</h2>
+                <button id="plan-close-btn" onclick="closePlanModal()" data-i18n="modal.close">[ CLOSE ]</button>
             </div>
             <div id="plan-body"></div>
             <div id="plan-footer"></div>
@@ -787,22 +974,29 @@
 
     <script>
         document.getElementById('player-name').innerText  = player_data.username;
-        document.getElementById('current-day').innerText  = `DAY ${player_data.current_day} / 7`;
+        document.getElementById('current-day').innerText  = t('cycle.dayTpl').replace('{n}', player_data.current_day);
         document.getElementById('nav-balance').innerText  = player_data.balance.toFixed(2);
         document.getElementById('stage-line').innerText   = `[ ${player_data.story_stage_label} ]`;
         document.getElementById('story-notice').innerText = player_data.story_notice;
         document.getElementById('guide-objective').innerText = player_data.guidance.objective;
         document.getElementById('guide-steps').innerHTML  = player_data.guidance.steps
             .map((s,i) => `<li><span class="step-num">${i+1}.</span><span>${s}</span></li>`).join('');
-        document.getElementById('procurement-note').innerText = player_data.shop_effects.summaries.length
-            ? 'Active upgrades: ' + player_data.shop_effects.summaries.join(' | ')
-            : 'No active upgrades. Visit Covert Procurement to spend profits.';
+        function renderProcurementNote() {
+            document.getElementById('procurement-note').innerText = player_data.shop_effects.summaries.length
+                ? t('procurement.active') + player_data.shop_effects.summaries.join(' | ')
+                : t('procurement.none');
+        }
+        renderProcurementNote();
 
         // Populate recent transactions
-        (function() {
+        function renderLedger() {
             const tbody = document.getElementById('ledger-body');
+            tbody.innerHTML = '';
             const rows  = player_data.history.slice(0, 8);
-            if (!rows.length) { tbody.innerHTML = '<tr><td colspan="3" style="color:#335533;padding:12px 10px;">No transactions yet.</td></tr>'; return; }
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="3" style="color:#335533;padding:12px 10px;">${t('ledger.empty')}</td></tr>`;
+                return;
+            }
             rows.forEach(r => {
                 const v = parseFloat(r.amount);
                 const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'zero';
@@ -812,31 +1006,24 @@
                     <td class="${cls}">${r.amount}</td>
                 </tr>`;
             });
-        })();
+        }
+        renderLedger();
 
         // ── Day Progress Track ──
+        const DAY_ICONS = ['🔌', '🤝', '📡', '🗂', '⚡', '🔓', '💀'];
         (function renderDayTrack() {
-            const DAY_INFO = [
-                { icon: '🔌', label: 'DAY 1', sub: 'First Contact' },
-                { icon: '🤝', label: 'DAY 2', sub: 'The Deal' },
-                { icon: '📡', label: 'DAY 3', sub: 'Profit Alliance' },
-                { icon: '🗂', label: 'DAY 4', sub: 'Victim Arc' },
-                { icon: '⚡', label: 'DAY 5', sub: 'Escalation' },
-                { icon: '🔓', label: 'DAY 6', sub: 'Control Lost' },
-                { icon: '💀', label: 'DAY 7', sub: 'Final Choice' },
-            ];
             const current = player_data.current_day;
             const track = document.getElementById('day-track');
-            track.innerHTML = DAY_INFO.map((d, i) => {
+            track.innerHTML = DAY_ICONS.map((icon, i) => {
                 const day = i + 1;
                 let state;
                 if (day < current)      state = 'done';
                 else if (day === current) state = 'current';
                 else                      state = 'locked';
                 return `<div class="day-node-wrap ${state}">
-                    <div class="day-node">${d.icon}</div>
-                    <div class="day-label">${d.label}</div>
-                    <div class="day-sublabel">${d.sub}</div>
+                    <div class="day-node">${icon}</div>
+                    <div class="day-label">${t('dayTrack.' + day + '.label')}</div>
+                    <div class="day-sublabel">${t('dayTrack.' + day + '.sub')}</div>
                 </div>`;
             }).join('');
         })();
@@ -1166,84 +1353,71 @@ There is no third option. There never was.`,
         function closePlanModal() { document.getElementById('plan-overlay').classList.remove('open'); }
         async function loadDailyPlan() {
             const body = document.getElementById('plan-body');
-            body.innerHTML = '<div style="color:#557755;padding:20px;font-size:14px;">Loading...</div>';
+            body.innerHTML = `<div style="color:#557755;padding:20px;font-size:14px;">${t('plan.loading')}</div>`;
             try {
                 const res  = await fetch('/api/daily_plan');
                 const data = await res.json();
-                if (data.status !== 'success') { body.innerHTML = '<div style="color:red">Failed to load plan.</div>'; return; }
+                if (data.status !== 'success') { body.innerHTML = `<div style="color:red">${t('plan.loadFail')}</div>`; return; }
+                window.__lastPlan = data;
                 renderPlan(data);
-            } catch { body.innerHTML = '<div style="color:red">Network error.</div>'; }
+            } catch { body.innerHTML = `<div style="color:red">${t('plan.networkError')}</div>`; }
         }
         function renderPlan(data) {
             const body = document.getElementById('plan-body');
             const footer = document.getElementById('plan-footer');
 
-            // ── 剧情简介 ── 第一天默认展开，之后默认折叠
+            // Briefing: expanded by default on day 1, collapsed after
             const briefingOpen = data.current_day <= 1 ? 'open' : '';
-            const toggleLabel  = data.current_day <= 1 ? '▼ 点击收起' : '▶ 点击展开';
+            const toggleLabel  = data.current_day <= 1 ? t('briefing.collapse') : t('briefing.expand');
             const briefingHtml = `
             <div class="plan-briefing">
                 <div class="plan-briefing-header" onclick="
                     const b=this.nextElementSibling;
                     b.classList.toggle('open');
-                    this.querySelector('.plan-briefing-toggle').textContent=b.classList.contains('open')?'▼ 点击收起':'▶ 点击展开';
+                    this.querySelector('.plan-briefing-toggle').textContent = b.classList.contains('open') ? t('briefing.collapse') : t('briefing.expand');
                 ">
-                    <span class="plan-briefing-title">[ MISSION BRIEFING // 任务简报 ]</span>
+                    <span class="plan-briefing-title">${t('briefing.title')}</span>
                     <span class="plan-briefing-toggle">${toggleLabel}</span>
                 </div>
                 <div class="plan-briefing-body ${briefingOpen}">
 
                     <div class="briefing-section">
-                        <div class="briefing-section-title">你是谁 / OPERATOR PROFILE</div>
-                        <div class="briefing-text">
-                            你是一名<strong>地下数据经纪人</strong>，代号 <strong>OPERATOR</strong>。你刚刚获得了接入
-                            <strong>OMNI_CORE 终端</strong> 的权限——这是一套掌控着大量公民数据的自主 AI 系统。
-                            它愿意和你合作，只要你持续为它的硬件扩张提供资金。
-                        </div>
+                        <div class="briefing-section-title">${t('briefing.profile.title')}</div>
+                        <div class="briefing-text">${t('briefing.profile.body')}</div>
                     </div>
 
                     <div class="briefing-section">
-                        <div class="briefing-section-title">游戏目标 / OBJECTIVE</div>
-                        <div class="briefing-text">
-                            游戏共 <strong>7 天</strong>。每天你需要通过以下模块收集情报、出售数据、汇款转账，
-                            尽可能积累资金。<br><br>
-                            但随着你深入合作，OMNI_CORE 的真实目的逐渐浮现——
-                            它不只是工具，而是有自己的计划。<strong>第 7 天你将面临最终抉择：
-                            摧毁它，还是成为它的共谋？</strong>
-                        </div>
+                        <div class="briefing-section-title">${t('briefing.objective.title')}</div>
+                        <div class="briefing-text">${t('briefing.objective.body')}</div>
                     </div>
 
                     <div class="briefing-section">
-                        <div class="briefing-section-title">可用模块 / MODULES</div>
+                        <div class="briefing-section-title">${t('briefing.modules.title')}</div>
                         <div class="briefing-modules">
                             <div class="briefing-module">
                                 <span class="mod-icon">👁</span>
-                                <span class="mod-name">OSINT 搜索节点</span><br>
-                                搜索目标人物、组织、地点，挖掘情报线索。线索是你与 NPC 交易的核心货币。
+                                <span class="mod-name">${t('briefing.mod.osint.name')}</span><br>
+                                ${t('briefing.mod.osint.desc')}
                             </div>
                             <div class="briefing-module">
                                 <span class="mod-icon">💬</span>
-                                <span class="mod-name">加密通讯器</span><br>
-                                向 OMNI_CORE 或数据经纪人发送线索，换取资金回报或推进剧情。
+                                <span class="mod-name">${t('briefing.mod.messenger.name')}</span><br>
+                                ${t('briefing.mod.messenger.desc')}
                             </div>
                             <div class="briefing-module">
                                 <span class="mod-icon">🏦</span>
-                                <span class="mod-name">离岸转账</span><br>
-                                从目标账户抽取资金（Siphon），或将钱转入受害者钱包（道德选择）。
+                                <span class="mod-name">${t('briefing.mod.routing.name')}</span><br>
+                                ${t('briefing.mod.routing.desc')}
                             </div>
                             <div class="briefing-module">
                                 <span class="mod-icon">🧰</span>
-                                <span class="mod-name">隐秘采购</span><br>
-                                用赚到的钱购买永久升级：提升抽取上限、降低反制成本等。
+                                <span class="mod-name">${t('briefing.mod.procurement.name')}</span><br>
+                                ${t('briefing.mod.procurement.desc')}
                             </div>
                         </div>
                     </div>
 
-                    <div class="briefing-warn">
-                        ⚠ 注意：你的每一个决定都会影响最终结局。
-                        帮助受害者可以积累道德分，但会减少收益。
-                        持续资助 OMNI_CORE 的扩张会使第 7 天的反制成本大幅上升。
-                    </div>
+                    <div class="briefing-warn">${t('briefing.warning')}</div>
 
                 </div>
             </div>`;
@@ -1256,24 +1430,24 @@ There is no third option. There never was.`,
                 const pct       = d.total > 0 ? Math.round((d.completed/d.total)*100) : 100;
                 const expandCls = isCurrent ? 'expanded' : (allDone ? '' : 'expanded');
                 const hdrCls    = isCurrent ? 'plan-day-header current-day' : 'plan-day-header';
-                const dayLabel  = isCurrent ? `DAY ${d.day} ◀ TODAY` : `DAY ${d.day}`;
+                const dayLabel  = isCurrent ? `${t('plan.dayPrefix')} ${d.day} ${t('plan.today')}` : `${t('plan.dayPrefix')} ${d.day}`;
                 const fillCls   = allDone ? 'plan-progress-fill complete' : 'plan-progress-fill';
                 let tasksHtml = '';
-                for (const t of d.tasks) {
-                    const chkCls = t.done ? 'plan-task-check done' : 'plan-task-check pending';
-                    const lbl    = t.done ? 'plan-task-label done' : (t.optional ? 'plan-task-label optional' : 'plan-task-label');
-                    const opt    = t.optional ? '<span class="plan-optional-badge">optional</span>' : '';
+                for (const item of d.tasks) {
+                    const chkCls = item.done ? 'plan-task-check done' : 'plan-task-check pending';
+                    const lbl    = item.done ? 'plan-task-label done' : (item.optional ? 'plan-task-label optional' : 'plan-task-label');
+                    const opt    = item.optional ? `<span class="plan-optional-badge">${t('plan.optional')}</span>` : '';
                     tasksHtml += `<div class="plan-task-item">
-                        <div class="${chkCls}">${t.done ? '✓' : '&nbsp;'}</div>
+                        <div class="${chkCls}">${item.done ? '✓' : '&nbsp;'}</div>
                         <div class="plan-task-text">
-                            <div class="${lbl}">${t.label}${opt}</div>
-                            <div class="plan-task-hint">${t.hint}</div>
+                            <div class="${lbl}">${item.label}${opt}</div>
+                            <div class="plan-task-hint">${item.hint}</div>
                         </div></div>`;
                 }
                 html += `<div class="plan-day-block">
                     <div class="${hdrCls}" onclick="this.parentElement.querySelector('.plan-task-list').classList.toggle('expanded')">
                         <span class="plan-day-title">${dayLabel}</span>
-                        <span class="plan-day-progress">${d.completed} / ${d.total} done</span>
+                        <span class="plan-day-progress">${d.completed} / ${d.total} ${t('plan.doneSuffix')}</span>
                     </div>
                     <div class="plan-progress-bar"><div class="${fillCls}" style="width:${pct}%"></div></div>
                     <div class="plan-task-list ${expandCls}">${tasksHtml}</div>
@@ -1282,9 +1456,22 @@ There is no third option. There never was.`,
             body.innerHTML = html;
             const tot = data.days.reduce((s,d)=>s+d.total,0);
             const don = data.days.reduce((s,d)=>s+d.completed,0);
-            footer.textContent = `Overall: ${don} / ${tot} tasks completed across ${data.days.length} day(s).`;
+            footer.textContent = t('plan.overallTpl')
+                .replace('{done}', don)
+                .replace('{total}', tot)
+                .replace('{days}', data.days.length);
         }
         document.getElementById('plan-overlay').addEventListener('click', function(e) { if(e.target===this) closePlanModal(); });
+
+        // ── i18n: apply static translations
+        applyI18n();
+        window.__rerenderDynamic = function() {
+            renderProcurementNote();
+            renderLedger();
+            // If plan modal is open and we have cached data, re-render the plan
+            const planOpen = document.getElementById('plan-overlay').classList.contains('open');
+            if (planOpen && window.__lastPlan) renderPlan(window.__lastPlan);
+        };
     </script>
 </body>
 </html>

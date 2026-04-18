@@ -156,6 +156,7 @@
     </style>
 </head>
 <body>
+    {% include "_theme.html" %}
     <script id="player-data-store" type="application/json">{{ player | tojson | safe }}</script>
     <script>const player_data = JSON.parse(document.getElementById('player-data-store').textContent);</script>
 

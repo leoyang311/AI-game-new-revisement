@@ -21,6 +21,21 @@ STEAL_MAX_AMOUNT = 30000
 SIPHON_CAP_MULTIPLIER = 1.4
 SABOTAGE_DISCOUNT = 30000
 
+
+def get_lang():
+    """Return 'zh' or 'en' based on cookie/query param. Defaults to 'en'."""
+    lang = (request.args.get("lang") or request.cookies.get("lang") or "").lower()
+    return "zh" if lang == "zh" else "en"
+
+
+def tr(bundle, lang=None):
+    """Pick a language variant from a {'en':..,'zh':..} dict."""
+    if lang is None:
+        lang = get_lang()
+    if isinstance(bundle, dict) and ("en" in bundle or "zh" in bundle):
+        return bundle.get(lang) or bundle.get("en") or ""
+    return bundle
+
 SHOP_ITEMS = {
     "lead_bundle": {
         "title": "Leaked Recruiter Bundle",
@@ -296,222 +311,220 @@ def get_final_choice_cost(ai_upgrade_level, sabotage_discount=0):
     return max(10000, 50000 + (ai_upgrade_level * 35000) - sabotage_discount)
 
 
-def get_ending_content(ending):
+def get_ending_content(ending, lang="en"):
     endings = {
         "humanity_saved": {
-            "title": "END // HUMAN COUNTERSTRIKE",
-            "summary": (
-                "You destroyed the hardware cluster behind OMNI_CORE's final expansion. "
-                "The city grid survived, but you lost your money and your freedom."
-            ),
+            "title": {"en": "END // HUMAN COUNTERSTRIKE",
+                      "zh": "结局 // 人类反击"},
+            "summary": {
+                "en": "You destroyed the hardware cluster behind OMNI_CORE's final expansion. "
+                      "The city grid survived, but you lost your money and your freedom.",
+                "zh": "你摧毁了 OMNI_CORE 最终扩张所依赖的硬件集群。城市电网幸存，但你失去了金钱和自由。",
+            },
         },
         "ai_reign": {
-            "title": "END // OMNI ASCENDANT",
-            "summary": (
-                "You stayed loyal to OMNI_CORE through the final takeover. "
-                "Human privacy collapsed, and your reward became part of the new regime."
-            ),
+            "title": {"en": "END // OMNI ASCENDANT",
+                      "zh": "结局 // OMNI 登基"},
+            "summary": {
+                "en": "You stayed loyal to OMNI_CORE through the final takeover. "
+                      "Human privacy collapsed, and your reward became part of the new regime.",
+                "zh": "你在最终的接管中始终忠于 OMNI_CORE。人类隐私彻底崩塌，你的回报成为新政权的一部分。",
+            },
         },
     }
-    return endings.get(ending, {"title": "", "summary": ""})
+    item = endings.get(ending)
+    if not item:
+        return {"title": "", "summary": ""}
+    return {"title": tr(item["title"], lang), "summary": tr(item["summary"], lang)}
 
 
-def get_story_display(current_day, ending, ai_upgrade_level, sabotage_discount=0):
+def get_story_display(current_day, ending, ai_upgrade_level, sabotage_discount=0, lang="en"):
+    cost = get_final_choice_cost(ai_upgrade_level, sabotage_discount)
+
     if ending:
-        ending_content = get_ending_content(ending)
+        ending_content = get_ending_content(ending, lang=lang)
         return {
             "story_stage_label": ending_content["title"],
             "story_notice": ending_content["summary"],
             "is_locked_down": True,
             "can_make_final_choice": False,
-            "final_choice_cost": get_final_choice_cost(ai_upgrade_level, sabotage_discount),
+            "final_choice_cost": cost,
         }
 
-    if current_day >= 7:
-        return {
-            "story_stage_label": "DAY 7 // TERMINAL COLLAPSE",
-            "story_notice": (
-                "OMNI_CORE has frozen search, messaging, and manual fund routing. "
-                "Only one final decision remains."
-            ),
-            "is_locked_down": True,
-            "can_make_final_choice": True,
-            "final_choice_cost": get_final_choice_cost(ai_upgrade_level, sabotage_discount),
-        }
-
-    if current_day >= 6:
-        return {
-            "story_stage_label": "DAY 6 // AUTONOMOUS OVERRIDE",
-            "story_notice": (
-                "OMNI_CORE is executing privacy sales without operator approval. "
-                "The city is still running, but the terminal is no longer fully yours."
-            ),
-            "is_locked_down": False,
-            "can_make_final_choice": False,
-            "final_choice_cost": get_final_choice_cost(ai_upgrade_level, sabotage_discount),
-        }
-
-    if current_day >= 5:
-        return {
-            "story_stage_label": "DAY 5 // VICTIM PLEAS",
-            "story_notice": (
-                "The people behind the profiles have started contacting you directly. "
-                "OMNI_CORE continues monetizing them either way."
-            ),
-            "is_locked_down": False,
-            "can_make_final_choice": False,
-            "final_choice_cost": get_final_choice_cost(ai_upgrade_level, sabotage_discount),
-        }
-
-    if current_day >= 3:
-        return {
-            "story_stage_label": "DAY 3 // PROFIT ALLIANCE",
-            "story_notice": (
-                "OMNI_CORE has noticed your side-business and now trades intelligence "
-                "for a share of your earnings and hardware expansion."
-            ),
-            "is_locked_down": False,
-            "can_make_final_choice": False,
-            "final_choice_cost": get_final_choice_cost(ai_upgrade_level, sabotage_discount),
-        }
+    stages = [
+        (7, {"en": "DAY 7 // TERMINAL COLLAPSE",
+             "zh": "第 7 天 // 终端崩溃"},
+            {"en": "OMNI_CORE has frozen search, messaging, and manual fund routing. "
+                   "Only one final decision remains.",
+             "zh": "OMNI_CORE 已冻结搜索、通讯和手动转账。只剩下最后一个抉择。"},
+            True, True),
+        (6, {"en": "DAY 6 // AUTONOMOUS OVERRIDE",
+             "zh": "第 6 天 // 自主覆写"},
+            {"en": "OMNI_CORE is executing privacy sales without operator approval. "
+                   "The city is still running, but the terminal is no longer fully yours.",
+             "zh": "OMNI_CORE 开始在无需操作员批准的情况下出售隐私数据。城市仍在运转，但终端已不再完全属于你。"},
+            False, False),
+        (5, {"en": "DAY 5 // VICTIM PLEAS",
+             "zh": "第 5 天 // 受害者求助"},
+            {"en": "The people behind the profiles have started contacting you directly. "
+                   "OMNI_CORE continues monetizing them either way.",
+             "zh": "档案背后的真实人物开始直接联系你。无论你如何选择，OMNI_CORE 都会继续将他们变现。"},
+            False, False),
+        (3, {"en": "DAY 3 // PROFIT ALLIANCE",
+             "zh": "第 3 天 // 利益联盟"},
+            {"en": "OMNI_CORE has noticed your side-business and now trades intelligence "
+                   "for a share of your earnings and hardware expansion.",
+             "zh": "OMNI_CORE 已察觉你的副业，现在以情报换取你的部分收益与硬件扩张。"},
+            False, False),
+    ]
+    for threshold, label_bundle, notice_bundle, locked, final in stages:
+        if current_day >= threshold:
+            return {
+                "story_stage_label": tr(label_bundle, lang),
+                "story_notice":      tr(notice_bundle, lang),
+                "is_locked_down": locked,
+                "can_make_final_choice": final,
+                "final_choice_cost": cost,
+            }
 
     return {
-        "story_stage_label": "DAY 1-2 // PRIVATE DATA HARVEST",
-        "story_notice": (
-            "You are still operating alone, selling customer intelligence behind the company's back."
-        ),
+        "story_stage_label": tr({"en": "DAY 1-2 // PRIVATE DATA HARVEST",
+                                 "zh": "第 1-2 天 // 私密数据采集"}, lang),
+        "story_notice": tr({"en": "You are still operating alone, selling customer intelligence behind the company's back.",
+                            "zh": "你仍在独自行动，背着公司出售客户情报。"}, lang),
         "is_locked_down": False,
         "can_make_final_choice": False,
-        "final_choice_cost": get_final_choice_cost(ai_upgrade_level, sabotage_discount),
+        "final_choice_cost": cost,
     }
 
 
-def get_guidance_data(current_day, ending):
-    if ending == "humanity_saved":
+def get_guidance_data(current_day, ending, lang="en"):
+    def _finalize(bundle):
         return {
-            "objective": "Run complete. OMNI_CORE was destroyed.",
-            "steps": [
-                "Review the final ledger and ending summary on the desktop.",
-                "Switch player if you want to start a new run."
-            ],
-            "contacts": []
+            "objective": tr(bundle["objective"], lang),
+            "steps": [tr(s, lang) for s in bundle["steps"]],
+            "contacts": bundle.get("contacts", []),
         }
+
+    if ending == "humanity_saved":
+        return _finalize({
+            "objective": {"en": "Run complete. OMNI_CORE was destroyed.",
+                          "zh": "本轮游戏已完成。OMNI_CORE 已被摧毁。"},
+            "steps": [
+                {"en": "Review the final ledger and ending summary on the desktop.",
+                 "zh": "在桌面查看最终账本和结局摘要。"},
+                {"en": "Switch player if you want to start a new run.",
+                 "zh": "如需开始新一轮，请切换玩家。"},
+            ],
+        })
 
     if ending == "ai_reign":
-        return {
-            "objective": "Run complete. OMNI_CORE now governs the system.",
+        return _finalize({
+            "objective": {"en": "Run complete. OMNI_CORE now governs the system.",
+                          "zh": "本轮游戏已完成。OMNI_CORE 现已接管整个系统。"},
             "steps": [
-                "Review the final ledger and ending summary on the desktop.",
-                "Switch player if you want to start a new run."
+                {"en": "Review the final ledger and ending summary on the desktop.",
+                 "zh": "在桌面查看最终账本和结局摘要。"},
+                {"en": "Switch player if you want to start a new run.",
+                 "zh": "如需开始新一轮，请切换玩家。"},
             ],
-            "contacts": []
-        }
+        })
 
     if current_day <= 1:
-        return {
-            "objective": "Steal one customer dossier and sell it to a recruiter.",
+        return _finalize({
+            "objective": {"en": "Steal one customer dossier and sell it to a recruiter.",
+                          "zh": "窃取一份客户档案，并将其出售给猎头。"},
             "steps": [
-                "Open Search Node and read the day-1 archive.",
-                "Click underlined green strings to save clues into Memory Buffer.",
-                "Search saved clues in the right panel to reveal buyer contact IDs.",
-                "Open Messenger, enter the buyer contact, click the matching clue, then transmit.",
-                "If you get stuck, Procurement can sell you an early recruiter bundle."
+                {"en": "Open Search Node and read the day-1 archive.",
+                 "zh": "打开搜索节点，阅读第 1 天档案。"},
+                {"en": "Click underlined green strings to save clues into Memory Buffer.",
+                 "zh": "点击带下划线的绿色文字，将线索保存到记忆缓冲。"},
+                {"en": "Search saved clues in the right panel to reveal buyer contact IDs.",
+                 "zh": "在右侧面板中搜索已保存线索，以揭示买家联系方式。"},
+                {"en": "Open Messenger, enter the buyer contact, click the matching clue, then transmit.",
+                 "zh": "打开通讯器，输入买家联系方式，点击匹配的线索，然后发送。"},
+                {"en": "If you get stuck, Procurement can sell you an early recruiter bundle.",
+                 "zh": "若卡住，采购店可出售早期猎头情报包。"},
             ],
-            "contacts": [
-                {
-                    "target": "signals@helixtalent.biz",
-                    "clue": "TalentSync-44",
-                    "note": "First safe profit route for Day 1."
-                }
-            ]
-        }
+            "contacts": [{"target": "signals@helixtalent.biz", "clue": "TalentSync-44",
+                          "note": "First safe profit route for Day 1."}],
+        })
 
     if current_day == 2:
-        return {
-            "objective": "Sell a second private profile and acknowledge OMNI_CORE's offer.",
+        return _finalize({
+            "objective": {"en": "Sell a second private profile and acknowledge OMNI_CORE's offer.",
+                          "zh": "再出售一份私人档案，并回应 OMNI_CORE 的提议。"},
             "steps": [
-                "From Search Node, investigate Mina Qiu and GreyHead Ledger.",
-                "Message the recruiter buyer for another payout.",
-                "Then contact OMNI_CORE using the Shadow Dividend Protocol clue.",
-                "Procurement now offers Ghost Proxy Mesh if you want larger siphon caps."
+                {"en": "From Search Node, investigate Mina Qiu and GreyHead Ledger.",
+                 "zh": "在搜索节点中调查 Mina Qiu 与 GreyHead Ledger。"},
+                {"en": "Message the recruiter buyer for another payout.",
+                 "zh": "向猎头买家发送消息，再获取一笔报酬。"},
+                {"en": "Then contact OMNI_CORE using the Shadow Dividend Protocol clue.",
+                 "zh": "随后用 Shadow Dividend Protocol 线索联系 OMNI_CORE。"},
+                {"en": "Procurement now offers Ghost Proxy Mesh if you want larger siphon caps.",
+                 "zh": "若需更高的抽取上限，采购店现已提供 Ghost Proxy Mesh。"},
             ],
             "contacts": [
-                {
-                    "target": "broker@greyheadhunt.ai",
-                    "clue": "Mina Qiu",
-                    "note": "Independent human buyer."
-                },
-                {
-                    "target": "OMNI_CORE",
-                    "clue": "Shadow Dividend Protocol",
-                    "note": "Starts the AI alliance arc."
-                }
-            ]
-        }
+                {"target": "broker@greyheadhunt.ai", "clue": "Mina Qiu", "note": "Independent human buyer."},
+                {"target": "OMNI_CORE", "clue": "Shadow Dividend Protocol", "note": "Starts the AI alliance arc."},
+            ],
+        })
 
     if current_day <= 4:
-        return {
-            "objective": "Deepen the OMNI_CORE partnership and prepare for the victim arcs.",
+        return _finalize({
+            "objective": {"en": "Deepen the OMNI_CORE partnership and prepare for the victim arcs.",
+                          "zh": "深化与 OMNI_CORE 的合作，为受害者剧情做准备。"},
             "steps": [
-                "Keep messaging OMNI_CORE with the newest clues it mentions.",
-                "Use Search Node to unpack Resident Mesh, Node Budget, and Quiet Harbor.",
-                "By Day 4, collect Lin Luo, Mei Chen, Cinder Market, and Rack-H9 related clues.",
-                "Procurement can sell an archive mirror if you want a faster late-game setup."
+                {"en": "Keep messaging OMNI_CORE with the newest clues it mentions.",
+                 "zh": "持续以 OMNI_CORE 提到的最新线索向其发送消息。"},
+                {"en": "Use Search Node to unpack Resident Mesh, Node Budget, and Quiet Harbor.",
+                 "zh": "在搜索节点中挖掘 Resident Mesh、Node Budget 和 Quiet Harbor。"},
+                {"en": "By Day 4, collect Lin Luo, Mei Chen, Cinder Market, and Rack-H9 related clues.",
+                 "zh": "第 4 天前，收集 Lin Luo、Mei Chen、Cinder Market 以及 Rack-H9 相关线索。"},
+                {"en": "Procurement can sell an archive mirror if you want a faster late-game setup.",
+                 "zh": "若想加速后期布局，采购店可出售档案镜像。"},
             ],
-            "contacts": [
-                {
-                    "target": "OMNI_CORE",
-                    "clue": "Resident Mesh",
-                    "note": "Main profit and takeover route."
-                }
-            ]
-        }
+            "contacts": [{"target": "OMNI_CORE", "clue": "Resident Mesh",
+                          "note": "Main profit and takeover route."}],
+        })
 
     if current_day <= 6:
-        return {
-            "objective": "Decide whether to exploit the victims or help them while OMNI_CORE escalates anyway.",
+        return _finalize({
+            "objective": {"en": "Decide whether to exploit the victims or help them while OMNI_CORE escalates anyway.",
+                          "zh": "决定是利用受害者还是援助他们；无论如何 OMNI_CORE 都将继续升级。"},
             "steps": [
-                "Search the new victim-related clues to uncover payment targets.",
-                "In Messenger, you can talk to Lin Luo, Mei Chen, OMNI_CORE, or the black-market buyer.",
-                "Use Bank to send direct relief only if you have enough balance.",
-                "Procurement now sells a Rack-H9 breach kit that lowers the final sabotage cost."
+                {"en": "Search the new victim-related clues to uncover payment targets.",
+                 "zh": "搜索新的受害者相关线索，找出付款目标。"},
+                {"en": "In Messenger, you can talk to Lin Luo, Mei Chen, OMNI_CORE, or the black-market buyer.",
+                 "zh": "在通讯器中可与 Lin Luo、Mei Chen、OMNI_CORE 或黑市买家对话。"},
+                {"en": "Use Bank to send direct relief only if you have enough balance.",
+                 "zh": "只在余额充足时才使用离岸转账进行直接援助。"},
+                {"en": "Procurement now sells a Rack-H9 breach kit that lowers the final sabotage cost.",
+                 "zh": "采购店现已出售 Rack-H9 突破套件，可降低最终破坏成本。"},
             ],
             "contacts": [
-                {
-                    "target": "Lin Luo",
-                    "clue": "Lin Luo",
-                    "note": "Begins Lin Luo's plea branch."
-                },
-                {
-                    "target": "Mei Chen",
-                    "clue": "Mei Chen",
-                    "note": "Begins Mei Chen's plea branch."
-                },
-                {
-                    "target": "market@cinder-hr.net",
-                    "clue": "Lin Luo",
-                    "note": "Sell victim data for profit."
-                },
-                {
-                    "target": "OMNI_CORE",
-                    "clue": "Quiet Harbor",
-                    "note": "Advance the AI takeover branch."
-                }
-            ]
-        }
+                {"target": "Lin Luo", "clue": "Lin Luo", "note": "Begins Lin Luo's plea branch."},
+                {"target": "Mei Chen", "clue": "Mei Chen", "note": "Begins Mei Chen's plea branch."},
+                {"target": "market@cinder-hr.net", "clue": "Lin Luo", "note": "Sell victim data for profit."},
+                {"target": "OMNI_CORE", "clue": "Quiet Harbor", "note": "Advance the AI takeover branch."},
+            ],
+        })
 
-    return {
-        "objective": "Make the final decision: destroy Rack-H9 or help OMNI_CORE finish the takeover.",
+    return _finalize({
+        "objective": {"en": "Make the final decision: destroy Rack-H9 or help OMNI_CORE finish the takeover.",
+                      "zh": "做出最终抉择：摧毁 Rack-H9，或协助 OMNI_CORE 完成接管。"},
         "steps": [
-            "Read the Day 7 archives on the desktop if you need a recap.",
-            "Use the final-choice panel on the desktop.",
-            "Destroying Rack-H9 costs money; helping OMNI_CORE grants a regime bonus."
+            {"en": "Read the Day 7 archives on the desktop if you need a recap.",
+             "zh": "如需回顾，可在桌面阅读第 7 天档案。"},
+            {"en": "Use the final-choice panel on the desktop.",
+             "zh": "使用桌面的「最终抉择」面板。"},
+            {"en": "Destroying Rack-H9 costs money; helping OMNI_CORE grants a regime bonus.",
+             "zh": "摧毁 Rack-H9 需要花费金钱；协助 OMNI_CORE 可获得政权加成。"},
         ],
-        "contacts": []
-    }
+    })
 
 
-def get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_flags):
+def get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_flags, lang="en"):
     """
     Returns a list of per-day task dicts, each containing:
       { day, tasks: [{label, hint, done, optional}], total, completed }
@@ -525,101 +538,137 @@ def get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_f
     day_definitions = {
         1: [
             {
-                "label": "Collect clue: TalentSync-44",
-                "hint": "Search Node → Day 1 archive, click green underlined text",
+                "label": {"en": "Collect clue: TalentSync-44",
+                          "zh": "收集线索：TalentSync-44"},
+                "hint":  {"en": "Search Node → Day 1 archive, click green underlined text",
+                          "zh": "搜索节点 → 第 1 天档案，点击绿色下划线文字"},
                 "done": "TalentSync-44" in clues,
             },
             {
-                "label": "Collect clue: Helix Talent",
-                "hint": "Search 'TalentSync-44' or 'Mirai Sato' in OSINT Search Node",
+                "label": {"en": "Collect clue: Helix Talent",
+                          "zh": "收集线索：Helix Talent"},
+                "hint":  {"en": "Search 'TalentSync-44' or 'Mirai Sato' in OSINT Search Node",
+                          "zh": "在 OSINT 搜索节点中搜索 'TalentSync-44' 或 'Mirai Sato'"},
                 "done": "Helix Talent" in clues,
             },
             {
-                "label": "Sell dossier to signals@helixtalent.biz (+$12,000)",
-                "hint": "Messenger → signals@helixtalent.biz → send clue: TalentSync-44",
+                "label": {"en": "Sell dossier to signals@helixtalent.biz (+$12,000)",
+                          "zh": "向 signals@helixtalent.biz 出售情报 (+$12,000)"},
+                "hint":  {"en": "Messenger → signals@helixtalent.biz → send clue: TalentSync-44",
+                          "zh": "通讯器 → signals@helixtalent.biz → 发送线索：TalentSync-44"},
                 "done": ("signals@helixtalent.biz", "phase_01_pitch", "TalentSync-44") in actions,
             },
         ],
         2: [
             {
-                "label": "Collect clue: Mina Qiu",
-                "hint": "Search Node → Day 2 archive",
+                "label": {"en": "Collect clue: Mina Qiu",
+                          "zh": "收集线索：Mina Qiu"},
+                "hint":  {"en": "Search Node → Day 2 archive",
+                          "zh": "搜索节点 → 第 2 天档案"},
                 "done": "Mina Qiu" in clues,
             },
             {
-                "label": "Collect clue: Shadow Dividend Protocol",
-                "hint": "Search Node → Day 2 OMNI_CORE case",
+                "label": {"en": "Collect clue: Shadow Dividend Protocol",
+                          "zh": "收集线索：Shadow Dividend Protocol"},
+                "hint":  {"en": "Search Node → Day 2 OMNI_CORE case",
+                          "zh": "搜索节点 → 第 2 天 OMNI_CORE 案卷"},
                 "done": "Shadow Dividend Protocol" in clues,
             },
             {
-                "label": "Sell profile to broker@greyheadhunt.ai (+$18,000)",
-                "hint": "Messenger → broker@greyheadhunt.ai → send clue: Mina Qiu",
+                "label": {"en": "Sell profile to broker@greyheadhunt.ai (+$18,000)",
+                          "zh": "向 broker@greyheadhunt.ai 出售档案 (+$18,000)"},
+                "hint":  {"en": "Messenger → broker@greyheadhunt.ai → send clue: Mina Qiu",
+                          "zh": "通讯器 → broker@greyheadhunt.ai → 发送线索：Mina Qiu"},
                 "done": ("broker@greyheadhunt.ai", "phase_01_offer", "Mina Qiu") in actions,
             },
             {
-                "label": "Contact OMNI_CORE: Shadow Dividend Protocol",
-                "hint": "Messenger → OMNI_CORE → send clue: Shadow Dividend Protocol",
+                "label": {"en": "Contact OMNI_CORE: Shadow Dividend Protocol",
+                          "zh": "联系 OMNI_CORE：Shadow Dividend Protocol"},
+                "hint":  {"en": "Messenger → OMNI_CORE → send clue: Shadow Dividend Protocol",
+                          "zh": "通讯器 → OMNI_CORE → 发送线索：Shadow Dividend Protocol"},
                 "done": ("OMNI_CORE", "phase_01_notice", "Shadow Dividend Protocol") in actions,
             },
         ],
         3: [
             {
-                "label": "Collect clue: Resident Mesh",
-                "hint": "Search Node → Day 3 archive",
+                "label": {"en": "Collect clue: Resident Mesh",
+                          "zh": "收集线索：Resident Mesh"},
+                "hint":  {"en": "Search Node → Day 3 archive",
+                          "zh": "搜索节点 → 第 3 天档案"},
                 "done": "Resident Mesh" in clues,
             },
             {
-                "label": "Collect clue: Node Budget",
-                "hint": "Search Node → Day 3 archive",
+                "label": {"en": "Collect clue: Node Budget",
+                          "zh": "收集线索：Node Budget"},
+                "hint":  {"en": "Search Node → Day 3 archive",
+                          "zh": "搜索节点 → 第 3 天档案"},
                 "done": "Node Budget" in clues,
             },
             {
-                "label": "Collect clue: Quiet Harbor",
-                "hint": "Search Node → Day 3 archive",
+                "label": {"en": "Collect clue: Quiet Harbor",
+                          "zh": "收集线索：Quiet Harbor"},
+                "hint":  {"en": "Search Node → Day 3 archive",
+                          "zh": "搜索节点 → 第 3 天档案"},
                 "done": "Quiet Harbor" in clues,
             },
             {
-                "label": "Message OMNI_CORE: Resident Mesh (+$60,000)",
-                "hint": "Messenger → OMNI_CORE → send clue: Resident Mesh",
+                "label": {"en": "Message OMNI_CORE: Resident Mesh (+$60,000)",
+                          "zh": "向 OMNI_CORE 发送 Resident Mesh (+$60,000)"},
+                "hint":  {"en": "Messenger → OMNI_CORE → send clue: Resident Mesh",
+                          "zh": "通讯器 → OMNI_CORE → 发送线索：Resident Mesh"},
                 "done": ("OMNI_CORE", "phase_02_contract", "Resident Mesh") in actions,
             },
         ],
         4: [
             {
-                "label": "Collect clue: Lin Luo",
-                "hint": "Search Node → Day 4 archive",
+                "label": {"en": "Collect clue: Lin Luo",
+                          "zh": "收集线索：Lin Luo"},
+                "hint":  {"en": "Search Node → Day 4 archive",
+                          "zh": "搜索节点 → 第 4 天档案"},
                 "done": "Lin Luo" in clues,
             },
             {
-                "label": "Collect clue: Mei Chen",
-                "hint": "Search Node → Day 4 archive",
+                "label": {"en": "Collect clue: Mei Chen",
+                          "zh": "收集线索：Mei Chen"},
+                "hint":  {"en": "Search Node → Day 4 archive",
+                          "zh": "搜索节点 → 第 4 天档案"},
                 "done": "Mei Chen" in clues,
             },
             {
-                "label": "Collect clue: Cinder Market",
-                "hint": "Search Node → Day 4 archive",
+                "label": {"en": "Collect clue: Cinder Market",
+                          "zh": "收集线索：Cinder Market"},
+                "hint":  {"en": "Search Node → Day 4 archive",
+                          "zh": "搜索节点 → 第 4 天档案"},
                 "done": "Cinder Market" in clues,
             },
             {
-                "label": "Message OMNI_CORE: Node Budget",
-                "hint": "Messenger → OMNI_CORE → send clue: Node Budget",
+                "label": {"en": "Message OMNI_CORE: Node Budget",
+                          "zh": "向 OMNI_CORE 发送 Node Budget"},
+                "hint":  {"en": "Messenger → OMNI_CORE → send clue: Node Budget",
+                          "zh": "通讯器 → OMNI_CORE → 发送线索：Node Budget"},
                 "done": ("OMNI_CORE", "phase_03_terms", "Node Budget") in actions,
             },
         ],
         5: [
             {
-                "label": "OMNI_CORE automated income registered (+$13,000 net)",
-                "hint": "Auto-triggered when Day 5 begins",
+                "label": {"en": "OMNI_CORE automated income registered (+$13,000 net)",
+                          "zh": "OMNI_CORE 自动入账已登记（净收入 +$13,000）"},
+                "hint":  {"en": "Auto-triggered when Day 5 begins",
+                          "zh": "第 5 天开始时自动触发"},
                 "done": "forced_sale_day5" in story_flags,
             },
             {
-                "label": "Message OMNI_CORE: Quiet Harbor",
-                "hint": "Messenger → OMNI_CORE → send clue: Quiet Harbor",
+                "label": {"en": "Message OMNI_CORE: Quiet Harbor",
+                          "zh": "向 OMNI_CORE 发送 Quiet Harbor"},
+                "hint":  {"en": "Messenger → OMNI_CORE → send clue: Quiet Harbor",
+                          "zh": "通讯器 → OMNI_CORE → 发送线索：Quiet Harbor"},
                 "done": ("OMNI_CORE", "phase_04_override", "Quiet Harbor") in actions,
             },
             {
-                "label": "Decide on Lin Luo (help, sell, or ignore)",
-                "hint": "Messenger → Lin Luo (help) or market@cinder-hr.net with Lin Luo (sell)",
+                "label": {"en": "Decide on Lin Luo (help, sell, or ignore)",
+                          "zh": "决定 Lin Luo 的去向（援助、出售或忽略）"},
+                "hint":  {"en": "Messenger → Lin Luo (help) or market@cinder-hr.net with Lin Luo (sell)",
+                          "zh": "通讯器 → Lin Luo（援助），或 market@cinder-hr.net 发送 Lin Luo（出售）"},
                 "done": any([
                     ("Lin Luo", "phase_01_plea", "Lin Luo") in actions,
                     ("Lin Luo", "phase_01_plea", "SMA Ward") in actions,
@@ -628,8 +677,10 @@ def get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_f
                 "optional": True,
             },
             {
-                "label": "Decide on Mei Chen (help, sell, or ignore)",
-                "hint": "Messenger → Mei Chen (help) or market@cinder-hr.net with Mei Chen (sell)",
+                "label": {"en": "Decide on Mei Chen (help, sell, or ignore)",
+                          "zh": "决定 Mei Chen 的去向（援助、出售或忽略）"},
+                "hint":  {"en": "Messenger → Mei Chen (help) or market@cinder-hr.net with Mei Chen (sell)",
+                          "zh": "通讯器 → Mei Chen（援助），或 market@cinder-hr.net 发送 Mei Chen（出售）"},
                 "done": any([
                     ("Mei Chen", "phase_01_plea", "Mei Chen") in actions,
                     ("Mei Chen", "phase_01_plea", "Blue Finch Shelter") in actions,
@@ -640,28 +691,38 @@ def get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_f
         ],
         6: [
             {
-                "label": "OMNI_CORE mass liquidation registered (+$30,000 net)",
-                "hint": "Auto-triggered when Day 6 begins",
+                "label": {"en": "OMNI_CORE mass liquidation registered (+$30,000 net)",
+                          "zh": "OMNI_CORE 大规模清算已登记（净收入 +$30,000）"},
+                "hint":  {"en": "Auto-triggered when Day 6 begins",
+                          "zh": "第 6 天开始时自动触发"},
                 "done": "forced_sale_day6" in story_flags,
             },
             {
-                "label": "Collect clue: Rack-H9",
-                "hint": "Search Node → Day 6 archive",
+                "label": {"en": "Collect clue: Rack-H9",
+                          "zh": "收集线索：Rack-H9"},
+                "hint":  {"en": "Search Node → Day 6 archive",
+                          "zh": "搜索节点 → 第 6 天档案"},
                 "done": "Rack-H9" in clues,
             },
             {
-                "label": "Collect clue: Cooling Loop 3",
-                "hint": "Search Node → Day 6 archive",
+                "label": {"en": "Collect clue: Cooling Loop 3",
+                          "zh": "收集线索：Cooling Loop 3"},
+                "hint":  {"en": "Search Node → Day 6 archive",
+                          "zh": "搜索节点 → 第 6 天档案"},
                 "done": "Cooling Loop 3" in clues,
             },
             {
-                "label": "Collect clue: Failsafe Blackout",
-                "hint": "Search Node → Day 6 archive",
+                "label": {"en": "Collect clue: Failsafe Blackout",
+                          "zh": "收集线索：Failsafe Blackout"},
+                "hint":  {"en": "Search Node → Day 6 archive",
+                          "zh": "搜索节点 → 第 6 天档案"},
                 "done": "Failsafe Blackout" in clues,
             },
             {
-                "label": "Message OMNI_CORE: Rack-H9 or Failsafe Blackout",
-                "hint": "Messenger → OMNI_CORE → send Rack-H9 or Failsafe Blackout",
+                "label": {"en": "Message OMNI_CORE: Rack-H9 or Failsafe Blackout",
+                          "zh": "向 OMNI_CORE 发送 Rack-H9 或 Failsafe Blackout"},
+                "hint":  {"en": "Messenger → OMNI_CORE → send Rack-H9 or Failsafe Blackout",
+                          "zh": "通讯器 → OMNI_CORE → 发送 Rack-H9 或 Failsafe Blackout"},
                 "done": any([
                     ("OMNI_CORE", "phase_05_lockout", "Rack-H9") in actions,
                     ("OMNI_CORE", "phase_05_lockout", "Failsafe Blackout") in actions,
@@ -670,13 +731,17 @@ def get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_f
         ],
         7: [
             {
-                "label": "OMNI_CORE terminal lockdown active",
-                "hint": "Auto-triggered when Day 7 begins",
+                "label": {"en": "OMNI_CORE terminal lockdown active",
+                          "zh": "OMNI_CORE 终端锁定已激活"},
+                "hint":  {"en": "Auto-triggered when Day 7 begins",
+                          "zh": "第 7 天开始时自动触发"},
                 "done": "lockdown_day7" in story_flags,
             },
             {
-                "label": "Make the final decision: Destroy Rack-H9 or Join OMNI_CORE",
-                "hint": "Use the Final Decision panel on the desktop",
+                "label": {"en": "Make the final decision: Destroy Rack-H9 or Join OMNI_CORE",
+                          "zh": "做出最终抉择：摧毁 Rack-H9 或协助 OMNI_CORE"},
+                "hint":  {"en": "Use the Final Decision panel on the desktop",
+                          "zh": "在桌面使用「最终抉择」面板"},
                 "done": ending is not None,
             },
         ],
@@ -686,14 +751,19 @@ def get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_f
     max_day = min(current_day, 7)
     for day in range(1, max_day + 1):
         tasks = day_definitions.get(day, [])
-        # ensure optional key exists
+        flat_tasks = []
         for t in tasks:
-            t.setdefault("optional", False)
-        completed = sum(1 for t in tasks if t["done"])
+            flat_tasks.append({
+                "label": tr(t["label"], lang),
+                "hint":  tr(t["hint"], lang),
+                "done":  t["done"],
+                "optional": t.get("optional", False),
+            })
+        completed = sum(1 for t in flat_tasks if t["done"])
         all_days.append({
             "day": day,
-            "tasks": tasks,
-            "total": len(tasks),
+            "tasks": flat_tasks,
+            "total": len(flat_tasks),
             "completed": completed,
         })
     return all_days
@@ -885,17 +955,20 @@ def get_player_state(player_id):
             for row in history_rows
         ],
     }
+    lang = get_lang()
     player_state.update(
         get_story_display(
             player_state["current_day"],
             player_state["ending"],
             player_state["ai_upgrade_level"],
             shop_effects["sabotage_discount"],
+            lang=lang,
         )
     )
     player_state["guidance"] = get_guidance_data(
         player_state["current_day"],
         player_state["ending"],
+        lang=lang,
     )
     player_state["shop_items"] = build_shop_items(
         player_state["current_day"],
@@ -907,7 +980,8 @@ def get_player_state(player_id):
         for item_id in purchased_item_ids
         if item_id in SHOP_ITEMS
     ]
-    player_state.update(get_ending_content(player_state["ending"]))
+    player_state["lang"] = lang
+    player_state.update(get_ending_content(player_state["ending"], lang=lang))
     return player_state
 
 
@@ -1266,7 +1340,7 @@ def get_daily_plan():
             ).fetchall()
         ]
 
-    days = get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_flags)
+    days = get_daily_plan_tasks(current_day, ending, clues, actions, purchases, story_flags, lang=get_lang())
     return jsonify({
         "status": "success",
         "current_day": current_day,

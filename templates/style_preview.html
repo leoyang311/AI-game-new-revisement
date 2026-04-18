@@ -347,9 +347,19 @@
         <div style="height: 40px;"></div>
 
         <!-- Footer note -->
-        <div class="vs-label">
-            这是"暗色商务风"预览页，关闭即可 — 不影响游戏数据
+        <div class="vs-label" id="preview-footer-note">
+            This is a "dark corporate" style preview page — close it anytime. Game data is unaffected.
         </div>
+        <script>
+            (function() {
+                const lang = (localStorage.getItem('game_lang') === 'zh' ? 'zh' : 'en');
+                const msg = lang === 'zh'
+                    ? '这是"暗色商务风"预览页，关闭即可 — 不影响游戏数据'
+                    : 'This is a "dark corporate" style preview page — close it anytime. Game data is unaffected.';
+                document.getElementById('preview-footer-note').textContent = msg;
+                document.documentElement.lang = lang;
+            })();
+        </script>
 
     </div>
 </body>

@@ -223,6 +223,7 @@
     </style>
 </head>
 <body>
+    {% include "_theme.html" %}
     <script id="player-data-store" type="application/json">
         {{ player | tojson | safe }}
     </script>
