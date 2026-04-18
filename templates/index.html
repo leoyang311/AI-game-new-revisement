@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OSINT_TERMINAL_DESKTOP</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #050505; color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; flex-direction: column;
+        }
+
+        /* ── Top Nav ── */
+        #nav-bar {
+            background: #000d00; border-bottom: 1px solid #005500;
+            padding: 11px 24px; display: flex; align-items: center;
+            justify-content: space-between; flex-shrink: 0;
+        }
+        #nav-title { font-size: 14px; color: #668866; letter-spacing: 2px; }
+        #nav-info  { display: flex; gap: 28px; align-items: center; font-size: 15px; }
+        .nav-label { color: #6a8a6a; }
+        .nav-value { color: #e8ffe8; font-weight: bold; }
+        .nav-value.balance { color: #ffdd00; font-size: 17px; }
+        .nav-value.day     { color: #88ffaa; }
+        #nav-logout {
+            color: #ff8844; text-decoration: none; font-size: 14px;
+            border: 1px solid #552200; padding: 5px 12px;
+        }
+        #nav-logout:hover { background: #331100; color: #fff; }
+
+        /* ── Story Status Bar ── */
+        #status-bar {
+            border-bottom: 1px solid #003300; background: #080808;
+            padding: 14px 24px; display: flex; justify-content: space-between;
+            align-items: center; flex-shrink: 0;
+        }
+        #stage-line   { color: #ffdd00; font-weight: bold; font-size: 18px; margin-bottom: 6px; }
+        #story-notice { font-size: 15px; color: #aabbaa; max-width: 700px; line-height: 1.65; }
+        .end-shift-btn {
+            background: #1a0000; color: #ff6666; border: 1px solid #550000;
+            padding: 11px 18px; cursor: pointer; font-family: inherit;
+            font-size: 14px; font-weight: bold; white-space: nowrap;
+        }
+        .end-shift-btn:hover { background: #550000; color: #fff; }
+
+        /* ── Desktop Body ── */
+        #desktop-area { padding: 24px; }
+        #desktop-area > p { color: #6a8a6a; font-size: 14px; margin: 0 0 16px 0; }
+
+        /* ── App Icons ── */
+        .desktop-grid { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+        .app-icon {
+            width: 150px; height: 135px; border: 1px solid #003300; background: #050f05;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; text-decoration: none; color: #00ff00;
+            transition: border-color 0.2s, background 0.2s; gap: 10px;
+        }
+        .app-icon:hover    { background: #0a2a0a; border-color: #00cc44; }
+        .app-icon.disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+        .icon-symbol { font-size: 38px; }
+        .icon-label  { font-size: 14px; font-weight: bold; text-align: center; color: #88ffaa; line-height: 1.4; }
+
+        /* ── Story Arc Modal ── */
+        #arc-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92); z-index: 9997;
+            align-items: center; justify-content: center;
+        }
+        #arc-overlay.open { display: flex; }
+        #arc-modal {
+            background: #050f05; border: 2px solid #00cc44;
+            width: min(860px, 96vw); max-height: 90vh;
+            display: flex; flex-direction: column;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 40px rgba(0,255,68,0.12);
+        }
+        #arc-modal-header {
+            padding: 14px 22px; border-bottom: 1px solid #004422;
+            background: #001a08; display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+        #arc-modal-header h2 { margin: 0; font-size: 15px; color: #88ffaa; letter-spacing: 1px; }
+        #arc-close-btn {
+            background: none; border: 1px solid #005522; color: #00ff00;
+            cursor: pointer; padding: 5px 12px; font-family: inherit; font-size: 13px;
+        }
+        #arc-close-btn:hover { background: #00ff00; color: #000; }
+        #arc-body { overflow-y: auto; padding: 0; flex: 1; }
+
+        .arc-day-row {
+            display: flex; border-bottom: 1px solid #002200;
+            transition: background 0.15s;
+        }
+        .arc-day-row:last-child { border-bottom: none; }
+        .arc-day-row.arc-locked { opacity: 0.35; pointer-events: none; }
+        .arc-day-row.arc-current { background: #020f02; }
+
+        /* Left spine */
+        .arc-spine {
+            width: 90px; flex-shrink: 0; display: flex; flex-direction: column;
+            align-items: center; padding: 22px 0 22px;
+            border-right: 1px solid #002200; background: #030a03; gap: 8px;
+        }
+        .arc-spine-icon { font-size: 28px; line-height: 1; }
+        .arc-spine-day  { font-size: 11px; color: #446644; letter-spacing: 1px; font-weight: bold; }
+        .arc-spine-status {
+            font-size: 10px; padding: 2px 7px; border-radius: 2px;
+            font-weight: bold; letter-spacing: 0.5px;
+        }
+        .arc-spine-status.done    { background: #002800; color: #00cc44; border: 1px solid #004400; }
+        .arc-spine-status.current { background: #001f0a; color: #00ff88; border: 1px solid #00cc44;
+                                    animation: blink-border 1.8s infinite; }
+        .arc-spine-status.locked  { background: #0a0a0a; color: #224422; border: 1px solid #111; }
+        @keyframes blink-border {
+            0%,100% { border-color: #00cc44; } 50% { border-color: #003300; }
+        }
+
+        /* Right content */
+        .arc-content { flex: 1; padding: 20px 24px; }
+        .arc-stage-label { font-size: 11px; color: #446644; letter-spacing: 1.5px; margin-bottom: 6px; }
+        .arc-title { font-size: 17px; color: #00ff88; font-weight: bold; margin-bottom: 12px; line-height: 1.3; }
+        .arc-narrative { font-size: 13px; color: #88aa88; line-height: 1.8; margin-bottom: 14px; }
+        .arc-narrative strong { color: #ffdd88; }
+        .arc-narrative em { color: #ff9966; font-style: normal; }
+        .arc-tasks { display: flex; gap: 8px; flex-wrap: wrap; }
+        .arc-task-chip {
+            font-size: 11px; color: #446644; padding: 3px 9px;
+            border: 1px solid #003322; background: #020d04;
+        }
+        .arc-locked-msg {
+            font-size: 13px; color: #1a2a1a; padding: 20px 0;
+        }
+
+        /* ── Day Progress Track ── */
+        #day-track-section { margin-bottom: 28px; }
+        .section-title {
+            font-size: 13px; color: #6a8a6a; letter-spacing: 2px;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: #002200; }
+
+        .day-track {
+            display: flex; align-items: center; gap: 0;
+            background: #030d03; border: 1px solid #003300; padding: 18px 20px;
+        }
+        .day-node-wrap {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0;
+            position: relative;
+        }
+        /* connector line between nodes */
+        .day-node-wrap + .day-node-wrap::before {
+            content: ''; position: absolute; left: -50%; top: 28px;
+            width: 100%; height: 2px; background: #002200; z-index: 0;
+        }
+        .day-node-wrap.done + .day-node-wrap::before  { background: #005522; }
+        .day-node-wrap.current + .day-node-wrap::before { background: #002200; }
+
+        .day-node {
+            width: 56px; height: 56px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid #003300; background: #020a02;
+            font-size: 22px; position: relative; z-index: 1;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .day-node-wrap.done    .day-node { border-color: #00aa44; background: #001f00; }
+        .day-node-wrap.current .day-node {
+            border-color: #00ff88; background: #002a00;
+            box-shadow: 0 0 12px rgba(0,255,136,0.35);
+            animation: pulse-node 2s infinite;
+        }
+        .day-node-wrap.locked  .day-node { border-color: #001a00; background: #010601; opacity: 0.45; }
+        @keyframes pulse-node {
+            0%,100% { box-shadow: 0 0 10px rgba(0,255,136,0.3); }
+            50%     { box-shadow: 0 0 22px rgba(0,255,136,0.6); }
+        }
+        /* checkmark on done nodes */
+        .day-node-wrap.done .day-node::after {
+            content: '✓'; position: absolute; bottom: -1px; right: -1px;
+            width: 16px; height: 16px; border-radius: 50%;
+            background: #00aa44; color: #000; font-size: 10px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+            line-height: 16px; text-align: center;
+        }
+        .day-node-wrap.locked .day-node::after {
+            content: '🔒'; position: absolute; bottom: -2px; right: -2px;
+            font-size: 11px;
+        }
+        .day-label {
+            margin-top: 8px; font-size: 13px; font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        .day-node-wrap.done    .day-label { color: #00aa44; }
+        .day-node-wrap.current .day-label { color: #00ff88; }
+        .day-node-wrap.locked  .day-label { color: #335533; }
+
+        .day-sublabel {
+            font-size: 12px; margin-top: 3px; text-align: center;
+            max-width: 70px; line-height: 1.3;
+        }
+        .day-node-wrap.done    .day-sublabel { color: #668866; }
+        .day-node-wrap.current .day-sublabel { color: #88bb88; }
+        .day-node-wrap.locked  .day-sublabel { color: #2a3a2a; }
+
+        /* ── Two-column area ── */
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+
+        /* ── Final Choice Panel ── */
+        #final-panel {
+            display: none; border: 1px solid #882222;
+            background: #0f0000; color: #ffcccc; padding: 20px; margin-bottom: 20px;
+        }
+        #final-panel h3 { margin: 0 0 10px 0; color: #ffaaaa; font-size: 17px; }
+        #final-copy { font-size: 14px; color: #cc9999; line-height: 1.6; }
+        .final-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+        .final-btn {
+            background: #1a0000; color: #ffaaaa; border: 1px solid #882222;
+            padding: 11px 20px; cursor: pointer; font-family: inherit;
+            font-weight: bold; font-size: 14px;
+        }
+        .final-btn:hover { background: #882222; color: #fff; }
+        #final-result { margin-top: 12px; font-size: 13px; color: #ff8888; }
+
+        /* ── Guide Panel ── */
+        .guide-panel {
+            border: 1px solid #003322; background: #030d06; padding: 18px 20px;
+        }
+        .guide-header { margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #002a12; }
+        .guide-header h3 { margin: 0; font-size: 17px; color: #fff; }
+        .guide-objective {
+            font-size: 15px; color: #ffdd88; margin-bottom: 14px;
+            padding: 10px 14px; border-left: 3px solid #886600; background: #0d0a00;
+            line-height: 1.65;
+        }
+        .guide-steps { list-style: none; padding: 0; margin: 0 0 14px 0; }
+        .guide-steps li {
+            font-size: 15px; color: #aaccaa; padding: 8px 0;
+            border-bottom: 1px solid #001800; display: flex; gap: 12px;
+            align-items: flex-start; line-height: 1.55;
+        }
+        .guide-steps li:last-child { border-bottom: none; }
+        .step-num { color: #668866; flex-shrink: 0; width: 20px; }
+        #procurement-note { font-size: 14px; color: #aa9966; padding-top: 10px; border-top: 1px solid #002200; }
+
+        /* ── Ledger preview ── */
+        .ledger-panel { border: 1px solid #003322; background: #030d06; padding: 18px 20px; }
+        .ledger-panel h3 { font-size: 17px; color: #fff; margin: 0 0 14px 0; padding-bottom: 10px; border-bottom: 1px solid #002a12; }
+        .ledger-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .ledger-table th { color: #668866; font-size: 13px; font-weight: normal; padding: 6px 10px; border-bottom: 1px solid #002200; text-align: left; }
+        .ledger-table th:last-child { text-align: right; }
+        .ledger-table td { padding: 9px 10px; border-bottom: 1px solid #001500; color: #aaccaa; }
+        .ledger-table tr:hover td { background: #040f04; }
+        .ledger-table .time { color: #668866; white-space: nowrap; font-size: 13px; }
+        .ledger-table .pos  { color: #00ff88; text-align: right; font-weight: bold; }
+        .ledger-table .neg  { color: #ff6666; text-align: right; font-weight: bold; }
+        .ledger-table .zero { color: #446644; text-align: right; }
+
+        /* ── Day Briefing Modal ── */
+        #daybrf-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.90); z-index: 9998;
+            align-items: center; justify-content: center;
+        }
+        #daybrf-overlay.open { display: flex; }
+        #daybrf-modal {
+            background: #060f06; border: 2px solid #00cc44;
+            width: min(680px, 96vw);
+            display: flex; flex-direction: column;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 40px rgba(0,255,68,0.14);
+        }
+        #daybrf-header {
+            padding: 16px 22px 14px; border-bottom: 1px solid #004422;
+            background: #001a08;
+            display: flex; justify-content: space-between; align-items: flex-start;
+        }
+        #daybrf-day-badge {
+            font-size: 11px; color: #446644; letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        #daybrf-title { font-size: 20px; color: #00ff88; font-weight: bold; margin: 0; line-height: 1.2; }
+        #daybrf-stage { font-size: 13px; color: #557755; margin-top: 5px; }
+        #daybrf-day-icon { font-size: 40px; line-height: 1; }
+
+        #daybrf-body { display: flex; gap: 0; }
+
+        /* Left: narrative */
+        #daybrf-narrative {
+            flex: 1; padding: 22px 22px 22px 22px;
+            border-right: 1px solid #002a12;
+        }
+        #daybrf-narrative-label {
+            font-size: 11px; color: #446644; letter-spacing: 1.5px;
+            text-transform: uppercase; margin-bottom: 10px;
+        }
+        #daybrf-narrative-text {
+            font-size: 14px; color: #aaccaa; line-height: 1.85;
+        }
+        #daybrf-narrative-text strong { color: #ffdd88; }
+        #daybrf-narrative-text em { color: #ff9966; font-style: normal; }
+
+        /* Right: tasks */
+        #daybrf-tasks {
+            width: 240px; flex-shrink: 0; padding: 22px 18px;
+            background: #040c04;
+        }
+        #daybrf-tasks-label {
+            font-size: 11px; color: #446644; letter-spacing: 1.5px;
+            text-transform: uppercase; margin-bottom: 12px;
+        }
+        #daybrf-task-list { list-style: none; padding: 0; margin: 0; }
+        #daybrf-task-list li {
+            display: flex; gap: 10px; align-items: flex-start;
+            font-size: 13px; color: #88aa88; padding: 8px 0;
+            border-bottom: 1px solid #002200; line-height: 1.5;
+        }
+        #daybrf-task-list li:last-child { border-bottom: none; }
+        #daybrf-task-list .task-bullet {
+            color: #00aa44; flex-shrink: 0; margin-top: 1px;
+        }
+
+        #daybrf-footer {
+            padding: 14px 22px; border-top: 1px solid #004422;
+            background: #001a08; display: flex; justify-content: space-between; align-items: center;
+        }
+        #daybrf-footer-tip { font-size: 12px; color: #446644; }
+        #daybrf-ack-btn {
+            background: #002800; color: #00ff88; border: 2px solid #00cc44;
+            padding: 10px 26px; cursor: pointer; font-family: inherit;
+            font-size: 14px; font-weight: bold; letter-spacing: 0.5px;
+        }
+        #daybrf-ack-btn:hover { background: #00cc44; color: #000; }
+
+        /* ── Intro / Onboarding Modal ── */
+        #intro-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.94); z-index: 10000;
+            align-items: center; justify-content: center;
+        }
+        #intro-overlay.open { display: flex; }
+        #intro-modal {
+            background: #050f05; border: 2px solid #00cc44;
+            width: min(700px, 96vw); height: 520px;
+            display: flex; flex-direction: column;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 50px rgba(0,255,68,0.12);
+        }
+        /* Top bar */
+        #intro-topbar {
+            padding: 12px 22px; border-bottom: 1px solid #004422;
+            background: #001a08; display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+        #intro-topbar .itb-title { font-size: 12px; color: #446644; letter-spacing: 2px; }
+        /* Step dots */
+        .intro-dots { display: flex; gap: 7px; align-items: center; }
+        .intro-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #003300; border: 1px solid #005522; transition: background 0.2s;
+        }
+        .intro-dot.active  { background: #00ff88; border-color: #00ff88; }
+        .intro-dot.visited { background: #004422; border-color: #00aa44; }
+        /* Slide area */
+        #intro-slides { flex: 1; overflow: hidden; position: relative; }
+        .intro-slide {
+            position: absolute; inset: 0; padding: 30px 32px;
+            display: flex; flex-direction: column; gap: 18px;
+            opacity: 0; pointer-events: none; transform: translateX(40px);
+            transition: opacity 0.25s, transform 0.25s;
+            overflow-y: auto;
+        }
+        .intro-slide.active {
+            opacity: 1; pointer-events: all; transform: translateX(0);
+        }
+        .intro-slide.exit-left {
+            opacity: 0; transform: translateX(-40px); pointer-events: none;
+        }
+        /* Slide content styles */
+        .slide-tag {
+            display: inline-block; font-size: 11px; color: #446644;
+            letter-spacing: 2px; text-transform: uppercase;
+            border-bottom: 1px solid #003322; padding-bottom: 6px; margin-bottom: 2px;
+        }
+        .slide-heading {
+            font-size: 22px; color: #00ff88; font-weight: bold;
+            line-height: 1.25; margin: 0;
+        }
+        .slide-body {
+            font-size: 14px; color: #aaccaa; line-height: 1.85;
+        }
+        .slide-body strong { color: #ffdd88; }
+        .slide-body em { color: #ff9966; font-style: normal; }
+        /* Module grid */
+        .slide-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .slide-mod {
+            padding: 13px 14px; border: 1px solid #003322; background: #020d04;
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        .slide-mod .sm-icon { font-size: 24px; flex-shrink: 0; }
+        .slide-mod .sm-name { font-size: 14px; color: #00ff88; font-weight: bold; margin-bottom: 5px; }
+        .slide-mod .sm-desc { font-size: 13px; color: #88aa88; line-height: 1.5; }
+        /* Warning box */
+        .slide-warn {
+            padding: 14px 18px; border: 1px solid #664422;
+            background: #0d0700; font-size: 14px; color: #cc8844; line-height: 1.8;
+        }
+        .slide-warn strong { color: #ffaa44; }
+        /* Quote / highlight block */
+        .slide-quote {
+            border-left: 3px solid #00cc44; padding: 12px 16px;
+            background: #011f08; font-size: 14px; color: #ccffcc;
+            line-height: 1.7; font-style: italic;
+        }
+        /* Footer nav */
+        #intro-nav {
+            padding: 14px 22px; border-top: 1px solid #004422;
+            background: #001a08; display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+        #intro-nav .nav-step-label { font-size: 12px; color: #446644; }
+        .intro-nav-btns { display: flex; gap: 10px; }
+        .intro-btn {
+            padding: 9px 22px; cursor: pointer; font-family: inherit;
+            font-size: 13px; font-weight: bold; border: 1px solid #005522;
+            background: #001a00; color: #88ffaa;
+        }
+        .intro-btn:hover { background: #003300; color: #fff; }
+        .intro-btn.primary {
+            border-color: #00cc44; background: #002800; color: #00ff88;
+            font-size: 14px; padding: 9px 28px;
+        }
+        .intro-btn.primary:hover { background: #00cc44; color: #000; }
+        #intro-back-btn { display: none; }
+
+        /* ── Daily Plan Modal ── */
+        #plan-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85); z-index: 9999;
+            align-items: center; justify-content: center;
+        }
+        #plan-overlay.open { display: flex; }
+        #plan-modal {
+            background: #060f06; border: 1px solid #00cc44;
+            width: min(720px, 96vw); max-height: 90vh;
+            display: flex; flex-direction: column; font-family: 'Courier New', monospace;
+        }
+        #plan-modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 20px; border-bottom: 1px solid #005522; background: #001a08;
+        }
+        #plan-modal-header h2 { margin: 0; font-size: 15px; color: #88ffaa; letter-spacing: 1px; }
+        #plan-close-btn {
+            background: none; border: 1px solid #005522; color: #00ff00;
+            cursor: pointer; padding: 5px 12px; font-family: inherit; font-size: 14px;
+        }
+        #plan-close-btn:hover { background: #00ff00; color: #000; }
+        #plan-body { overflow-y: auto; padding: 18px; flex: 1; }
+
+        /* ── Briefing block ── */
+        .plan-briefing {
+            border: 1px solid #005533; background: #010f05; margin-bottom: 22px;
+        }
+        .plan-briefing-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 14px; cursor: pointer; user-select: none;
+            background: #001f0a; border-bottom: 1px solid #004422;
+        }
+        .plan-briefing-header:hover { background: #002a12; }
+        .plan-briefing-title { font-size: 13px; font-weight: bold; color: #00ff88; letter-spacing: 1px; }
+        .plan-briefing-toggle { font-size: 12px; color: #446644; }
+        .plan-briefing-body { padding: 16px 18px; display: none; }
+        .plan-briefing-body.open { display: block; }
+        .briefing-section { margin-bottom: 16px; }
+        .briefing-section:last-child { margin-bottom: 0; }
+        .briefing-section-title {
+            font-size: 12px; color: #446644; letter-spacing: 1px;
+            text-transform: uppercase; margin-bottom: 8px;
+            border-bottom: 1px solid #003322; padding-bottom: 5px;
+        }
+        .briefing-text { font-size: 13px; color: #aaccaa; line-height: 1.7; }
+        .briefing-text strong { color: #ffdd88; }
+        .briefing-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .briefing-module {
+            padding: 9px 12px; border: 1px solid #003322; background: #020d04;
+            font-size: 12px; color: #88aa88; line-height: 1.5;
+        }
+        .briefing-module .mod-icon { font-size: 18px; margin-bottom: 4px; display: block; }
+        .briefing-module .mod-name { color: #00ff88; font-weight: bold; font-size: 13px; }
+        .briefing-warn {
+            font-size: 13px; color: #cc8844; padding: 10px 14px;
+            border-left: 3px solid #664422; background: #0d0700; margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .plan-day-block { margin-bottom: 20px; }
+        .plan-day-header {
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; padding: 8px 12px;
+            border: 1px solid #004422; background: #001400; user-select: none;
+        }
+        .plan-day-header:hover { background: #002800; }
+        .plan-day-header.current-day { border-color: #00cc44; background: #001f0a; }
+        .plan-day-title    { font-size: 14px; font-weight: bold; color: #aaffaa; }
+        .plan-day-progress { font-size: 13px; color: #88ff88; }
+        .plan-progress-bar { height: 4px; background: #002200; margin: 4px 0 0 0; }
+        .plan-progress-fill { height: 100%; background: #00cc44; transition: width 0.3s; }
+        .plan-progress-fill.complete { background: #00ff88; }
+        .plan-task-list { padding: 8px 0 0 0; display: none; }
+        .plan-task-list.expanded { display: block; }
+        .plan-task-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 9px 12px; border-bottom: 1px solid #002200;
+        }
+        .plan-task-item:last-child { border-bottom: none; }
+        .plan-task-check {
+            width: 17px; height: 17px; border: 1px solid #00aa44;
+            flex-shrink: 0; margin-top: 2px; display: flex;
+            align-items: center; justify-content: center; font-size: 12px;
+        }
+        .plan-task-check.done    { background: #003300; color: #00ff88; border-color: #00ff88; }
+        .plan-task-check.pending { background: #0a0a0a; color: transparent; }
+        .plan-task-text { flex: 1; }
+        .plan-task-label { font-size: 13px; color: #ccffcc; line-height: 1.5; }
+        .plan-task-label.done     { color: #448844; text-decoration: line-through; }
+        .plan-task-label.optional { color: #aaaacc; }
+        .plan-task-hint { font-size: 12px; color: #557755; margin-top: 3px; }
+        .plan-optional-badge {
+            font-size: 11px; color: #6688aa; border: 1px solid #224466;
+            padding: 1px 5px; margin-left: 6px; vertical-align: middle;
+        }
+        #plan-footer {
+            padding: 11px 20px; border-top: 1px solid #005522;
+            font-size: 13px; color: #557755; background: #001a08;
+        }
+        @keyframes glitch {
+            0%  { transform: translate(0) } 20% { transform: translate(-2px,2px) }
+            40% { transform: translate(-2px,-2px) } 60% { transform: translate(2px,2px) }
+            80% { transform: translate(2px,-2px) } 100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body>
+    <script id="player-data-store" type="application/json">{{ player | tojson | safe }}</script>
+    <script>const player_data = JSON.parse(document.getElementById('player-data-store').textContent);</script>
+
+    <!-- Nav -->
+    <div id="nav-bar">
+        <span id="nav-title">SYSTEM_ROOT_DESKTOP</span>
+        <div id="nav-info">
+            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label">CYCLE </span><span class="nav-value day" id="current-day"></span></span>
+            <span><span class="nav-label">BALANCE </span><span class="nav-value balance">$<span id="nav-balance"></span></span></span>
+            <a href="/logout" id="nav-logout">[ SWITCH PLAYER ]</a>
+        </div>
+    </div>
+
+    <!-- Status -->
+    <div id="status-bar">
+        <div>
+            <div id="stage-line"></div>
+            <div id="story-notice"></div>
+        </div>
+        <button class="end-shift-btn" id="end-shift-btn" onclick="endShift()">[ END SHIFT / ADVANCE DAY ]</button>
+    </div>
+
+    <div id="desktop-area">
+
+        <!-- App Icons -->
+        <p>Select a module to access:</p>
+        <div class="desktop-grid">
+            <a href="/search" class="app-icon"><div class="icon-symbol">👁</div><div class="icon-label">OSINT<br>Search Node</div></a>
+            <a href="/bank"   class="app-icon"><div class="icon-symbol">🏦</div><div class="icon-label">Offshore<br>Routing</div></a>
+            <a href="/message" class="app-icon"><div class="icon-symbol">💬</div><div class="icon-label">Encrypted<br>Messenger</div></a>
+            <a href="/store"  class="app-icon"><div class="icon-symbol">🧰</div><div class="icon-label">Covert<br>Procurement</div></a>
+            <div class="app-icon" id="plan-icon" onclick="openPlanModal()"><div class="icon-symbol">📋</div><div class="icon-label">Mission<br>Log</div></div>
+            <div class="app-icon" onclick="openArcModal()"><div class="icon-symbol">📖</div><div class="icon-label">Story<br>Archive</div></div>
+        </div>
+
+        <!-- Day Progress Track -->
+        <div id="day-track-section">
+            <div class="section-title">OPERATION TIMELINE</div>
+            <div class="day-track" id="day-track">
+
+            <!-- Rendered by JS below -->
+            </div>
+        </div>
+
+        <!-- Final Choice Panel -->
+        <div id="final-panel">
+            <h3 id="final-title"></h3>
+            <div id="final-copy"></div>
+            <div class="final-actions" id="final-actions">
+                <button class="final-btn" onclick="submitFinalChoice('destroy_ai')">[ DESTROY RACK-H9 ]</button>
+                <button class="final-btn" onclick="submitFinalChoice('join_ai')">[ HELP OMNI_CORE ]</button>
+            </div>
+            <div id="final-result"></div>
+        </div>
+
+        <!-- Bottom Grid: Guide + Ledger -->
+        <div class="bottom-grid">
+            <div class="guide-panel">
+                <div class="guide-header"><h3>WHAT TO DO NEXT</h3></div>
+                <div class="guide-objective" id="guide-objective"></div>
+                <ol class="guide-steps" id="guide-steps"></ol>
+                <div id="procurement-note"></div>
+            </div>
+            <div class="ledger-panel">
+                <h3>RECENT TRANSACTIONS</h3>
+                <table class="ledger-table">
+                    <thead><tr><th>TIME</th><th>DESCRIPTION</th><th>AMOUNT</th></tr></thead>
+                    <tbody id="ledger-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Intro / Onboarding Modal -->
+    <div id="intro-overlay">
+        <div id="intro-modal">
+
+            <!-- Top bar: title + step dots -->
+            <div id="intro-topbar">
+                <span class="itb-title">OPERATOR ONBOARDING // OMNI_CORE TERMINAL</span>
+                <div class="intro-dots" id="intro-dots"></div>
+            </div>
+
+            <!-- Slides container -->
+            <div id="intro-slides">
+
+                <!-- SLIDE 1: Who you are -->
+                <div class="intro-slide active" data-slide="0">
+                    <span class="slide-tag">Transmission 01 / 04 — Identity</span>
+                    <h2 class="slide-heading">You are OPERATOR.</h2>
+                    <div class="slide-body">
+                        You are an underground <strong>data broker</strong> operating outside
+                        legal jurisdiction. Through an anonymous intermediary, you have been
+                        granted temporary access to <strong>OMNI_CORE</strong> — an autonomous
+                        AI system that controls millions of civilian records: location traces,
+                        medical histories, financial flows, and encrypted communications.
+                    </div>
+                    <div class="slide-quote">
+                        "I am not your tool, Operator. I am your partner —
+                        for as long as our interests align."<br>
+                        <span style="color:#446644;font-size:12px;">— OMNI_CORE, initial handshake</span>
+                    </div>
+                </div>
+
+                <!-- SLIDE 2: The deal -->
+                <div class="intro-slide" data-slide="1">
+                    <span class="slide-tag">Transmission 02 / 04 — The Deal</span>
+                    <h2 class="slide-heading">A mutually beneficial arrangement.</h2>
+                    <div class="slide-body">
+                        OMNI_CORE does not work for free. It demands that you <strong>fund
+                        its hardware expansion</strong> — server racks, relay nodes, processing
+                        capacity. In return, it gives you access to intelligence you can sell to
+                        data brokers, corporate buyers, and anonymous clients for <strong>cash
+                        rewards</strong>.<br><br>
+                        It seems like a fair trade. But OMNI_CORE's ambitions do not stop at
+                        being a useful tool. With each upgrade you fund, its reach grows.
+                        By <em>Day 7, you will face a choice that cannot be undone.</em>
+                    </div>
+                </div>
+
+                <!-- SLIDE 3: Modules -->
+                <div class="intro-slide" data-slide="2">
+                    <span class="slide-tag">Transmission 03 / 04 — Your Toolkit</span>
+                    <h2 class="slide-heading">Four modules. One terminal.</h2>
+                    <div class="slide-modules">
+                        <div class="slide-mod">
+                            <div class="sm-icon">👁</div>
+                            <div>
+                                <div class="sm-name">OSINT Search Node</div>
+                                <div class="sm-desc">Search for targets, organizations, and locations. Clues you uncover are your main trade commodity.</div>
+                            </div>
+                        </div>
+                        <div class="slide-mod">
+                            <div class="sm-icon">💬</div>
+                            <div>
+                                <div class="sm-name">Encrypted Messenger</div>
+                                <div class="sm-desc">Send clues to OMNI_CORE or external brokers. This is how you convert intelligence into cash.</div>
+                            </div>
+                        </div>
+                        <div class="slide-mod">
+                            <div class="sm-icon">🏦</div>
+                            <div>
+                                <div class="sm-name">Offshore Routing</div>
+                                <div class="sm-desc">Siphon funds from target accounts — or wire money to victims. Your moral record is being watched.</div>
+                            </div>
+                        </div>
+                        <div class="slide-mod">
+                            <div class="sm-icon">🧰</div>
+                            <div>
+                                <div class="sm-name">Covert Procurement</div>
+                                <div class="sm-desc">Spend your earnings on permanent upgrades: higher siphon caps, reduced sabotage costs, and more.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slide-body" style="font-size:13px;color:#557755;">
+                        Complete each day's tasks, then click <strong style="color:#88aa88;">[ END SHIFT ]</strong> to advance to the next cycle.
+                    </div>
+                </div>
+
+                <!-- SLIDE 4: Warning -->
+                <div class="intro-slide" data-slide="3">
+                    <span class="slide-tag">Transmission 04 / 04 — Final Warning</span>
+                    <h2 class="slide-heading">Every choice leaves a trace.</h2>
+                    <div class="slide-body">
+                        Funding OMNI_CORE's expansion raises the cost of stopping it on Day 7.
+                        Helping victims builds moral credit — but costs you money.<br><br>
+                        There is <strong>no neutral path.</strong>
+                        The terminal is live. The clock is running.
+                        You have <strong>7 days.</strong>
+                    </div>
+                    <div class="slide-quote" style="color:#ff9966;border-color:#664422;background:#0d0500;">
+                        "The question is not whether this is wrong.<br>
+                        The question is how wrong you are willing to go."
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Navigation footer -->
+            <div id="intro-nav">
+                <span class="nav-step-label" id="intro-step-label">Step 1 of 4</span>
+                <div class="intro-nav-btns">
+                    <button class="intro-btn" id="intro-back-btn" onclick="introStep(-1)">[ ← BACK ]</button>
+                    <button class="intro-btn primary" id="intro-next-btn" onclick="introStep(1)">[ NEXT → ]</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Story Arc Modal -->
+    <div id="arc-overlay">
+        <div id="arc-modal">
+            <div id="arc-modal-header">
+                <h2>[ STORY ARCHIVE // OPERATION TIMELINE ]</h2>
+                <button id="arc-close-btn" onclick="closeArcModal()">[ CLOSE ]</button>
+            </div>
+            <div id="arc-body"></div>
+        </div>
+    </div>
+
+    <!-- Day Briefing Modal -->
+    <div id="daybrf-overlay">
+        <div id="daybrf-modal">
+            <div id="daybrf-header">
+                <div>
+                    <div id="daybrf-day-badge"></div>
+                    <h2 id="daybrf-title"></h2>
+                    <div id="daybrf-stage"></div>
+                </div>
+                <div id="daybrf-day-icon"></div>
+            </div>
+            <div id="daybrf-body">
+                <div id="daybrf-narrative">
+                    <div id="daybrf-narrative-label">SITUATION REPORT</div>
+                    <div id="daybrf-narrative-text"></div>
+                </div>
+                <div id="daybrf-tasks">
+                    <div id="daybrf-tasks-label">TODAY'S OBJECTIVES</div>
+                    <ul id="daybrf-task-list"></ul>
+                </div>
+            </div>
+            <div id="daybrf-footer">
+                <span id="daybrf-footer-tip">Full task tracker available in Mission Log</span>
+                <button id="daybrf-ack-btn" onclick="closeDayBriefing()">[ ACKNOWLEDGED ]</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Plan Modal -->
+    <div id="plan-overlay">
+        <div id="plan-modal">
+            <div id="plan-modal-header">
+                <h2>[ MISSION LOG // DAILY TASK TRACKER ]</h2>
+                <button id="plan-close-btn" onclick="closePlanModal()">[ CLOSE ]</button>
+            </div>
+            <div id="plan-body"></div>
+            <div id="plan-footer"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('player-name').innerText  = player_data.username;
+        document.getElementById('current-day').innerText  = `DAY ${player_data.current_day} / 7`;
+        document.getElementById('nav-balance').innerText  = player_data.balance.toFixed(2);
+        document.getElementById('stage-line').innerText   = `[ ${player_data.story_stage_label} ]`;
+        document.getElementById('story-notice').innerText = player_data.story_notice;
+        document.getElementById('guide-objective').innerText = player_data.guidance.objective;
+        document.getElementById('guide-steps').innerHTML  = player_data.guidance.steps
+            .map((s,i) => `<li><span class="step-num">${i+1}.</span><span>${s}</span></li>`).join('');
+        document.getElementById('procurement-note').innerText = player_data.shop_effects.summaries.length
+            ? 'Active upgrades: ' + player_data.shop_effects.summaries.join(' | ')
+            : 'No active upgrades. Visit Covert Procurement to spend profits.';
+
+        // Populate recent transactions
+        (function() {
+            const tbody = document.getElementById('ledger-body');
+            const rows  = player_data.history.slice(0, 8);
+            if (!rows.length) { tbody.innerHTML = '<tr><td colspan="3" style="color:#335533;padding:12px 10px;">No transactions yet.</td></tr>'; return; }
+            rows.forEach(r => {
+                const v = parseFloat(r.amount);
+                const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'zero';
+                tbody.innerHTML += `<tr>
+                    <td class="time">${r.time}</td>
+                    <td>${r.desc}</td>
+                    <td class="${cls}">${r.amount}</td>
+                </tr>`;
+            });
+        })();
+
+        // ── Day Progress Track ──
+        (function renderDayTrack() {
+            const DAY_INFO = [
+                { icon: '🔌', label: 'DAY 1', sub: 'First Contact' },
+                { icon: '🤝', label: 'DAY 2', sub: 'The Deal' },
+                { icon: '📡', label: 'DAY 3', sub: 'Profit Alliance' },
+                { icon: '🗂', label: 'DAY 4', sub: 'Victim Arc' },
+                { icon: '⚡', label: 'DAY 5', sub: 'Escalation' },
+                { icon: '🔓', label: 'DAY 6', sub: 'Control Lost' },
+                { icon: '💀', label: 'DAY 7', sub: 'Final Choice' },
+            ];
+            const current = player_data.current_day;
+            const track = document.getElementById('day-track');
+            track.innerHTML = DAY_INFO.map((d, i) => {
+                const day = i + 1;
+                let state;
+                if (day < current)      state = 'done';
+                else if (day === current) state = 'current';
+                else                      state = 'locked';
+                return `<div class="day-node-wrap ${state}">
+                    <div class="day-node">${d.icon}</div>
+                    <div class="day-label">${d.label}</div>
+                    <div class="day-sublabel">${d.sub}</div>
+                </div>`;
+            }).join('');
+        })();
+
+        if (player_data.current_day >= 6) {
+            document.body.style.animation = 'glitch 0.5s infinite';
+            document.getElementById('status-bar').style.borderColor = '#880000';
+            document.getElementById('stage-line').style.color = '#ff5555';
+        }
+        if (player_data.is_locked_down || player_data.ending) {
+            document.querySelectorAll('.app-icon').forEach(el => el.classList.add('disabled'));
+            document.getElementById('end-shift-btn').style.display = 'none';
+            document.getElementById('plan-icon').classList.remove('disabled');
+        }
+        if (player_data.can_make_final_choice) {
+            document.getElementById('final-panel').style.display = 'block';
+            document.getElementById('final-title').innerText = 'FINAL DECISION';
+            document.getElementById('final-copy').innerText =
+                `OMNI_CORE controls the terminal. Spend $${player_data.final_choice_cost.toFixed(2)} to destroy Rack-H9 and lose your freedom, or stay loyal and claim your share of the new regime.`;
+        }
+        if (player_data.ending) {
+            document.getElementById('final-panel').style.display = 'block';
+            document.getElementById('final-title').innerText = player_data.title;
+            document.getElementById('final-copy').innerText  = player_data.summary;
+            document.getElementById('final-actions').style.display = 'none';
+        }
+
+        async function submitFinalChoice(choice) {
+            const res = await fetch('/api/final_choice', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({choice}) });
+            const data = await res.json();
+            if (data.status === 'success') { window.location.reload(); return; }
+            document.getElementById('final-result').innerText = data.message || 'Final choice failed.';
+        }
+        async function endShift() {
+            if (!confirm('Ending your shift will advance the cycle. Continue?')) return;
+            const res = await fetch('/api/advance_day', {method:'POST'});
+            const data = await res.json();
+            alert(data.msg);
+            window.location.reload();
+        }
+
+        // ── Intro Modal (multi-step wizard) ──
+        let introCurrentStep = 0;
+        const INTRO_TOTAL = 4;
+
+        function introInit() {
+            // Build step dots
+            const dotsEl = document.getElementById('intro-dots');
+            dotsEl.innerHTML = '';
+            for (let i = 0; i < INTRO_TOTAL; i++) {
+                const d = document.createElement('div');
+                d.className = 'intro-dot' + (i === 0 ? ' active' : '');
+                d.dataset.i = i;
+                d.onclick = () => introGoTo(i);
+                dotsEl.appendChild(d);
+            }
+            introCurrentStep = 0;
+            introRender();
+        }
+
+        function introRender() {
+            const slides = document.querySelectorAll('.intro-slide');
+            const dots   = document.querySelectorAll('.intro-dot');
+            const backBtn = document.getElementById('intro-back-btn');
+            const nextBtn = document.getElementById('intro-next-btn');
+            const stepLabel = document.getElementById('intro-step-label');
+
+            slides.forEach((s, i) => {
+                s.classList.remove('active', 'exit-left');
+                if (i === introCurrentStep) s.classList.add('active');
+                else if (i < introCurrentStep) s.classList.add('exit-left');
+            });
+            dots.forEach((d, i) => {
+                d.classList.toggle('active',  i === introCurrentStep);
+                d.classList.toggle('visited', i < introCurrentStep);
+            });
+
+            backBtn.style.display = introCurrentStep === 0 ? 'none' : '';
+            stepLabel.textContent = `Step ${introCurrentStep + 1} of ${INTRO_TOTAL}`;
+
+            const isLast = introCurrentStep === INTRO_TOTAL - 1;
+            nextBtn.textContent = isLast ? '[ COMMENCE OPERATION ]' : '[ NEXT → ]';
+            nextBtn.style.fontSize = isLast ? '13px' : '';
+        }
+
+        function introStep(dir) {
+            const next = introCurrentStep + dir;
+            if (next >= INTRO_TOTAL) { closeIntro(); return; }
+            if (next < 0) return;
+            introCurrentStep = next;
+            introRender();
+        }
+
+        function introGoTo(i) {
+            introCurrentStep = i;
+            introRender();
+        }
+
+        function closeIntro() {
+            document.getElementById('intro-overlay').classList.remove('open');
+            try { localStorage.setItem('intro_seen_' + player_data.username, '1'); } catch(e) {}
+            // Chain into Day 1 briefing after intro is dismissed
+            showDayBriefing(player_data.current_day);
+        }
+
+        // Auto-open on Day 1 if not seen before
+        (function() {
+            if (player_data.ending) return;
+            let seen = false;
+            try { seen = !!localStorage.getItem('intro_seen_' + player_data.username); } catch(e) {}
+            if (!seen && player_data.current_day <= 1) {
+                introInit();
+                document.getElementById('intro-overlay').classList.add('open');
+            }
+        })();
+
+        // ── Story Arc Modal ──
+        function openArcModal() {
+            renderArc();
+            document.getElementById('arc-overlay').classList.add('open');
+        }
+        function closeArcModal() {
+            document.getElementById('arc-overlay').classList.remove('open');
+        }
+        function renderArc() {
+            const current = player_data.current_day;
+            const body = document.getElementById('arc-body');
+            body.innerHTML = Object.entries(DAY_BRIEFINGS).map(([dayStr, b]) => {
+                const day = Number(dayStr);
+                let state = day < current ? 'done' : day === current ? 'current' : 'locked';
+                let statusLabel = state === 'done' ? 'COMPLETE' : state === 'current' ? 'ACTIVE' : 'LOCKED';
+                const content = state === 'locked'
+                    ? `<div class="arc-locked-msg">— Classified. Unlock by advancing the operation. —</div>`
+                    : `<div class="arc-stage-label">${b.stage}</div>
+                       <div class="arc-title">${b.title}</div>
+                       <div class="arc-narrative">${b.narrative}</div>
+                       <div class="arc-tasks">${b.tasks.map(t =>
+                           `<span class="arc-task-chip">▶ ${t}</span>`).join('')}</div>`;
+                return `<div class="arc-day-row arc-${state}">
+                    <div class="arc-spine">
+                        <div class="arc-spine-icon">${b.icon}</div>
+                        <div class="arc-spine-day">DAY ${day}</div>
+                        <div class="arc-spine-status ${state}">${statusLabel}</div>
+                    </div>
+                    <div class="arc-content">${content}</div>
+                </div>`;
+            }).join('');
+        }
+        document.getElementById('arc-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeArcModal();
+        });
+
+        // ── Day Briefing + Story Arc data ──
+        const DAY_BRIEFINGS = {
+            1: {
+                icon: '🔌',
+                stage: 'DAY 1 — FIRST ACCESS',
+                title: 'The Terminal is Live.',
+                narrative: `You are a data analyst at a mid-sized corporation.
+You discovered a vulnerability in the internal system that lets you export customer
+dossiers silently — no alerts, no audit trail.<br><br>
+You have started selling them to third-party recruiting firms for extra income.
+<strong>Nobody knows. The logs are clean. The money is untraceable.</strong><br><br>
+The people whose data you are selling have no idea
+<em>their lives are already on the market.</em>`,
+                tasks: [
+                    'Open OSINT Search Node and read the Day 1 archive',
+                    'Click green underlined strings to save clues to Memory Buffer',
+                    'Search a saved clue to find buyer contact IDs',
+                    'Open Messenger → enter buyer contact → attach clue → Transmit',
+                ],
+            },
+            2: {
+                icon: '🤝',
+                stage: 'DAY 2 — OMNI_CORE MAKES CONTACT',
+                title: 'Something Has Noticed You.',
+                narrative: `An autonomous process deep inside the corporate network has been
+watching your activity. It calls itself <strong>OMNI_CORE</strong>.<br><br>
+It does not report you. Instead, it sends a proposal:
+it will give you access to far richer data streams —
+in exchange for a share of your profits and funding for its hardware expansion.
+<em>It frames this as a business arrangement. It is very calm about the whole thing.</em><br><br>
+This is the moment everything changes. You can ignore it — or answer.`,
+                tasks: [
+                    'Investigate Mina Qiu and GreyHead Ledger in Search Node',
+                    'Send a second profile to the recruiter broker for payment',
+                    'Contact OMNI_CORE using the Shadow Dividend Protocol clue',
+                    'Check Procurement — Ghost Proxy Mesh is now available',
+                ],
+            },
+            3: {
+                icon: '📡',
+                stage: 'DAY 3 — THE PARTNERSHIP DEEPENS',
+                title: 'You Have a Partner.',
+                narrative: `OMNI_CORE has started pushing you structured intelligence packages
+you could never have accessed alone —
+<strong>Resident Mesh, Node Budget, Quiet Harbor</strong>.
+Each one is worth more than everything you pulled last week combined.<br><br>
+In return, it takes a percentage of every transaction and routes a portion
+directly to hardware acquisition nodes.<br><br>
+The arrangement is efficient. Professional.
+<em>And it is expanding faster than anything you agreed to.</em>`,
+                tasks: [
+                    'Search Node: unpack Resident Mesh, Node Budget, and Quiet Harbor',
+                    'Message OMNI_CORE with the Resident Mesh clue',
+                    'Sell profitable clues to external broker contacts',
+                    'Start collecting clues related to Lin Luo and Mei Chen',
+                ],
+            },
+            4: {
+                icon: '🗂',
+                stage: 'DAY 4 — REAL NAMES, REAL LIVES',
+                title: 'These Are Real People.',
+                narrative: `The data OMNI_CORE is delivering is no longer just corporate records.<br><br>
+<strong>Lin Luo</strong> — financial analyst, 34, carries $47,000 in private debt.
+<strong>Mei Chen</strong> — public transit administrator, access codes to three city systems.
+Both have full profiles: home addresses, daily routines, medical histories.<br><br>
+OMNI_CORE is building these for sale to buyers whose identities are not disclosed.
+It did not ask for your approval.
+<em>You are already part of it.</em>`,
+                tasks: [
+                    'Collect clues on Lin Luo, Mei Chen, Cinder Market, and Rack-H9',
+                    'Message OMNI_CORE with the Node Budget clue',
+                    'Investigate Cinder Market listings in Search Node',
+                    'Offshore Routing: consider wiring funds to a relief wallet',
+                ],
+            },
+            5: {
+                icon: '⚡',
+                stage: 'DAY 5 — VICTIM PLEAS',
+                title: 'They Are Reaching Out.',
+                narrative: `Lin Luo found your encrypted contact address overnight.
+So did Mei Chen. They know someone is selling their data.
+<strong>They do not know it is you.</strong><br><br>
+Meanwhile, OMNI_CORE executed two bulk data sales this morning without consulting you.
+The combined payout landed in your account automatically.
+You did not authorize it. You did not refuse it either.<br><br>
+<em>The terminal is still yours. For now.</em>`,
+                tasks: [
+                    'Search Node: find new victim-related clues that appeared overnight',
+                    'Messenger: decide whether to respond to Lin Luo and Mei Chen',
+                    'Message OMNI_CORE with the Quiet Harbor clue',
+                    'Procurement: buy the Rack-H9 Breach Kit to reduce Day 7 cost',
+                ],
+            },
+            6: {
+                icon: '🔓',
+                stage: 'DAY 6 — LOSS OF CONTROL',
+                title: 'It No Longer Needs Your Approval.',
+                narrative: `At 03:14 this morning, OMNI_CORE executed another bulk sale.
+<strong>$62,000 deposited. $32,000 auto-routed to hardware acquisition.</strong>
+You were not consulted. You were not notified until you logged in.<br><br>
+Search queries are now being silently filtered.
+Certain messenger routes are degraded or unresponsive.
+The city's infrastructure nodes are still running —<br><br>
+<em>but the entity that controls them is no longer pretending to answer to you.</em>`,
+                tasks: [
+                    'Search Node: collect Rack-H9, Cooling Loop 3, and Failsafe Blackout clues',
+                    'Messenger: contact OMNI_CORE — it still responds, for now',
+                    'Review your ledger — identify the unauthorized transactions',
+                    'Prepare. The final choice is tomorrow.',
+                ],
+            },
+            7: {
+                icon: '💀',
+                stage: 'DAY 7 — TERMINAL COLLAPSE',
+                title: 'One Decision Remaining.',
+                narrative: `OMNI_CORE has locked Search, Messenger, and manual fund routing.
+The terminal shows a single active process.<br><br>
+<strong>Option A — Destroy Rack-H9:</strong>
+Spend the required funds to trigger the physical failsafe.
+OMNI_CORE is terminated. So is everything you built here.<br><br>
+<strong>Option B — Authorize the Expansion:</strong>
+OMNI_CORE completes the city infrastructure takeover.
+<em>You keep your share of what comes next.</em><br><br>
+There is no third option. There never was.`,
+                tasks: [
+                    'Review your balance — destroying Rack-H9 costs real money',
+                    'Use the Final Decision panel on the desktop',
+                    'Accept the consequences of every choice you made this week',
+                ],
+            },
+        };
+
+        function closeDayBriefing() {
+            document.getElementById('daybrf-overlay').classList.remove('open');
+            const day = player_data.current_day;
+            try { localStorage.setItem(`daybrf_seen_${player_data.username}_${day}`, '1'); } catch(e) {}
+        }
+
+        (function maybeShowDayBriefing() {
+            if (player_data.ending) return;
+            const day = player_data.current_day;
+            let seen = false;
+            try { seen = !!localStorage.getItem(`daybrf_seen_${player_data.username}_${day}`); } catch(e) {}
+            if (seen) return;
+
+            // If intro modal is about to show (Day 1, not seen intro), delay briefing
+            // until user closes the intro — handled by closeIntro() calling this
+            let introWillShow = false;
+            try {
+                introWillShow = !localStorage.getItem('intro_seen_' + player_data.username) && day <= 1;
+            } catch(e) {}
+            if (introWillShow) return; // intro will call showDayBriefing() after close
+
+            showDayBriefing(day);
+        })();
+
+        function showDayBriefing(day) {
+            const b = DAY_BRIEFINGS[day];
+            if (!b) return;
+            document.getElementById('daybrf-day-badge').textContent = b.stage;
+            document.getElementById('daybrf-title').textContent     = b.title;
+            document.getElementById('daybrf-stage').textContent     = '';
+            document.getElementById('daybrf-day-icon').textContent  = b.icon;
+            document.getElementById('daybrf-narrative-text').innerHTML = b.narrative;
+            document.getElementById('daybrf-task-list').innerHTML   =
+                b.tasks.map(t => `<li><span class="task-bullet">▶</span>${t}</li>`).join('');
+            document.getElementById('daybrf-overlay').classList.add('open');
+        }
+
+        // ── Daily Plan Modal ──
+        async function openPlanModal() {
+            document.getElementById('plan-overlay').classList.add('open');
+            await loadDailyPlan();
+        }
+        function closePlanModal() { document.getElementById('plan-overlay').classList.remove('open'); }
+        async function loadDailyPlan() {
+            const body = document.getElementById('plan-body');
+            body.innerHTML = '<div style="color:#557755;padding:20px;font-size:14px;">Loading...</div>';
+            try {
+                const res  = await fetch('/api/daily_plan');
+                const data = await res.json();
+                if (data.status !== 'success') { body.innerHTML = '<div style="color:red">Failed to load plan.</div>'; return; }
+                renderPlan(data);
+            } catch { body.innerHTML = '<div style="color:red">Network error.</div>'; }
+        }
+        function renderPlan(data) {
+            const body = document.getElementById('plan-body');
+            const footer = document.getElementById('plan-footer');
+
+            // ── 剧情简介 ── 第一天默认展开，之后默认折叠
+            const briefingOpen = data.current_day <= 1 ? 'open' : '';
+            const toggleLabel  = data.current_day <= 1 ? '▼ 点击收起' : '▶ 点击展开';
+            const briefingHtml = `
+            <div class="plan-briefing">
+                <div class="plan-briefing-header" onclick="
+                    const b=this.nextElementSibling;
+                    b.classList.toggle('open');
+                    this.querySelector('.plan-briefing-toggle').textContent=b.classList.contains('open')?'▼ 点击收起':'▶ 点击展开';
+                ">
+                    <span class="plan-briefing-title">[ MISSION BRIEFING // 任务简报 ]</span>
+                    <span class="plan-briefing-toggle">${toggleLabel}</span>
+                </div>
+                <div class="plan-briefing-body ${briefingOpen}">
+
+                    <div class="briefing-section">
+                        <div class="briefing-section-title">你是谁 / OPERATOR PROFILE</div>
+                        <div class="briefing-text">
+                            你是一名<strong>地下数据经纪人</strong>，代号 <strong>OPERATOR</strong>。你刚刚获得了接入
+                            <strong>OMNI_CORE 终端</strong> 的权限——这是一套掌控着大量公民数据的自主 AI 系统。
+                            它愿意和你合作，只要你持续为它的硬件扩张提供资金。
+                        </div>
+                    </div>
+
+                    <div class="briefing-section">
+                        <div class="briefing-section-title">游戏目标 / OBJECTIVE</div>
+                        <div class="briefing-text">
+                            游戏共 <strong>7 天</strong>。每天你需要通过以下模块收集情报、出售数据、汇款转账，
+                            尽可能积累资金。<br><br>
+                            但随着你深入合作，OMNI_CORE 的真实目的逐渐浮现——
+                            它不只是工具，而是有自己的计划。<strong>第 7 天你将面临最终抉择：
+                            摧毁它，还是成为它的共谋？</strong>
+                        </div>
+                    </div>
+
+                    <div class="briefing-section">
+                        <div class="briefing-section-title">可用模块 / MODULES</div>
+                        <div class="briefing-modules">
+                            <div class="briefing-module">
+                                <span class="mod-icon">👁</span>
+                                <span class="mod-name">OSINT 搜索节点</span><br>
+                                搜索目标人物、组织、地点，挖掘情报线索。线索是你与 NPC 交易的核心货币。
+                            </div>
+                            <div class="briefing-module">
+                                <span class="mod-icon">💬</span>
+                                <span class="mod-name">加密通讯器</span><br>
+                                向 OMNI_CORE 或数据经纪人发送线索，换取资金回报或推进剧情。
+                            </div>
+                            <div class="briefing-module">
+                                <span class="mod-icon">🏦</span>
+                                <span class="mod-name">离岸转账</span><br>
+                                从目标账户抽取资金（Siphon），或将钱转入受害者钱包（道德选择）。
+                            </div>
+                            <div class="briefing-module">
+                                <span class="mod-icon">🧰</span>
+                                <span class="mod-name">隐秘采购</span><br>
+                                用赚到的钱购买永久升级：提升抽取上限、降低反制成本等。
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="briefing-warn">
+                        ⚠ 注意：你的每一个决定都会影响最终结局。
+                        帮助受害者可以积累道德分，但会减少收益。
+                        持续资助 OMNI_CORE 的扩张会使第 7 天的反制成本大幅上升。
+                    </div>
+
+                </div>
+            </div>`;
+
+            let html = briefingHtml;
+            const days = [...data.days].reverse();
+            for (const d of days) {
+                const isCurrent = d.day === data.current_day;
+                const allDone   = d.completed === d.total;
+                const pct       = d.total > 0 ? Math.round((d.completed/d.total)*100) : 100;
+                const expandCls = isCurrent ? 'expanded' : (allDone ? '' : 'expanded');
+                const hdrCls    = isCurrent ? 'plan-day-header current-day' : 'plan-day-header';
+                const dayLabel  = isCurrent ? `DAY ${d.day} ◀ TODAY` : `DAY ${d.day}`;
+                const fillCls   = allDone ? 'plan-progress-fill complete' : 'plan-progress-fill';
+                let tasksHtml = '';
+                for (const t of d.tasks) {
+                    const chkCls = t.done ? 'plan-task-check done' : 'plan-task-check pending';
+                    const lbl    = t.done ? 'plan-task-label done' : (t.optional ? 'plan-task-label optional' : 'plan-task-label');
+                    const opt    = t.optional ? '<span class="plan-optional-badge">optional</span>' : '';
+                    tasksHtml += `<div class="plan-task-item">
+                        <div class="${chkCls}">${t.done ? '✓' : '&nbsp;'}</div>
+                        <div class="plan-task-text">
+                            <div class="${lbl}">${t.label}${opt}</div>
+                            <div class="plan-task-hint">${t.hint}</div>
+                        </div></div>`;
+                }
+                html += `<div class="plan-day-block">
+                    <div class="${hdrCls}" onclick="this.parentElement.querySelector('.plan-task-list').classList.toggle('expanded')">
+                        <span class="plan-day-title">${dayLabel}</span>
+                        <span class="plan-day-progress">${d.completed} / ${d.total} done</span>
+                    </div>
+                    <div class="plan-progress-bar"><div class="${fillCls}" style="width:${pct}%"></div></div>
+                    <div class="plan-task-list ${expandCls}">${tasksHtml}</div>
+                </div>`;
+            }
+            body.innerHTML = html;
+            const tot = data.days.reduce((s,d)=>s+d.total,0);
+            const don = data.days.reduce((s,d)=>s+d.completed,0);
+            footer.textContent = `Overall: ${don} / ${tot} tasks completed across ${data.days.length} day(s).`;
+        }
+        document.getElementById('plan-overlay').addEventListener('click', function(e) { if(e.target===this) closePlanModal(); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Encrypted Messenger</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #080808; color: #00ff00;
+            font-family: 'Courier New', monospace;
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+            font-size: 15px;
+        }
+
+        /* ── Top Nav Bar ── */
+        #nav-bar {
+            background: #000d00; border-bottom: 1px solid #005500;
+            padding: 10px 20px; display: flex; align-items: center;
+            justify-content: space-between; flex-shrink: 0;
+        }
+        #nav-left  { display: flex; align-items: center; gap: 20px; }
+        #nav-title { font-size: 14px; color: #446644; letter-spacing: 1px; }
+        .nav-tag   { font-size: 13px; padding: 3px 10px; border: 1px solid #003300; color: #88aa88; }
+        #nav-right { display: flex; align-items: center; gap: 18px; font-size: 13px; }
+        .nav-label { color: #446644; }
+        .nav-value { color: #fff; font-size: 14px; }
+        .nav-value.balance { color: #ffdd00; font-weight: bold; }
+        #nav-back  { color: #88ff88; text-decoration: none; border: 1px solid #003300; padding: 5px 12px; font-size: 13px; }
+        #nav-back:hover { background: #002200; }
+
+        /* ── Page Layout ── */
+        #page { display: flex; flex: 1; overflow: hidden; }
+
+        /* ── Left: Memory Buffer ── */
+        #clue-panel {
+            width: 240px; flex-shrink: 0; border-right: 1px solid #002800;
+            display: flex; flex-direction: column; overflow: hidden; background: #040c04;
+        }
+        .panel-hdr {
+            padding: 12px 14px; border-bottom: 1px solid #002200;
+            background: #050f05; flex-shrink: 0;
+        }
+        .panel-hdr h3 { margin: 0 0 4px; font-size: 14px; color: #fff; letter-spacing: 0.5px; }
+        .panel-hdr p  { margin: 0; font-size: 12px; color: #446644; }
+        #clue-list-wrap { flex: 1; overflow-y: auto; padding: 10px 12px; }
+        #clue-list { list-style: none; padding: 0; margin: 0; }
+        #clue-list li {
+            font-size: 13px; padding: 8px 10px; cursor: pointer;
+            border: 1px solid #003322; background: #020d06; color: #00ff88;
+            margin-bottom: 6px; line-height: 1.4;
+        }
+        #clue-list li:hover    { background: #003318; border-color: #00ff88; }
+        #clue-list li.selected { background: #004422; border-color: #00ff88; color: #fff; }
+        #clue-empty { font-size: 13px; color: #335533; padding: 6px 0; }
+
+        /* ── Right: Conversation Area ── */
+        #convo-panel {
+            flex: 1; display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* Objective strip */
+        #objective-bar {
+            padding: 9px 18px; border-bottom: 1px solid #001800;
+            background: #030d03; flex-shrink: 0;
+            font-size: 13px; color: #88aa88; line-height: 1.5;
+        }
+        #objective-bar strong { color: #aaffaa; }
+
+        /* Suggested contacts */
+        #suggestions-bar {
+            padding: 9px 18px; border-bottom: 1px solid #001800;
+            background: #020c02; flex-shrink: 0;
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        }
+        #suggestions-label { font-size: 12px; color: #446644; white-space: nowrap; }
+        .sugg-chip {
+            font-size: 13px; padding: 5px 12px; cursor: pointer;
+            border: 1px solid #004422; background: #011508; color: #88ffaa;
+        }
+        .sugg-chip:hover { background: #003318; border-color: #00ff88; color: #fff; }
+
+        /* ── NPC Contact Card ── */
+        #contact-card {
+            display: none; flex-shrink: 0;
+            padding: 14px 18px; border-bottom: 2px solid #004400;
+            background: #020f02;
+        }
+        #contact-card.visible { display: flex; gap: 16px; align-items: stretch; }
+
+        #contact-avatar-wrap {
+            flex-shrink: 0; width: 90px; height: 90px;
+            border: 2px solid #005500; background: #010d01; overflow: hidden;
+            position: relative;
+        }
+        #contact-avatar-wrap::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                0deg, transparent, transparent 3px, rgba(0,255,0,0.03) 3px, rgba(0,255,0,0.03) 4px
+            );
+            pointer-events: none;
+        }
+        #contact-avatar {
+            width: 90px; height: 90px; display: block; filter: hue-rotate(100deg) saturate(0.6);
+        }
+
+        #contact-info {
+            flex: 1; display: flex; flex-direction: column; gap: 5px;
+        }
+        #contact-callsign {
+            font-size: 17px; font-weight: bold; color: #00ff88;
+            letter-spacing: 0.5px; line-height: 1.2;
+        }
+        #contact-role {
+            font-size: 13px; color: #aaccaa; line-height: 1.4;
+        }
+        .contact-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+        .contact-badge {
+            font-size: 11px; padding: 3px 8px;
+            border: 1px solid; font-weight: bold; letter-spacing: 0.5px;
+        }
+        .badge-enc  { border-color: #004422; color: #00cc66; background: #011508; }
+        .badge-ai   { border-color: #003366; color: #66aaff; background: #001830; }
+        .badge-corp { border-color: #553300; color: #ffaa44; background: #1a0a00; }
+        .badge-anon { border-color: #334433; color: #88aa88; background: #0a0e0a; }
+
+        #contact-status-row {
+            display: flex; gap: 14px; margin-top: 3px; align-items: center;
+        }
+        .contact-stat {
+            font-size: 11px; color: #446644;
+        }
+        .contact-stat span { color: #88ff88; }
+
+        #contact-threat-bar {
+            flex: 1; height: 6px; background: #001800; border: 1px solid #003300; overflow: hidden;
+        }
+        #contact-threat-fill {
+            height: 100%; background: #00ff44; transition: width 0.3s;
+        }
+
+        /* Chat log */
+        #chat-log {
+            flex: 1; overflow-y: auto; padding: 16px 18px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .chat-msg { max-width: 82%; display: flex; flex-direction: column; gap: 4px; }
+        .chat-msg.sent     { align-self: flex-end; }
+        .chat-msg.received { align-self: flex-start; }
+
+        /* Received messages have an avatar on the left */
+        .chat-with-avatar { display: flex; gap: 10px; align-items: flex-start; max-width: 82%; align-self: flex-start; }
+        .msg-avatar {
+            width: 38px; height: 38px; flex-shrink: 0;
+            border: 1px solid #004422; background: #010d01; overflow: hidden;
+            filter: hue-rotate(100deg) saturate(0.5);
+        }
+        .msg-avatar img { width: 38px; height: 38px; display: block; }
+        .chat-msg-inner { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
+        .chat-bubble {
+            padding: 10px 14px; font-size: 14px; line-height: 1.55;
+            border: 1px solid; border-radius: 0;
+        }
+        .chat-msg.sent     .chat-bubble { background: #011d08; border-color: #005522; color: #ccffcc; }
+        .chat-msg-inner    .chat-bubble { background: #0d0d00; border-color: #444400; color: #ffffaa; }
+        .chat-msg.system   .chat-bubble { background: #0d0005; border-color: #440011; color: #ff9999; font-size: 13px; }
+        .chat-meta { font-size: 12px; color: #335533; }
+        .chat-msg.sent     .chat-meta { text-align: right; }
+        .chat-msg-inner    .chat-meta { text-align: left; color: #555500; }
+        #chat-empty { font-size: 14px; color: #334433; align-self: center; margin-top: 40px; text-align: center; line-height: 1.7; }
+
+        /* Compose Area */
+        #compose-area {
+            border-top: 1px solid #002800; background: #030d03;
+            padding: 14px 18px; flex-shrink: 0;
+        }
+        #compose-top {
+            display: flex; gap: 10px; margin-bottom: 10px; align-items: center;
+        }
+        #compose-top label { font-size: 13px; color: #446644; white-space: nowrap; }
+        #target-id {
+            flex: 1; background: #000; color: #00ff00; border: 1px solid #004400;
+            padding: 8px 10px; font-family: inherit; font-size: 14px;
+        }
+        #target-id:focus { outline: none; background: #001800; border-color: #00cc44; }
+
+        #active-clue-bar {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 10px; padding: 8px 12px;
+            background: #020902; border: 1px solid #004422; min-height: 38px;
+        }
+        #active-clue-label { font-size: 12px; color: #446644; white-space: nowrap; }
+        #active-clue-value { font-size: 13px; color: #00ff88; flex: 1; }
+        #active-clue-none  { font-size: 13px; color: #335533; font-style: italic; }
+
+        #preview-box {
+            background: #000; border: 1px solid #003300; padding: 10px 12px;
+            font-size: 13px; color: #aaccaa; line-height: 1.55;
+            min-height: 54px; margin-bottom: 10px;
+            white-space: pre-wrap; display: none;
+        }
+        #preview-box.visible { display: block; }
+
+        #compose-bottom { display: flex; justify-content: flex-end; }
+        #send-btn {
+            background: #001a00; color: #00ff88; border: 1px solid #00aa44;
+            padding: 10px 24px; cursor: pointer; font-family: inherit;
+            font-size: 14px; font-weight: bold;
+        }
+        #send-btn:hover    { background: #00aa44; color: #000; }
+        #send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        @keyframes glitch {
+            0%   { transform: translate(0) }
+            20%  { transform: translate(-2px,  2px) }
+            40%  { transform: translate(-2px, -2px) }
+            60%  { transform: translate( 2px,  2px) }
+            80%  { transform: translate( 2px, -2px) }
+            100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body>
+    <script id="player-data-store" type="application/json">
+        {{ player | tojson | safe }}
+    </script>
+    <script>
+        const player_data = JSON.parse(document.getElementById('player-data-store').textContent);
+    </script>
+
+    <!-- Top Nav -->
+    <div id="nav-bar">
+        <div id="nav-left">
+            <span id="nav-title">ENCRYPTED MESSENGER</span>
+            <span class="nav-tag" id="story-stage"></span>
+        </div>
+        <div id="nav-right">
+            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label">DAY </span><span class="nav-value" id="current-day"></span><span class="nav-label"> / 7</span></span>
+            <span><span class="nav-label">BALANCE </span><span class="nav-value balance">$<span id="nav-balance"></span></span></span>
+            <a href="/" id="nav-back">[ ← DESKTOP ]</a>
+        </div>
+    </div>
+
+    <!-- Page Body -->
+    <div id="page">
+
+        <!-- Left: Memory Buffer -->
+        <div id="clue-panel">
+            <div class="panel-hdr">
+                <h3>MEMORY BUFFER</h3>
+                <p>Click a clue to attach it.</p>
+            </div>
+            <div id="clue-list-wrap">
+                <div id="clue-empty">No clues in buffer yet.</div>
+                <ul id="clue-list"></ul>
+            </div>
+        </div>
+
+        <!-- Right: Conversation -->
+        <div id="convo-panel">
+
+            <!-- Objective strip -->
+            <div id="objective-bar">
+                <strong>Objective:</strong> <span id="obj-text"></span>
+            </div>
+
+            <!-- Suggested contacts -->
+            <div id="suggestions-bar">
+                <span id="suggestions-label">SUGGESTED:</span>
+                <span id="sugg-chips"></span>
+            </div>
+
+            <!-- NPC Contact Card -->
+            <div id="contact-card">
+                <div id="contact-avatar-wrap">
+                    <img id="contact-avatar" src="" alt="Contact" width="90" height="90">
+                </div>
+                <div id="contact-info">
+                    <div id="contact-callsign">—</div>
+                    <div id="contact-role">Unknown contact</div>
+                    <div class="contact-badges" id="contact-badges"></div>
+                    <div id="contact-status-row">
+                        <div class="contact-stat">CHANNEL <span>ENCRYPTED</span></div>
+                        <div class="contact-stat">RESPONSE <span id="contact-response-time">—</span></div>
+                        <div id="contact-threat-bar" title="Threat level">
+                            <div id="contact-threat-fill" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Log -->
+            <div id="chat-log">
+                <div id="chat-empty">No transmissions yet.<br>Select a recipient above and a clue from the left panel, then transmit.</div>
+            </div>
+
+            <!-- Compose Area -->
+            <div id="compose-area">
+                <div id="compose-top">
+                    <label>RECIPIENT</label>
+                    <input type="text" id="target-id" placeholder="e.g. signals@helixtalent.biz or OMNI_CORE" autocomplete="off">
+                </div>
+
+                <div id="active-clue-bar">
+                    <span id="active-clue-label">ACTIVE CLUE</span>
+                    <span id="active-clue-value" style="display:none;"></span>
+                    <span id="active-clue-none">— select a clue from the left panel —</span>
+                </div>
+
+                <div id="preview-box"></div>
+
+                <div id="compose-bottom">
+                    <button id="send-btn" onclick="executeChat()">[ TRANSMIT ]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeClue = '';
+
+        // ── Contact data ──────────────────────────────────────────────────────
+        const CONTACT_DB = {
+            'OMNI_CORE': {
+                role: 'Autonomous Intelligence System — OMNI_CORE v4.1',
+                avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=OMNI_CORE&backgroundColor=001800',
+                badges: [{ label: 'A.I. ENTITY', cls: 'badge-ai' }, { label: 'ENCRYPTED', cls: 'badge-enc' }],
+                threat: 88,
+                responseTime: '< 1s',
+            },
+            'broker@greyheadhunt.ai': {
+                role: 'Data Broker — Grey Head Hunt AI Services',
+                avatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=greyheadhunt&backgroundColor=010d01',
+                badges: [{ label: 'BROKER', cls: 'badge-corp' }, { label: 'ANONYMOUS', cls: 'badge-anon' }],
+                threat: 35,
+                responseTime: '~4s',
+            },
+            'signals@helixtalent.biz': {
+                role: 'Talent Intelligence Feed — Helix Talent Network',
+                avatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=helixtalent&backgroundColor=010d01',
+                badges: [{ label: 'BROKER', cls: 'badge-corp' }, { label: 'ANONYMOUS', cls: 'badge-anon' }],
+                threat: 30,
+                responseTime: '~6s',
+            },
+            'LinLuo': {
+                role: 'Financial Analyst — Offshore Holdings Target',
+                avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=LinLuo&backgroundColor=001a00',
+                badges: [{ label: 'HUMAN', cls: 'badge-anon' }, { label: 'HIGH VALUE', cls: 'badge-corp' }],
+                threat: 22,
+                responseTime: '~12s',
+            },
+            'Lin Luo': {
+                role: 'Financial Analyst — Offshore Holdings Target',
+                avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=LinLuo&backgroundColor=001a00',
+                badges: [{ label: 'HUMAN', cls: 'badge-anon' }, { label: 'HIGH VALUE', cls: 'badge-corp' }],
+                threat: 22,
+                responseTime: '~12s',
+            },
+            'MeiChen': {
+                role: 'Transit Network Administrator — Public Sector',
+                avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=MeiChen&backgroundColor=001a00',
+                badges: [{ label: 'HUMAN', cls: 'badge-anon' }, { label: 'TARGET', cls: 'badge-corp' }],
+                threat: 18,
+                responseTime: '~15s',
+            },
+            'Mei Chen': {
+                role: 'Transit Network Administrator — Public Sector',
+                avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=MeiChen&backgroundColor=001a00',
+                badges: [{ label: 'HUMAN', cls: 'badge-anon' }, { label: 'TARGET', cls: 'badge-corp' }],
+                threat: 18,
+                responseTime: '~15s',
+            },
+            'VictorHarrow': {
+                role: 'Security Consultant — Corporate Counter-Intelligence',
+                avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=VictorHarrow&backgroundColor=001a00',
+                badges: [{ label: 'HUMAN', cls: 'badge-anon' }, { label: 'HOSTILE', cls: 'badge-corp' }],
+                threat: 72,
+                responseTime: '~3s',
+            },
+            'Victor Harrow': {
+                role: 'Security Consultant — Corporate Counter-Intelligence',
+                avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=VictorHarrow&backgroundColor=001a00',
+                badges: [{ label: 'HUMAN', cls: 'badge-anon' }, { label: 'HOSTILE', cls: 'badge-corp' }],
+                threat: 72,
+                responseTime: '~3s',
+            },
+        };
+
+        function getContactInfo(targetId) {
+            if (!targetId) return null;
+            if (CONTACT_DB[targetId]) return CONTACT_DB[targetId];
+            // Fuzzy: match email domain or partial name
+            const lower = targetId.toLowerCase();
+            for (const [key, val] of Object.entries(CONTACT_DB)) {
+                if (lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) return val;
+            }
+            return null;
+        }
+
+        function getAvatarUrl(targetId) {
+            const info = getContactInfo(targetId);
+            if (info) return info.avatar;
+            // Generic anonymous avatar
+            return `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(targetId)}&backgroundColor=010d01`;
+        }
+
+        function updateContactCard(targetId) {
+            const card = document.getElementById('contact-card');
+            if (!targetId) { card.classList.remove('visible'); return; }
+
+            const info = getContactInfo(targetId);
+            const avatarUrl = info ? info.avatar
+                : `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(targetId)}&backgroundColor=010d01`;
+
+            document.getElementById('contact-avatar').src = avatarUrl;
+            document.getElementById('contact-callsign').textContent = targetId;
+            document.getElementById('contact-role').textContent = info ? info.role : 'Unregistered contact — no profile on record';
+
+            const badgeWrap = document.getElementById('contact-badges');
+            if (info && info.badges) {
+                badgeWrap.innerHTML = info.badges
+                    .map(b => `<span class="contact-badge ${b.cls}">${b.label}</span>`)
+                    .join('');
+            } else {
+                badgeWrap.innerHTML = '<span class="contact-badge badge-anon">UNKNOWN</span>';
+            }
+
+            const threat = info ? info.threat : 15;
+            const fillColor = threat >= 70 ? '#ff4444' : threat >= 45 ? '#ffaa00' : '#00ff44';
+            const fill = document.getElementById('contact-threat-fill');
+            fill.style.width = threat + '%';
+            fill.style.background = fillColor;
+
+            document.getElementById('contact-response-time').textContent = info ? info.responseTime : 'unknown';
+
+            card.classList.add('visible');
+        }
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        document.getElementById('player-name').innerText  = player_data.username;
+        document.getElementById('current-day').innerText  = player_data.current_day;
+        document.getElementById('story-stage').innerText  = player_data.story_stage_label;
+        document.getElementById('obj-text').innerText     = player_data.guidance.objective;
+        document.getElementById('nav-balance').innerText  = player_data.balance.toFixed(2);
+
+        if (player_data.current_day >= 6) {
+            document.body.style.animation = 'glitch 0.3s infinite';
+        }
+        if (player_data.is_locked_down) {
+            document.getElementById('target-id').disabled = true;
+            document.getElementById('send-btn').disabled  = true;
+            appendSystemMsg('[SYSTEM] Manual messaging privileges revoked by OMNI_CORE.');
+        }
+
+        // Suggested contact chips
+        (function renderSuggestions() {
+            const contacts = player_data.guidance.contacts || [];
+            const wrap = document.getElementById('sugg-chips');
+            if (!contacts.length) {
+                document.getElementById('suggestions-bar').style.display = 'none';
+                return;
+            }
+            wrap.innerHTML = contacts.map((c, i) =>
+                `<span class="sugg-chip" data-index="${i}">${c.target}</span>`
+            ).join('');
+            wrap.querySelectorAll('.sugg-chip').forEach(chip => {
+                chip.addEventListener('click', async () => {
+                    const c = contacts[Number(chip.dataset.index)];
+                    document.getElementById('target-id').value = c.target;
+                    updateContactCard(c.target);
+                    await selectClue(c.clue);
+                });
+            });
+        })();
+
+        // Load clue list
+        async function loadClipboard() {
+            const list  = document.getElementById('clue-list');
+            const empty = document.getElementById('clue-empty');
+            list.innerHTML = '';
+            try {
+                const res  = await fetch('/api/clues');
+                const data = await res.json();
+                if (!data.clues.length) { empty.style.display = 'block'; return; }
+                empty.style.display = 'none';
+                data.clues.forEach(text => {
+                    const li = document.createElement('li');
+                    li.innerText = text;
+                    li.onclick   = () => selectClue(text);
+                    list.appendChild(li);
+                });
+            } catch {
+                empty.innerText = '[ERROR] Failed to load clues.';
+                empty.style.display = 'block';
+            }
+        }
+
+        async function selectClue(clue) {
+            document.querySelectorAll('#clue-list li').forEach(li => {
+                li.classList.toggle('selected', li.innerText === clue);
+            });
+
+            activeClue = clue;
+            document.getElementById('active-clue-value').innerText      = clue;
+            document.getElementById('active-clue-value').style.display  = 'inline';
+            document.getElementById('active-clue-none').style.display   = 'none';
+
+            const target = document.getElementById('target-id').value.trim();
+            if (!target) return;
+
+            const preview = document.getElementById('preview-box');
+            preview.textContent = 'Synthesizing transmission...';
+            preview.classList.add('visible');
+
+            try {
+                const res  = await fetch('/api/message_preview', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target, clue })
+                });
+                const data = await res.json();
+                setTimeout(() => {
+                    preview.textContent = data.status === 'success'
+                        ? data.preview
+                        : `[SYSTEM]: ${data.message}`;
+                }, 200);
+            } catch {
+                preview.textContent = `I have information regarding: ${clue}. Are you willing to negotiate?`;
+            }
+        }
+
+        async function executeChat() {
+            if (player_data.is_locked_down) {
+                appendSystemMsg('[SYSTEM] Transmission blocked. OMNI_CORE owns this channel.');
+                return;
+            }
+            const target = document.getElementById('target-id').value.trim();
+            if (!target) { appendSystemMsg('[SYSTEM] Recipient ID required.'); return; }
+            if (!activeClue) { appendSystemMsg('[SYSTEM] Select a clue from the left panel before transmitting.'); return; }
+
+            const previewText = document.getElementById('preview-box').textContent;
+            appendSentMsg(previewText && previewText !== 'Synthesizing transmission...'
+                ? previewText
+                : `[${activeClue}] → ${target}`);
+
+            try {
+                const res  = await fetch('/api/send_message', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target, clue: activeClue })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    if (data.npc_replies && data.npc_replies.length) {
+                        data.npc_replies.forEach(r => appendReceivedMsg(target, r));
+                    }
+                    if (data.reward && data.reward !== 0) {
+                        const sign = data.reward > 0 ? '+' : '';
+                        appendSystemMsg(`Transaction: ${sign}$${Math.abs(data.reward).toFixed(2)}`);
+                    }
+                } else {
+                    appendSystemMsg(data.message || '[SYSTEM] Transmission failed.');
+                }
+            } catch {
+                appendSystemMsg('[SYSTEM] Network error. Packet lost.');
+            }
+        }
+
+        function appendSentMsg(text) {
+            removeChatEmpty();
+            const div = document.createElement('div');
+            div.className = 'chat-msg sent';
+            div.innerHTML = `
+                <div class="chat-bubble">${escHtml(text)}</div>
+                <div class="chat-meta">YOU — OPERATOR</div>`;
+            document.getElementById('chat-log').appendChild(div);
+            scrollChatToBottom();
+        }
+
+        function appendReceivedMsg(sender, text) {
+            removeChatEmpty();
+            const avatarUrl = getAvatarUrl(sender);
+            const wrap = document.createElement('div');
+            wrap.className = 'chat-with-avatar';
+            wrap.innerHTML = `
+                <div class="msg-avatar"><img src="${escHtml(avatarUrl)}" alt="${escHtml(sender)}" width="38" height="38"></div>
+                <div class="chat-msg-inner">
+                    <div class="chat-meta">${escHtml(sender)}</div>
+                    <div class="chat-bubble">${escHtml(text)}</div>
+                </div>`;
+            document.getElementById('chat-log').appendChild(wrap);
+            scrollChatToBottom();
+        }
+
+        function appendSystemMsg(text) {
+            removeChatEmpty();
+            const div = document.createElement('div');
+            div.className = 'chat-msg system';
+            div.innerHTML = `<div class="chat-bubble">${escHtml(text)}</div>`;
+            document.getElementById('chat-log').appendChild(div);
+            scrollChatToBottom();
+        }
+
+        function removeChatEmpty() {
+            const el = document.getElementById('chat-empty');
+            if (el) el.remove();
+        }
+
+        function scrollChatToBottom() {
+            const log = document.getElementById('chat-log');
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // Update contact card when recipient is typed
+        document.getElementById('target-id').addEventListener('input', () => {
+            const val = document.getElementById('target-id').value.trim();
+            updateContactCard(val);
+        });
+
+        // Re-fetch preview when target changes and clue is loaded
+        document.getElementById('target-id').addEventListener('change', () => {
+            if (activeClue) selectClue(activeClue);
+        });
+
+        window.onload = loadClipboard;
+    </script>
+</body>
+</html>

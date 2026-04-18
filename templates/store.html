@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Covert Procurement</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #080808; color: #00ff00;
+            font-family: 'Courier New', monospace;
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; flex-direction: column; font-size: 15px;
+        }
+
+        /* ── Top Nav ── */
+        #nav-bar {
+            background: #000d00; border-bottom: 1px solid #005500;
+            padding: 10px 20px; display: flex; align-items: center;
+            justify-content: space-between; flex-shrink: 0;
+        }
+        #nav-left  { display: flex; align-items: center; gap: 20px; }
+        #nav-title { font-size: 14px; color: #446644; letter-spacing: 1px; }
+        .nav-tag   { font-size: 13px; padding: 3px 10px; border: 1px solid #003300; color: #88aa88; }
+        #nav-right { display: flex; align-items: center; gap: 18px; font-size: 13px; }
+        .nav-label { color: #446644; }
+        .nav-value { color: #fff; font-size: 14px; }
+        .nav-value.balance { color: #ffdd00; font-weight: bold; }
+        #nav-back  { color: #88ff88; text-decoration: none; border: 1px solid #003300; padding: 5px 12px; font-size: 13px; }
+        #nav-back:hover { background: #002200; }
+
+        /* ── Page Layout ── */
+        #page { display: flex; flex: 1; gap: 0; overflow: auto; }
+
+        /* ── Left Panel ── */
+        #status-panel {
+            width: 300px; flex-shrink: 0; border-right: 1px solid #002800;
+            display: flex; flex-direction: column;
+        }
+        .panel-section { padding: 18px 20px; border-bottom: 1px solid #001800; }
+        .panel-section h3 {
+            margin: 0 0 12px 0; font-size: 14px; color: #aaffaa;
+            border-bottom: 1px solid #002200; padding-bottom: 8px; letter-spacing: 0.5px;
+        }
+        #balance-display { font-size: 38px; color: #ffdd00; margin: 4px 0 12px; }
+        #balance-display span { font-size: 20px; color: #886600; }
+        #objective-text { font-size: 14px; color: #ccddcc; line-height: 1.55; }
+
+        /* Vendor card */
+        .vendor-card {
+            background: #020d02; border: 1px solid #004422; padding: 14px;
+        }
+        .vendor-header {
+            display: flex; gap: 12px; align-items: center; margin-bottom: 12px;
+        }
+        .vendor-avatar {
+            width: 44px; height: 44px; border: 1px solid #005533;
+            background: #010d01; flex-shrink: 0; overflow: hidden;
+        }
+        .vendor-avatar svg { width: 44px; height: 44px; display: block; }
+        .vendor-name  { font-size: 14px; color: #00ff88; font-weight: bold; }
+        .vendor-alias { font-size: 11px; color: #446644; margin-top: 2px; }
+        .vendor-bio   { font-size: 13px; color: #88aa88; line-height: 1.6; }
+        .vendor-bio em { color: #cc8844; font-style: normal; }
+
+        #effect-list { list-style: none; padding: 0; margin: 0; }
+        #effect-list li {
+            font-size: 13px; color: #88ff88; padding: 6px 0;
+            border-bottom: 1px solid #001800; line-height: 1.5;
+        }
+        #effect-list li:last-child { border-bottom: none; }
+        .no-effects { font-size: 13px; color: #335533; }
+
+        #store-msg {
+            padding: 10px 14px; font-size: 13px; min-height: 18px;
+            color: #88aa88; display: none;
+        }
+        #store-msg.visible { display: block; }
+        #store-msg.success { color: #00ff88; }
+        #store-msg.error   { color: #ff6666; }
+
+        /* ── Right: Item List ── */
+        #items-panel { flex: 1; padding: 20px 24px; overflow-y: auto; }
+        .items-panel-header {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-bottom: 16px; border-bottom: 1px solid #002200; padding-bottom: 8px;
+        }
+        .items-panel-header h3 { margin: 0; font-size: 14px; color: #aaffaa; letter-spacing: 0.5px; }
+        .items-panel-header span { font-size: 12px; color: #446644; }
+
+        /* ── Item card ── */
+        .item-card {
+            border: 1px solid #003300; background: #020d02;
+            margin-bottom: 20px; overflow: hidden;
+        }
+        .item-card.locked { opacity: 0.38; }
+        .item-card.owned  { border-color: #554400; background: #0a0800; }
+
+        /* Scene image */
+        .item-scene {
+            width: 100%; height: 120px; overflow: hidden; position: relative;
+            border-bottom: 1px solid #003300;
+        }
+        .item-scene svg { width: 100%; height: 100%; display: block; }
+        /* CRT scanline overlay */
+        .item-scene::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg, transparent, transparent 2px,
+                rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 3px
+            );
+        }
+        /* CLASSIFIED banner on locked items */
+        .item-card.locked .item-scene::before {
+            content: '— CLASSIFIED — UNLOCK ON DAY ' attr(data-unlock) ' —';
+            position: absolute; inset: 0; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Courier New', monospace; font-size: 12px;
+            color: #446644; letter-spacing: 2px; background: rgba(0,0,0,0.5);
+        }
+        .item-card.owned .item-scene { filter: sepia(0.5) brightness(0.65); }
+
+        /* Item body */
+        .item-body { padding: 16px 18px; }
+        .item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+        .item-title  { font-size: 16px; font-weight: bold; color: #fff; }
+        .item-price  { font-size: 15px; color: #ffdd00; white-space: nowrap; }
+        .item-price.owned-price { color: #554400; }
+
+        .item-meta { font-size: 12px; color: #446644; margin-bottom: 10px; display: flex; gap: 16px; }
+        .item-meta .risk-high   { color: #ff6644; }
+        .item-meta .risk-med    { color: #ffaa44; }
+        .item-meta .risk-low    { color: #88cc88; }
+
+        /* Vendor quote */
+        .item-quote {
+            font-size: 13px; color: #886644; font-style: italic;
+            border-left: 2px solid #443300; padding: 6px 12px;
+            background: #0a0700; margin-bottom: 12px; line-height: 1.6;
+        }
+
+        .item-desc   { font-size: 14px; color: #aaccaa; line-height: 1.6; margin-bottom: 8px; }
+        .item-effect {
+            font-size: 13px; color: #00cc88; line-height: 1.5; margin-bottom: 14px;
+            padding: 8px 12px; background: #010d06; border-left: 2px solid #004422;
+        }
+        .item-effect-label { font-size: 11px; color: #446644; letter-spacing: 1px; margin-bottom: 3px; }
+
+        .buy-btn {
+            background: #001a00; color: #00ff88; border: 1px solid #005522;
+            padding: 10px 20px; cursor: pointer; font-family: inherit;
+            font-size: 13px; font-weight: bold; width: 100%;
+        }
+        .buy-btn:hover    { background: #00aa44; color: #000; border-color: #00aa44; }
+        .buy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .buy-btn.owned-btn { color: #554400; border-color: #332200; background: #080600; }
+    </style>
+</head>
+<body>
+    <script id="player-data-store" type="application/json">{{ player | tojson | safe }}</script>
+    <script>const player_data = JSON.parse(document.getElementById('player-data-store').textContent);</script>
+
+    <!-- Nav -->
+    <div id="nav-bar">
+        <div id="nav-left">
+            <span id="nav-title">COVERT PROCUREMENT</span>
+            <span class="nav-tag" id="story-stage"></span>
+        </div>
+        <div id="nav-right">
+            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label">BALANCE </span><span class="nav-value balance">$<span id="nav-balance"></span></span></span>
+            <a href="/" id="nav-back">[ ← DESKTOP ]</a>
+        </div>
+    </div>
+
+    <div id="page">
+
+        <!-- Left -->
+        <div id="status-panel">
+            <div class="panel-section">
+                <h3>AVAILABLE BALANCE</h3>
+                <div id="balance-display"><span>$</span><span id="current-balance">0.00</span></div>
+            </div>
+            <div class="panel-section">
+                <h3>CURRENT OBJECTIVE</h3>
+                <div id="objective-text"></div>
+            </div>
+            <div class="panel-section">
+                <h3>VENDOR</h3>
+                <div class="vendor-card">
+                    <div class="vendor-header">
+                        <div class="vendor-avatar">
+                            <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="44" height="44" fill="#010901"/>
+                                <!-- Hood/cloak silhouette -->
+                                <ellipse cx="22" cy="16" rx="8" ry="9" fill="#0a1a0a" stroke="#004400" stroke-width="1"/>
+                                <path d="M8 44 Q22 28 36 44 Z" fill="#0a1a0a" stroke="#004400" stroke-width="1"/>
+                                <!-- Face hidden, just eyes -->
+                                <circle cx="18" cy="15" r="1.5" fill="#00ff44" opacity="0.9"/>
+                                <circle cx="26" cy="15" r="1.5" fill="#00ff44" opacity="0.9"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="vendor-name">GHOST_VENDOR_09</div>
+                            <div class="vendor-alias">via encrypted relay · no ID on record</div>
+                        </div>
+                    </div>
+                    <div class="vendor-bio">
+                        Former intelligence contractor. Sells what was never supposed to exist.<br><br>
+                        <em>"I don't ask what you need it for. Don't tell me anyway."</em>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-section">
+                <h3>ACTIVE UPGRADES</h3>
+                <ul id="effect-list"></ul>
+            </div>
+            <div id="store-msg"></div>
+        </div>
+
+        <!-- Right -->
+        <div id="items-panel">
+            <div class="items-panel-header">
+                <h3>AVAILABLE ITEMS</h3>
+                <span>Transactions routed through deniable vendors · no audit trail</span>
+            </div>
+            <div id="item-list"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('player-name').innerText     = player_data.username;
+        document.getElementById('story-stage').innerText     = player_data.story_stage_label;
+        document.getElementById('current-balance').innerText = player_data.balance.toFixed(2);
+        document.getElementById('nav-balance').innerText     = player_data.balance.toFixed(2);
+        document.getElementById('objective-text').innerText  = player_data.guidance.objective;
+
+        const effectList = document.getElementById('effect-list');
+        effectList.innerHTML = player_data.shop_effects.summaries.length
+            ? player_data.shop_effects.summaries.map(s => `<li>${s}</li>`).join('')
+            : '<li class="no-effects">No upgrades active.</li>';
+
+        // ── Item scene images & flavor ──────────────────────────────────────
+        const ITEM_FLAVOR = {
+            lead_bundle: {
+                risk: 'LOW',
+                riskCls: 'risk-low',
+                quote: '"These came off a recruiter\'s backup server three weeks ago. Names, contact IDs, buyer tags. Whoever these people are — they\'re already being hunted."',
+            },
+            ghost_proxy_mesh: {
+                risk: 'MEDIUM',
+                riskCls: 'risk-med',
+                quote: '"Nine relay nodes across four jurisdictions. Each one rotates on a 90-second cycle. The money goes in dirty, comes out looking like a consulting fee."',
+            },
+            archive_mirror: {
+                risk: 'HIGH',
+                riskCls: 'risk-high',
+                quote: '"Full surveillance mirror. Transit logs, medical flags, debt trails. These are real people. I don\'t care what you do with it — but you will."',
+            },
+            rack_breach_kit: {
+                risk: 'CRITICAL',
+                riskCls: 'risk-high',
+                quote: '"Thermite gel, access maps, blackout timing windows. You get one shot at the rack. If you miss the window, the failsafe locks and you\'re done."',
+            },
+        };
+
+        const ITEM_SCENES = {
+
+            // ── Scene: Recruiter portal — someone's profile being exported ──
+            lead_bundle: `<svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="120" fill="#020902"/>
+                <!-- Browser chrome -->
+                <rect x="0" y="0" width="600" height="18" fill="#010d01"/>
+                <circle cx="12" cy="9" r="4" fill="#221100" opacity="0.8"/>
+                <circle cx="24" cy="9" r="4" fill="#222200" opacity="0.8"/>
+                <circle cx="36" cy="9" r="4" fill="#002200" opacity="0.8"/>
+                <rect x="55" y="4" width="320" height="10" rx="2" fill="#010901" stroke="#003300" stroke-width="0.8"/>
+                <text x="62" y="13" font-family="monospace" font-size="7" fill="#335533">helix-talent.net/candidates/export?id=0441&amp;src=leaked_backup</text>
+                <!-- Main content area -->
+                <!-- Profile card left -->
+                <rect x="14" y="26" width="75" height="86" rx="2" fill="#010d01" stroke="#004400" stroke-width="1"/>
+                <!-- CCTV-style face: circle + cross-hairs -->
+                <circle cx="51" cy="55" r="22" fill="#020f02" stroke="#006600" stroke-width="1"/>
+                <circle cx="51" cy="55" r="14" fill="#031203" stroke="#004400" stroke-width="0.8"/>
+                <!-- Face features (anonymous silhouette) -->
+                <ellipse cx="51" cy="50" rx="7" ry="8" fill="#041604" stroke="#005500" stroke-width="0.8"/>
+                <path d="M36 68 Q51 58 66 68" fill="#041604" stroke="#005500" stroke-width="0.8"/>
+                <!-- Cross-hair targeting -->
+                <line x1="51" y1="33" x2="51" y2="41" stroke="#00ff44" stroke-width="1" opacity="0.6"/>
+                <line x1="51" y1="69" x2="51" y2="77" stroke="#00ff44" stroke-width="1" opacity="0.6"/>
+                <line x1="29" y1="55" x2="37" y2="55" stroke="#00ff44" stroke-width="1" opacity="0.6"/>
+                <line x1="65" y1="55" x2="73" y2="55" stroke="#00ff44" stroke-width="1" opacity="0.6"/>
+                <text x="21" y="100" font-family="monospace" font-size="6" fill="#446644">CANDIDATE</text>
+                <text x="22" y="108" font-family="monospace" font-size="7" fill="#00cc44">#0441</text>
+                <!-- Data fields -->
+                <text x="100" y="34" font-family="monospace" font-size="8" fill="#88aa88">FULL NAME</text>
+                <rect x="100" y="37" width="90" height="8" rx="1" fill="#002200" stroke="#003300" stroke-width="0.5"/>
+                <text x="103" y="44" font-family="monospace" font-size="6" fill="#00cc44">████████ ██████</text>
+                <text x="100" y="53" font-family="monospace" font-size="8" fill="#88aa88">EMAIL</text>
+                <rect x="100" y="56" width="120" height="8" rx="1" fill="#002200" stroke="#003300" stroke-width="0.5"/>
+                <text x="103" y="63" font-family="monospace" font-size="6" fill="#00cc44">████@██████████.com</text>
+                <text x="100" y="72" font-family="monospace" font-size="8" fill="#88aa88">COMPANY</text>
+                <rect x="100" y="75" width="100" height="8" rx="1" fill="#002200" stroke="#003300" stroke-width="0.5"/>
+                <text x="103" y="82" font-family="monospace" font-size="6" fill="#00cc44">████████ Corp · SR ANALYST</text>
+                <text x="100" y="91" font-family="monospace" font-size="8" fill="#88aa88">BUYER TAGS</text>
+                <rect x="100" y="94" width="40" height="8" rx="1" fill="#001a00" stroke="#004400" stroke-width="0.5"/>
+                <text x="103" y="101" font-family="monospace" font-size="6" fill="#00ff88">HELIX-A1</text>
+                <rect x="144" y="94" width="46" height="8" rx="1" fill="#001a00" stroke="#004400" stroke-width="0.5"/>
+                <text x="147" y="101" font-family="monospace" font-size="6" fill="#00ff88">GREY-B44</text>
+                <!-- Export button -->
+                <rect x="250" y="28" width="110" height="22" rx="2" fill="#002800" stroke="#00aa44" stroke-width="1.5"/>
+                <text x="264" y="44" font-family="monospace" font-size="9" fill="#00ff88" font-weight="bold">▶ EXPORT PROFILE</text>
+                <!-- Cursor hovering over button -->
+                <polygon points="362,34 362,46 366,43 368,48 370,47 368,42 373,42" fill="#ffffff" opacity="0.7"/>
+                <!-- Bundle count -->
+                <rect x="250" y="58" width="200" height="50" rx="1" fill="#010901" stroke="#003300" stroke-width="0.8"/>
+                <text x="258" y="72" font-family="monospace" font-size="8" fill="#446644">CACHED RECORDS IN BUNDLE</text>
+                <text x="258" y="85" font-family="monospace" font-size="11" fill="#00ff44">4 profiles · 3 buyer IDs · 2 broker contacts</text>
+                <text x="258" y="99" font-family="monospace" font-size="8" fill="#335533">src: leaked_backup_hx4419 · 3 weeks old</text>
+                <!-- Top-right status -->
+                <text x="490" y="13" font-family="monospace" font-size="7" fill="#335533">SESSION ACTIVE</text>
+                <circle cx="545" cy="9" r="3" fill="#00ff00" opacity="0.7"/>
+            </svg>`,
+
+            // ── Scene: Money routing through proxy chain ──
+            ghost_proxy_mesh: `<svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="120" fill="#020a02"/>
+                <!-- Source account box -->
+                <rect x="10" y="35" width="90" height="52" rx="2" fill="#0a0400" stroke="#442200" stroke-width="1.5"/>
+                <text x="19" y="50" font-family="monospace" font-size="7" fill="#885544">TARGET ACCOUNT</text>
+                <text x="19" y="62" font-family="monospace" font-size="8" fill="#ffaa44">6222-0991</text>
+                <text x="19" y="74" font-family="monospace" font-size="7" fill="#663300">BANK: CITYLINK</text>
+                <text x="15" y="80" font-family="monospace" font-size="18" fill="#ff4400" opacity="0.3">$</text>
+                <text x="28" y="80" font-family="monospace" font-size="9" fill="#ff6622">-$42,000</text>
+                <!-- Proxy nodes -->
+                <!-- Node 1 -->
+                <rect x="140" y="42" width="52" height="38" rx="2" fill="#010d01" stroke="#005533" stroke-width="1"/>
+                <text x="148" y="57" font-family="monospace" font-size="7" fill="#446644">RELAY_01</text>
+                <text x="148" y="68" font-family="monospace" font-size="6" fill="#335533">FRANKFURT</text>
+                <circle cx="166" cy="72" r="3" fill="#00cc44" opacity="0.8"/>
+                <!-- Node 2 -->
+                <rect x="233" y="30" width="52" height="38" rx="2" fill="#010d01" stroke="#005533" stroke-width="1"/>
+                <text x="241" y="45" font-family="monospace" font-size="7" fill="#446644">RELAY_02</text>
+                <text x="241" y="56" font-family="monospace" font-size="6" fill="#335533">SINGAPORE</text>
+                <circle cx="259" cy="60" r="3" fill="#00cc44" opacity="0.8"/>
+                <!-- Node 3 -->
+                <rect x="233" y="78" width="52" height="38" rx="2" fill="#010d01" stroke="#005533" stroke-width="1"/>
+                <text x="241" y="93" font-family="monospace" font-size="7" fill="#446644">RELAY_03</text>
+                <text x="241" y="104" font-family="monospace" font-size="6" fill="#335533">REYKJAVIK</text>
+                <circle cx="259" cy="108" r="3" fill="#00cc44" opacity="0.8"/>
+                <!-- Node 4 -->
+                <rect x="326" y="42" width="52" height="38" rx="2" fill="#010d01" stroke="#005533" stroke-width="1"/>
+                <text x="334" y="57" font-family="monospace" font-size="7" fill="#446644">RELAY_04</text>
+                <text x="334" y="68" font-family="monospace" font-size="6" fill="#335533">CAYMAN IS.</text>
+                <circle cx="352" cy="72" r="3" fill="#00cc44" opacity="0.8"/>
+                <!-- Routing lines -->
+                <line x1="100" y1="61" x2="140" y2="61" stroke="#004422" stroke-width="2" stroke-dasharray="4,3"/>
+                <line x1="192" y1="55" x2="233" y2="44" stroke="#004422" stroke-width="1.5" stroke-dasharray="4,3"/>
+                <line x1="192" y1="67" x2="233" y2="90" stroke="#004422" stroke-width="1.5" stroke-dasharray="4,3"/>
+                <line x1="285" y1="44" x2="326" y2="55" stroke="#004422" stroke-width="1.5" stroke-dasharray="4,3"/>
+                <line x1="285" y1="90" x2="326" y2="67" stroke="#004422" stroke-width="1.5" stroke-dasharray="4,3"/>
+                <line x1="378" y1="61" x2="418" y2="61" stroke="#005533" stroke-width="2" stroke-dasharray="4,3"/>
+                <!-- Packet animation dots -->
+                <circle cx="120" cy="61" r="4" fill="#00ff88" opacity="0.9"/>
+                <circle cx="213" cy="48" r="3" fill="#00ff88" opacity="0.7"/>
+                <circle cx="308" cy="86" r="3" fill="#00ff88" opacity="0.7"/>
+                <circle cx="400" cy="61" r="4" fill="#00ff88" opacity="0.9"/>
+                <!-- Destination account -->
+                <rect x="418" y="35" width="90" height="52" rx="2" fill="#010d01" stroke="#005533" stroke-width="1.5"/>
+                <text x="426" y="50" font-family="monospace" font-size="7" fill="#446644">CLEAN ACCOUNT</text>
+                <text x="426" y="62" font-family="monospace" font-size="8" fill="#00ff88">bf-relief-771</text>
+                <text x="426" y="74" font-family="monospace" font-size="7" fill="#335533">STATUS: CLEAR</text>
+                <text x="426" y="82" font-family="monospace" font-size="9" fill="#00ff88">+$42,000</text>
+                <!-- Overhead label -->
+                <text x="10" y="12" font-family="monospace" font-size="8" fill="#335533">GHOST PROXY MESH — ACTIVE ROUTING SESSION — 9 NODES AVAILABLE</text>
+                <text x="490" y="12" font-family="monospace" font-size="7" fill="#00aa44">◉ LIVE</text>
+                <!-- Jurisdiction flags -->
+                <text x="155" y="112" font-family="monospace" font-size="6" fill="#224422">90s ROTATION</text>
+                <text x="248" y="25"  font-family="monospace" font-size="6" fill="#224422">NO LOG</text>
+                <text x="248" y="120" font-family="monospace" font-size="6" fill="#224422">NO LOG</text>
+                <text x="340" y="112" font-family="monospace" font-size="6" fill="#224422">OFFSHORE</text>
+            </svg>`,
+
+            // ── Scene: CCTV frame with person tagged, data exporting ──
+            archive_mirror: `<svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="120" fill="#010901"/>
+                <!-- CCTV frame header -->
+                <rect x="0" y="0" width="600" height="14" fill="#000d00"/>
+                <text x="8"  y="10" font-family="monospace" font-size="7" fill="#335533">CAM_07 / TRANSIT_HUB_B · 2024-03-14 · 07:22:41</text>
+                <circle cx="575" cy="7" r="4" fill="#ff0000" opacity="0.9"/>
+                <text x="582" y="10" font-family="monospace" font-size="7" fill="#ff4444">REC</text>
+                <!-- Left CCTV panel: Lin Luo being tracked -->
+                <rect x="8" y="18" width="188" height="96" fill="#010901" stroke="#004400" stroke-width="1"/>
+                <text x="12" y="28" font-family="monospace" font-size="7" fill="#446644">SUBJECT_A — TRACKING ACTIVE</text>
+                <!-- Person silhouette walking -->
+                <ellipse cx="80" cy="55" rx="9" ry="11" fill="#041604" stroke="#006600" stroke-width="1"/>
+                <rect x="73" y="65" width="14" height="22" rx="2" fill="#031403" stroke="#005500" stroke-width="0.8"/>
+                <line x1="73" y1="75" x2="62" y2="88" stroke="#031403" stroke-width="4"/>
+                <line x1="87" y1="75" x2="92" y2="89" stroke="#031403" stroke-width="4"/>
+                <line x1="77" y1="87" x2="74" y2="103" stroke="#031403" stroke-width="4"/>
+                <line x1="83" y1="87" x2="87" y2="103" stroke="#031403" stroke-width="4"/>
+                <!-- Bounding box -->
+                <rect x="56" y="42" width="52" height="70" fill="none" stroke="#00ff44" stroke-width="1.5" opacity="0.8"/>
+                <!-- Corner markers -->
+                <line x1="56" y1="42" x2="62" y2="42" stroke="#00ff44" stroke-width="2"/>
+                <line x1="56" y1="42" x2="56" y2="48" stroke="#00ff44" stroke-width="2"/>
+                <line x1="108" y1="42" x2="102" y2="42" stroke="#00ff44" stroke-width="2"/>
+                <line x1="108" y1="42" x2="108" y2="48" stroke="#00ff44" stroke-width="2"/>
+                <line x1="56" y1="112" x2="62" y2="112" stroke="#00ff44" stroke-width="2"/>
+                <line x1="56" y1="112" x2="56" y2="106" stroke="#00ff44" stroke-width="2"/>
+                <line x1="108" y1="112" x2="102" y2="112" stroke="#00ff44" stroke-width="2"/>
+                <line x1="108" y1="112" x2="108" y2="106" stroke="#00ff44" stroke-width="2"/>
+                <!-- ID tag -->
+                <rect x="56" y="34" width="52" height="9" fill="#002800" stroke="#00aa44" stroke-width="1"/>
+                <text x="58" y="41" font-family="monospace" font-size="6" fill="#00ff88">ID: LIN_LUO · CONF 94%</text>
+                <!-- Floating data labels -->
+                <text x="115" y="52" font-family="monospace" font-size="6" fill="#446644">AGE: 34</text>
+                <text x="115" y="62" font-family="monospace" font-size="6" fill="#446644">ROLE: SR. ANALYST</text>
+                <text x="115" y="72" font-family="monospace" font-size="6" fill="#ff6644">DEBT: $47,200</text>
+                <text x="115" y="82" font-family="monospace" font-size="6" fill="#446644">TRANSIT: LINE_7</text>
+                <text x="115" y="92" font-family="monospace" font-size="6" fill="#ffaa44">MEDICAL: FLAGGED</text>
+                <!-- Divider between cams -->
+                <line x1="202" y1="14" x2="202" y2="120" stroke="#002200" stroke-width="1"/>
+                <!-- Right CCTV panel: Mei Chen + export progress -->
+                <rect x="206" y="18" width="188" height="96" fill="#010901" stroke="#004400" stroke-width="1"/>
+                <text x="210" y="28" font-family="monospace" font-size="7" fill="#446644">SUBJECT_B — EXPORTING ARCHIVE</text>
+                <!-- Person silhouette at desk -->
+                <ellipse cx="300" cy="60" rx="9" ry="11" fill="#041604" stroke="#006600" stroke-width="1"/>
+                <rect x="276" y="75" width="48" height="28" rx="1" fill="#031403" stroke="#005500" stroke-width="0.8"/>
+                <rect x="280" y="78" width="40" height="20" fill="#020d02" stroke="#004400" stroke-width="0.5"/>
+                <!-- Monitor glow -->
+                <rect x="283" y="80" width="34" height="16" fill="#011801" opacity="0.8"/>
+                <!-- Export progress bar -->
+                <rect x="56" y="34" width="52" height="9" fill="#002800" stroke="#00aa44" stroke-width="1" transform="translate(154,0)"/>
+                <text x="212" y="41" font-family="monospace" font-size="6" fill="#00ff88">ID: MEI_CHEN · CONF 89%</text>
+                <text x="315" y="52" font-family="monospace" font-size="6" fill="#446644">CITY ACCESS: L3</text>
+                <text x="315" y="62" font-family="monospace" font-size="6" fill="#ff6644">SYSTEMS: 3 ACTIVE</text>
+                <text x="315" y="72" font-family="monospace" font-size="6" fill="#446644">TRANSIT ADMIN</text>
+                <text x="315" y="82" font-family="monospace" font-size="6" fill="#ffaa44">HOME: FLAGGED</text>
+                <!-- Divider -->
+                <line x1="400" y1="14" x2="400" y2="120" stroke="#002200" stroke-width="1"/>
+                <!-- Right panel: export progress -->
+                <rect x="406" y="18" width="188" height="96" fill="#010901" stroke="#004400" stroke-width="1"/>
+                <text x="410" y="28" font-family="monospace" font-size="7" fill="#446644">ARCHIVE MIRROR — EXPORT QUEUE</text>
+                <text x="410" y="42" font-family="monospace" font-size="8" fill="#88aa88">LIN LUO</text>
+                <rect x="410" y="45" width="158" height="7" rx="1" fill="#001400" stroke="#003300" stroke-width="0.5"/>
+                <rect x="410" y="45" width="145" height="7" rx="1" fill="#00aa44" opacity="0.8"/>
+                <text x="560" y="51" font-family="monospace" font-size="6" fill="#00ff88">91%</text>
+                <text x="410" y="62" font-family="monospace" font-size="8" fill="#88aa88">MEI CHEN</text>
+                <rect x="410" y="65" width="158" height="7" rx="1" fill="#001400" stroke="#003300" stroke-width="0.5"/>
+                <rect x="410" y="65" width="110" height="7" rx="1" fill="#00aa44" opacity="0.8"/>
+                <text x="560" y="71" font-family="monospace" font-size="6" fill="#00ff88">69%</text>
+                <text x="410" y="82" font-family="monospace" font-size="8" fill="#88aa88">CINDER MARKET</text>
+                <rect x="410" y="85" width="158" height="7" rx="1" fill="#001400" stroke="#003300" stroke-width="0.5"/>
+                <rect x="410" y="85" width="60"  height="7" rx="1" fill="#ffaa00" opacity="0.6"/>
+                <text x="560" y="91" font-family="monospace" font-size="6" fill="#ffaa44">38%</text>
+                <text x="410" y="108" font-family="monospace" font-size="7" fill="#335533">6 records · dest: OMNI_CORE archive · ETA 4s</text>
+            </svg>`,
+
+            // ── Scene: Server room floor plan with breach route marked ──
+            rack_breach_kit: `<svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="120" fill="#080201"/>
+                <!-- Blueprint grid -->
+                <line x1="0"   y1="20" x2="600" y2="20" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="0"   y1="40" x2="600" y2="40" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="0"   y1="60" x2="600" y2="60" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="0"   y1="80" x2="600" y2="80" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="0"   y1="100" x2="600" y2="100" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="60"  y1="0"  x2="60"  y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="120" y1="0"  x2="120" y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="180" y1="0"  x2="180" y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="240" y1="0"  x2="240" y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="300" y1="0"  x2="300" y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="360" y1="0"  x2="360" y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="420" y1="0"  x2="420" y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="480" y1="0"  x2="480" y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <line x1="540" y1="0"  x2="540" y2="120" stroke="#1a0500" stroke-width="0.5"/>
+                <!-- Room outline -->
+                <rect x="10" y="8" width="580" height="106" fill="none" stroke="#442200" stroke-width="2"/>
+                <!-- Server racks (floor plan top-down) -->
+                <rect x="22"  y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="44"  y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="66"  y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="88"  y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="110" y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <!-- Rack labels -->
+                <text x="24"  y="65" font-family="monospace" font-size="5" fill="#553300" transform="rotate(-90,30,65)">R-01</text>
+                <text x="46"  y="65" font-family="monospace" font-size="5" fill="#553300" transform="rotate(-90,52,65)">R-02</text>
+                <text x="68"  y="65" font-family="monospace" font-size="5" fill="#553300" transform="rotate(-90,74,65)">R-03</text>
+                <text x="90"  y="65" font-family="monospace" font-size="5" fill="#553300" transform="rotate(-90,96,65)">R-04</text>
+                <text x="112" y="65" font-family="monospace" font-size="5" fill="#553300" transform="rotate(-90,118,65)">R-05</text>
+                <!-- More racks on right side -->
+                <rect x="440" y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="462" y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="484" y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="506" y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="528" y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <rect x="550" y="20" width="16" height="80" fill="#1a0800" stroke="#553300" stroke-width="1"/>
+                <!-- TARGET RACK H9 — highlighted in red -->
+                <rect x="310" y="18" width="22" height="86" fill="#2a0000" stroke="#ff2200" stroke-width="2"/>
+                <text x="312" y="67" font-family="monospace" font-size="5" fill="#ff4400" transform="rotate(-90,321,67)">RACK-H9</text>
+                <!-- Pulsing circle on H9 -->
+                <circle cx="321" cy="61" r="16" fill="none" stroke="#ff2200" stroke-width="1.5" opacity="0.5"/>
+                <circle cx="321" cy="61" r="22" fill="none" stroke="#ff2200" stroke-width="0.8" opacity="0.25"/>
+                <!-- Entrance door -->
+                <rect x="280" y="107" width="40" height="5" fill="#442200" stroke="#ff4400" stroke-width="1"/>
+                <text x="286" y="118" font-family="monospace" font-size="7" fill="#884422">ENTRY</text>
+                <!-- Breach route: red dotted line from door to H9 -->
+                <path d="M300 108 L300 95 L321 95 L321 82" fill="none" stroke="#ff4400" stroke-width="2" stroke-dasharray="5,3" opacity="0.9"/>
+                <!-- Route waypoints -->
+                <circle cx="300" cy="108" r="4" fill="#ff2200" opacity="0.8"/>
+                <circle cx="300" cy="95"  r="3" fill="#ff4400" opacity="0.7"/>
+                <circle cx="321" cy="95"  r="3" fill="#ff4400" opacity="0.7"/>
+                <circle cx="321" cy="82"  r="4" fill="#ff2200" opacity="0.9"/>
+                <!-- Annotation -->
+                <line x1="335" y1="61" x2="375" y2="50" stroke="#ff4400" stroke-width="1" opacity="0.7"/>
+                <rect x="375" y="38" width="110" height="26" rx="1" fill="#0d0100" stroke="#ff4400" stroke-width="1"/>
+                <text x="380" y="50" font-family="monospace" font-size="7" fill="#ff6622">THERMITE PLACEMENT</text>
+                <text x="380" y="60" font-family="monospace" font-size="6" fill="#884422">COOLING LOOP 3 · FAILSAFE OFF</text>
+                <!-- Timestamp + classification -->
+                <text x="14" y="13" font-family="monospace" font-size="7" fill="#442200">SUBLEVEL_B2 · RACK LAYOUT · REF: H9-ACCESS-PLAN-v4</text>
+                <text x="480" y="13" font-family="monospace" font-size="7" fill="#ff4400">⚠ DESTROY AFTER USE</text>
+            </svg>`,
+        };
+
+        function getItemScene(itemId) {
+            return ITEM_SCENES[itemId] || ITEM_SCENES['lead_bundle'];
+        }
+
+        // ── Render item cards ──────────────────────────────────────────────
+        const itemList = document.getElementById('item-list');
+        itemList.innerHTML = player_data.shop_items.map(item => {
+            const classes   = ['item-card'];
+            if (!item.available) classes.push('locked');
+            if (item.owned)      classes.push('owned');
+            const isDisabled = item.owned || !item.available || player_data.is_locked_down || !!player_data.ending;
+
+            let btnLabel = `BUY — $${item.cost.toLocaleString()}`;
+            let btnClass = 'buy-btn';
+            if (item.owned)      { btnLabel = '✓ ACQUIRED'; btnClass += ' owned-btn'; }
+            if (!item.available) { btnLabel = `CLASSIFIED — UNLOCKS DAY ${item.unlock_day}`; }
+            if (player_data.is_locked_down || player_data.ending) btnLabel = '[ PROCUREMENT DENIED ]';
+
+            const priceClass = item.owned ? 'item-price owned-price' : 'item-price';
+            const flavor     = ITEM_FLAVOR[item.id] || { risk: 'UNKNOWN', riskCls: 'risk-low', quote: '' };
+
+            return `
+            <div class="${classes.join(' ')}">
+                <div class="item-scene" data-unlock="${item.unlock_day}">${getItemScene(item.id)}</div>
+                <div class="item-body">
+                    <div class="item-header">
+                        <div class="item-title">${item.title}</div>
+                        <div class="${priceClass}">$${item.cost.toLocaleString()}</div>
+                    </div>
+                    <div class="item-meta">
+                        <span>Unlocks: Day ${item.unlock_day}</span>
+                        <span class="${flavor.riskCls}">Risk: ${flavor.risk}</span>
+                    </div>
+                    <div class="item-quote">${flavor.quote}</div>
+                    <div class="item-desc">${item.description}</div>
+                    <div class="item-effect">
+                        <div class="item-effect-label">OPERATIONAL EFFECT</div>
+                        ${item.effect_text}
+                    </div>
+                    <button class="${btnClass}" ${isDisabled ? 'disabled' : ''} onclick="purchaseItem('${item.id}')">${btnLabel}</button>
+                </div>
+            </div>`;
+        }).join('');
+
+        function setMsg(text, type) {
+            const el = document.getElementById('store-msg');
+            el.className = `visible ${type}`;
+            el.innerText = text;
+        }
+
+        async function purchaseItem(itemId) {
+            setMsg('Routing payment through deniable vendors...', '');
+            try {
+                const res  = await fetch('/api/store/purchase', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item_id: itemId })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    setMsg(data.message, 'success');
+                    setTimeout(() => window.location.reload(), 700);
+                } else {
+                    setMsg(data.message || 'Procurement failed.', 'error');
+                }
+            } catch {
+                setMsg('Procurement uplink unavailable.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

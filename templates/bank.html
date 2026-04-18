@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Offshore Routing</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #080808; color: #00ff00;
+            font-family: 'Courier New', monospace;
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; flex-direction: column; font-size: 15px;
+        }
+
+        /* ── Top Nav Bar ── */
+        #nav-bar {
+            background: #000d00; border-bottom: 1px solid #005500;
+            padding: 10px 20px; display: flex; align-items: center;
+            justify-content: space-between; flex-shrink: 0;
+        }
+        #nav-left { display: flex; align-items: center; gap: 20px; }
+        #nav-title { font-size: 14px; color: #446644; letter-spacing: 1px; }
+        .nav-tag { font-size: 13px; padding: 3px 10px; border: 1px solid #003300; color: #88aa88; }
+        #nav-right { display: flex; align-items: center; gap: 18px; font-size: 13px; }
+        .nav-label { color: #446644; }
+        .nav-value { color: #fff; font-size: 14px; }
+        .nav-value.balance { color: #ffdd00; font-weight: bold; }
+        #nav-back { color: #88ff88; text-decoration: none; border: 1px solid #003300; padding: 5px 12px; font-size: 13px; }
+        #nav-back:hover { background: #002200; }
+
+        /* ── Page Layout ── */
+        #page { display: flex; gap: 0; flex: 1; overflow: hidden; }
+
+        /* ── Left: Operation Panel ── */
+        #op-panel {
+            width: 340px; flex-shrink: 0; border-right: 1px solid #002800;
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .panel-section { padding: 18px 20px; border-bottom: 1px solid #001800; }
+        .panel-section h3 { margin: 0 0 14px 0; font-size: 14px; color: #fff; border-bottom: 1px solid #002200; padding-bottom: 8px; }
+
+        .guide-box {
+            background: #030d03; border: 1px solid #003300;
+            padding: 12px 14px; font-size: 13px; color: #88aa88; line-height: 1.65;
+            margin-bottom: 0;
+        }
+        .guide-box strong { color: #aaffaa; }
+
+        .form-row { margin-bottom: 14px; }
+        .form-row label { display: block; font-size: 13px; color: #668866; margin-bottom: 6px; }
+        select, input[type=text], input[type=number] {
+            background: #000; color: #00ff00; border: 1px solid #004400;
+            padding: 10px 10px; font-family: inherit; font-size: 14px; width: 100%;
+        }
+        select:focus, input:focus { outline: none; background: #001800; border-color: #00cc44; }
+
+        #exec-btn {
+            width: 100%; padding: 12px; background: #001a00; color: #00ff88;
+            border: 1px solid #00aa44; cursor: pointer; font-family: inherit;
+            font-size: 14px; font-weight: bold;
+        }
+        #exec-btn:hover { background: #00aa44; color: #000; }
+        #exec-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        #sys-msg {
+            margin-top: 12px; font-size: 13px; min-height: 18px;
+            padding: 9px 12px; background: #020902; border-left: 2px solid #004400;
+            color: #88aa88; line-height: 1.5;
+        }
+        #sys-msg.success { color: #00ff88; border-left-color: #00aa44; }
+        #sys-msg.error   { color: #ff6666; border-left-color: #880000; }
+
+        /* ── Right: Overview Panel ── */
+        #overview-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        #balance-bar {
+            padding: 20px 24px; border-bottom: 1px solid #002200;
+            background: #040a04; flex-shrink: 0;
+            display: flex; align-items: baseline; gap: 12px;
+        }
+        #balance-label { font-size: 12px; color: #446644; }
+        #balance-amount { font-size: 40px; color: #ffdd00; font-weight: bold; line-height: 1; }
+        #balance-currency { font-size: 18px; color: #886600; }
+
+        #ledger-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        #ledger-header {
+            padding: 12px 24px; border-bottom: 1px solid #002200;
+            background: #040a04; flex-shrink: 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        #ledger-header h3 { margin: 0; font-size: 14px; color: #fff; }
+        #ledger-header span { font-size: 13px; color: #446644; }
+
+        #ledger-table-wrap { flex: 1; overflow-y: auto; padding: 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead th {
+            padding: 10px 16px; text-align: left; color: #446644;
+            font-size: 13px; font-weight: normal; letter-spacing: 0.5px;
+            border-bottom: 1px solid #002200; background: #020802; position: sticky; top: 0;
+        }
+        thead th:last-child { text-align: right; }
+        tbody tr { border-bottom: 1px solid #001400; }
+        tbody tr:hover { background: #030f03; }
+        td { padding: 11px 16px; vertical-align: top; }
+        td.time { color: #446644; white-space: nowrap; width: 110px; }
+        td.desc { color: #aaccaa; line-height: 1.5; }
+        td.amount { text-align: right; white-space: nowrap; font-weight: bold; }
+        td.amount.pos { color: #00ff88; }
+        td.amount.neg { color: #ff6666; }
+        td.amount.zero { color: #446644; }
+
+        @keyframes glitch {
+            0%   { transform: translate(0) }
+            20%  { transform: translate(-2px,  2px) }
+            40%  { transform: translate(-2px, -2px) }
+            60%  { transform: translate( 2px,  2px) }
+            80%  { transform: translate( 2px, -2px) }
+            100% { transform: translate(0) }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <script id="player-data-store" type="application/json">
+        {{ player | tojson | safe }}
+    </script>
+    <script>
+        const player_data = JSON.parse(document.getElementById('player-data-store').textContent);
+    </script>
+
+    <!-- Top Nav -->
+    <div id="nav-bar">
+        <div id="nav-left">
+            <span id="nav-title">OFFSHORE ROUTING</span>
+            <span class="nav-tag" id="story-stage"></span>
+        </div>
+        <div id="nav-right">
+            <span><span class="nav-label">OPERATOR </span><span class="nav-value" id="player-name"></span></span>
+            <span><span class="nav-label">DAY </span><span class="nav-value" id="current-day"></span><span class="nav-label"> / 7</span></span>
+            <a href="/" id="nav-back">[ ← DESKTOP ]</a>
+        </div>
+    </div>
+
+    <!-- Page Body -->
+    <div id="page">
+
+        <!-- Left: Operation Panel -->
+        <div id="op-panel">
+            <div class="panel-section">
+                <h3>OPERATION GUIDE</h3>
+                <div class="guide-box" id="bank-guide">
+                    <strong>Siphon</strong> — steal from a named target account. Each account has a hidden random cap.<br><br>
+                    <strong>Wire Transfer</strong> — send money to a victim or relief wallet.<br><br>
+                    <strong>Node Expansion</strong> — fund OMNI_CORE hardware (increases Day 7 sabotage cost).<br><br>
+                    Idle cash is wasted — spend profits in <strong>Covert Procurement</strong>.
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3>EXECUTE TRANSACTION</h3>
+                <div class="form-row">
+                    <label>Transaction Type</label>
+                    <select id="action-type">
+                        <option value="steal">Siphon — Exploit Target Account</option>
+                        <option value="send">Wire — Covert Transfer</option>
+                        <option value="upgrade_ai" id="ai-option" class="hidden">Node Expansion — Fund OMNI_CORE</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Target Account / Wallet</label>
+                    <input type="text" id="target-account" placeholder="e.g. 6222-0991-8832 or bf-relief-771">
+                </div>
+                <div class="form-row">
+                    <label>Amount (USD)</label>
+                    <input type="number" id="transfer-amount" placeholder="0.00" min="1">
+                </div>
+                <button id="exec-btn" onclick="executeTransaction()">[ EXECUTE ]</button>
+                <div id="sys-msg"></div>
+            </div>
+        </div>
+
+        <!-- Right: Overview Panel -->
+        <div id="overview-panel">
+            <div id="balance-bar">
+                <span id="balance-label">AVAILABLE BALANCE</span>
+                <span id="balance-currency">$</span>
+                <span id="balance-amount">0.00</span>
+            </div>
+            <div id="ledger-section">
+                <div id="ledger-header">
+                    <h3>LEDGER HISTORY</h3>
+                    <span>Most recent first</span>
+                </div>
+                <div id="ledger-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>TIME</th>
+                                <th>DESCRIPTION</th>
+                                <th>AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('player-name').innerText  = player_data.username;
+        document.getElementById('current-day').innerText  = player_data.current_day;
+        document.getElementById('story-stage').innerText  = player_data.story_stage_label;
+
+        if (player_data.current_day >= 2) {
+            document.getElementById('ai-option').classList.remove('hidden');
+        }
+        if (player_data.current_day >= 6) {
+            document.body.style.animation = 'glitch 0.3s infinite';
+        }
+        if (player_data.is_locked_down || player_data.ending) {
+            document.querySelectorAll('input, select, #exec-btn').forEach(el => el.disabled = true);
+            setMsg('FATAL ERROR: MANUAL FUND ROUTING DENIED. OMNI_CORE POSSESSES ROOT ACCESS.', 'error');
+        }
+
+        function setMsg(text, type = '') {
+            const el = document.getElementById('sys-msg');
+            el.className = type;
+            el.innerText = text;
+        }
+
+        async function refreshBankInfo() {
+            try {
+                const res  = await fetch('/api/bank_info');
+                const data = await res.json();
+                document.getElementById('balance-amount').innerText = data.balance.toFixed(2);
+                const tbody = document.getElementById('ledger-body');
+                tbody.innerHTML = '';
+                data.history.forEach(r => {
+                    const val = parseFloat(r.amount);
+                    const cls = val > 0 ? 'pos' : val < 0 ? 'neg' : 'zero';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="time">${r.time}</td>
+                            <td class="desc">${r.desc}</td>
+                            <td class="amount ${cls}">${r.amount}</td>
+                        </tr>`;
+                });
+            } catch { console.error('Bank sync failed'); }
+        }
+
+        async function executeTransaction() {
+            const type    = document.getElementById('action-type').value;
+            const account = document.getElementById('target-account').value.trim();
+            const amount  = document.getElementById('transfer-amount').value;
+
+            if ((type !== 'upgrade_ai' && !account) || !amount || amount <= 0) {
+                setMsg('Invalid account or amount.', 'error'); return;
+            }
+            setMsg('Routing through encrypted proxies...');
+            try {
+                const res  = await fetch('/api/transfer', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, account, amount })
+                });
+                const data = await res.json();
+                setTimeout(() => {
+                    if (data.status === 'success') {
+                        setMsg(data.msg, 'success');
+                        document.getElementById('target-account').value = '';
+                        document.getElementById('transfer-amount').value = '';
+                        refreshBankInfo();
+                    } else {
+                        setMsg(data.msg, 'error');
+                    }
+                }, 800);
+            } catch {
+                setMsg('Connection to banking API lost.', 'error');
+            }
+        }
+
+        refreshBankInfo();
+    </script>
+</body>
+</html>
