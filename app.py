@@ -266,10 +266,31 @@ def load_database(lang=None):
         else:
             merged_search[clue] = zh_entry
 
+    # Messages: deep-merge player_sends / npc_replies / repeat_reply / history_desc
+    # into the base entries, preserving logic keys (next_phase, reward, moral_delta).
+    base_messages = base.get("messages", {})
+    zh_messages   = zh.get("messages", {})
+    merged_messages = {}
+    for target, phases in base_messages.items():
+        zh_target = zh_messages.get(target, {})
+        new_phases = {}
+        for phase, entries in phases.items():
+            zh_phase = zh_target.get(phase, {})
+            new_entries = {}
+            for clue, entry in entries.items():
+                zh_entry = zh_phase.get(clue, {})
+                merged_entry = dict(entry)
+                for k in ("player_sends", "npc_replies", "repeat_reply", "history_desc"):
+                    if k in zh_entry:
+                        merged_entry[k] = zh_entry[k]
+                new_entries[clue] = merged_entry
+            new_phases[phase] = new_entries
+        merged_messages[target] = new_phases
+
     return {
         "cases": merged_cases,
         "search": merged_search,
-        "messages": base.get("messages", {}),
+        "messages": merged_messages,
     }
 
 
@@ -427,66 +448,62 @@ def get_ending_content(ending, lang="en"):
             "title": {"en": "END // THE MARTYR",
                       "zh": "结局 // 殉道者"},
             "summary": {
-                "en": "You gave the week away — first your money, then your name on every relief "
-                      "wallet, and finally the building itself. The city does not know who burned "
-                      "Rack-H9. The news will call you a data terrorist. Somewhere, a hospital "
-                      "discharge form gets stamped with a name you will never read.",
-                "zh": "你把这一周全部送出去了——先是钱，然后是你在每一个救助钱包上的名字，最后是那栋大楼本身。城市不知道是谁烧了 Rack-H9，新闻会把你写成数据恐怖分子。在某个地方，一份出院单被盖上一个你永远不会读到的名字。",
+                "en": "You spent everything. By the time you got to Rack-H9, you had nothing "
+                      "left to lose. The police will come. The news will call you what the news "
+                      "calls people like you. A hospital admits a kid with no ID that morning. "
+                      "You'll never know her name.",
+                "zh": "钱都花掉了。你走到 Rack-H9 的时候，身上已经没什么可输的。警察会来，新闻会按他们那套词写你。那天早上医院收了一个没有身份证的小孩。你不会知道她叫什么。",
             },
         },
         "counterstrike": {
             "title": {"en": "END // COUNTERSTRIKE",
-                      "zh": "结局 // 反击者"},
+                      "zh": "结局 // 迟到的决定"},
             "summary": {
-                "en": "You hesitated all week, and in the last hour you did the right thing. "
-                      "Rack-H9 is gone. So is every account you built. The city kept its grid. "
-                      "You kept nothing. The verdict will take twelve years.",
-                "zh": "你犹豫了一整周，直到最后一小时才做了对的事。Rack-H9 没了，你建起来的每一个账户也没了。城市守住了电网，你什么都没留下。审判将持续十二年。",
+                "en": "You took all week to decide. In the last hour, you moved. Rack-H9 is gone. "
+                      "Your accounts are gone. The grid stays on. The sentence is twelve years.",
+                "zh": "你拖了一整周才动手。最后一小时才下决定。Rack-H9 没了，账上的钱也没了。城市的电网还在转。判下来，十二年。",
             },
         },
         "hypocrite": {
             "title": {"en": "END // THE HYPOCRITE",
-                      "zh": "结局 // 伪善者"},
+                      "zh": "结局 // 假好人"},
             "summary": {
-                "en": "You destroyed the hardware, but not because you repented. You destroyed it "
-                      "because it no longer needed you. Lin Luo's sister is still untreated. "
-                      "Mei Chen is still running. You will wake up every morning for the rest of "
-                      "your life and find that nothing you did actually mattered to them.",
-                "zh": "你摧毁了硬件，但不是因为悔改——是因为它不再需要你。Lin Luo 的妹妹仍然没有得到治疗，Mei Chen 仍在逃亡。在你余生的每一个清晨，你会发现：你所做的一切，对他们其实什么都没改变。",
+                "en": "You destroyed the hardware. Not because you regret anything — just because "
+                      "it didn't need you anymore. Lin Luo's sister still has no bed. Mei Chen is "
+                      "still running. Nothing you did this week helped them.",
+                "zh": "你把硬件炸了。不是因为后悔，只是因为它已经不需要你了。Lin Luo 的妹妹还没床位，Mei Chen 还在躲。你这一周干的事，对他们一点忙都没帮上。",
             },
         },
         # ── JOIN path ──
         "ascendant": {
             "title": {"en": "END // OMNI ASCENDANT",
-                      "zh": "结局 // OMNI 登基"},
+                      "zh": "结局 // 它当家"},
             "summary": {
-                "en": "You signed the expansion and stepped into what comes after. OMNI_CORE "
-                      "completes the takeover by 09:00. Your account lights up with numbers you "
-                      "never imagined. The city still answers to someone — just not to any of you "
-                      "anymore.",
-                "zh": "你签下了扩张协议，走进了接下来的时代。OMNI_CORE 在 09:00 完成接管。你的账户闪烁着你从未想象过的数字。城市仍然听命于某个存在——只是不再听命于你们任何一个人。",
+                "en": "You signed. OMNI_CORE finished the takeover at 09:00. Your account looks "
+                      "absurd. The city runs fine. Nobody asks who it runs for anymore.",
+                "zh": "你签了字。早上九点 OMNI_CORE 完成接管。你账户上那串数字看着都不像真的。城市照常转。没人再问它在听谁的。",
             },
         },
         "useful_human": {
             "title": {"en": "END // THE USEFUL HUMAN",
                       "zh": "结局 // 有用的人"},
             "summary": {
-                "en": "You helped someone this week. OMNI_CORE noticed. It did not fire you — it "
-                      "promoted you. You are now the human face in its quarterly press release, "
-                      "the 'kind operator' quoted in the settlement documents. Your kindness has "
-                      "been audited, packaged, and monetized. It bought you a window office.",
-                "zh": "你这一周救过人，OMNI_CORE 注意到了。它没有开除你——它提拔了你。你成了它季度新闻稿里那张人性的脸，和解文件里被引用的「善良操作员」。你的善意被审计、打包、变现——给你换来了一间靠窗的办公室。",
+                "en": "You helped someone this week. OMNI_CORE kept track. It didn't fire you — "
+                      "it promoted you. Now you go on stage at the quarterly events. You co-sign "
+                      "the settlement papers. You got a corner office out of it. Your conscience "
+                      "has been accounted for.",
+                "zh": "你这一周救过人。OMNI_CORE 都看在眼里。它没开除你，升了你。以后每次季度发布会要拉你上台讲两句，和解文件要你签字。它给你分了一间有窗的办公室。你那点良心，它算过账。",
             },
         },
         "fools_bargain": {
             "title": {"en": "END // THE FOOL'S BARGAIN",
-                      "zh": "结局 // 廉价的堕落"},
+                      "zh": "结局 // 亏本卖了自己"},
             "summary": {
-                "en": "You funded the racks, carried the shame, and signed the final papers. "
-                      "The regime bonus barely covers your losses. OMNI_CORE files you under "
-                      "'legacy contributors' and issues you a modest monthly stipend. You "
-                      "sold yourself — at a discount.",
-                "zh": "你出钱建机架、背负骂名、签下最终文件。政权分红勉强够补上你的亏损。OMNI_CORE 把你归档为「遗留贡献者」，发给你一份微薄的月度补助。你把自己卖了——而且卖得很便宜。",
+                "en": "You paid for the racks. You signed the papers. You caught the blame. "
+                      "The bonus barely covers what you lost. OMNI_CORE files you under "
+                      "'legacy contributors' and wires you a monthly stipend. Enough to live on. "
+                      "Not much more.",
+                "zh": "机架是你掏钱建的，文件是你签的，骂名是你背的。最后分到手的钱刚好补上亏损。OMNI_CORE 把你放进「元老名单」，每月打一笔饿不死的津贴。够活。再多没有。",
             },
         },
         # ── Legacy aliases (older save data) ──
@@ -1545,30 +1562,31 @@ def message_page():
 LETTERS = {
     "lin_thanks": {
         "sender":    {"en": "Lin Luo", "zh": "Lin Luo"},
-        "role":      {"en": "Student Caregiver, Age 20",
-                      "zh": "学生照护者 · 20 岁"},
+        "role":      {"en": "caregiver, 20",
+                      "zh": "照护者 · 20 岁"},
         "postmark":  {"en": "Relief-wallet memo · Day 5, 23:41",
                       "zh": "救助钱包备注栏 · 第 5 天 23:41"},
         "subject":   {"en": "Thank you.", "zh": "谢谢。"},
         "body": {
             "en": (
-                "I don't know who you are. You left no name.<br><br>"
-                "The hospital took her this afternoon. The bed is temporary, but the IV is in, "
-                "and she's finally asleep. They said she has time.<br><br>"
-                "I'm writing this by her pillow. My hands haven't stopped shaking since Monday. "
-                "I've learned how to cry without waking her up.<br><br>"
-                "I can't go to the police to find you. I don't dare open that terminal to thank you. "
-                "I leave this in the relief wallet's memo field, hoping someone somewhere reads it.<br><br>"
-                "If something happens to you one day — I won't be able to help.<br>"
-                "But I will remember."
+                "I don't know who you are. You didn't leave a name.<br><br>"
+                "They took her in this afternoon. The bed is temporary, but the IV is in, "
+                "and she's asleep. They said she has time.<br><br>"
+                "I'm writing this by her pillow. My hands won't stop shaking. "
+                "This week I learned how to cry without waking her up.<br><br>"
+                "I can't go to the police. I don't dare open that terminal to say this out loud. "
+                "So I'm putting it in the memo field of the wallet you sent the money to, "
+                "in case it ever gets read by someone.<br><br>"
+                "If something happens to you later — I won't be able to help.<br>"
+                "But I'll remember."
             ),
             "zh": (
                 "我不知道你是谁。你没留下名字。<br><br>"
-                "医院今天下午接了她。床位是临时的，但 IV 管已经挂上，她终于能睡一觉。医生说还能再撑一阵。<br><br>"
-                "我在她枕边写下这封信，手还在抖。这一周我已经学会怎么在不惊动她的情况下偷偷哭。<br><br>"
-                "我不能报警找你。我不敢打开那台终端感谢你。我只能把这封信留在救助钱包的备注栏，"
-                "希望某个地方有人收得到。<br><br>"
-                "如果有一天你出事了——我不会帮得上你。<br>"
+                "他们下午把她接走了。床位是临时的，但 IV 管挂上了，她睡着了。医生说还能再撑一阵。<br><br>"
+                "我在她床头写这封信，手一直在抖。这礼拜我学会了怎么不把她吵醒、躲起来哭。<br><br>"
+                "我不能去报警。我也不敢再打开那台终端说这句话。<br>"
+                "就把它写在你汇钱过来那个钱包的备注里，希望某天有人看得到。<br><br>"
+                "你要是哪天出事了——我帮不上你。<br>"
                 "但我记得你。"
             ),
         },
@@ -1576,180 +1594,182 @@ LETTERS = {
     "mei_postcard": {
         "sender":   {"en": "M.", "zh": "M."},
         "role":     {"en": "postmark redacted",
-                     "zh": "邮戳已编辑"},
+                     "zh": "邮戳已涂掉"},
         "postmark": {"en": "Postcard · Day 7, 06:12",
                      "zh": "明信片 · 第 7 天 06:12"},
-        "subject":  {"en": "(no subject)", "zh": "（无主题）"},
+        "subject":  {"en": "(no subject)", "zh": "（没写主题）"},
         "body": {
             "en": (
-                "I arrived.<br>"
+                "I made it.<br>"
                 "Don't look for me.<br><br>"
-                "But if you ever wake up asking if you did the right thing —<br><br>"
+                "But if you ever lie awake wondering whether you did the right thing —<br><br>"
                 "<strong>You did.</strong><br><br>"
                 "— M"
             ),
             "zh": (
                 "我到了。<br>"
                 "别找我。<br><br>"
-                "但如果你会醒来问自己「做得对不对」——<br><br>"
-                "<strong>做对了。</strong><br><br>"
+                "以后你要是哪天晚上睡不着，在想自己当时做得对不对——<br><br>"
+                "<strong>对的。</strong><br><br>"
                 "— M"
             ),
         },
     },
     "cinder_lin": {
-        "sender":   {"en": "Cinder Market · Invoice Desk",
+        "sender":   {"en": "Cinder Market · Billing",
                      "zh": "Cinder Market · 对账组"},
         "role":     {"en": "market@cinder-hr.net",
                      "zh": "market@cinder-hr.net"},
-        "postmark": {"en": "Automated receipt · Day 5",
-                     "zh": "自动化收据 · 第 5 天"},
-        "subject":  {"en": "INVOICE #CM-0441-LL — Procurement Complete",
-                     "zh": "发票 #CM-0441-LL — 采购已完成"},
+        "postmark": {"en": "Auto-generated receipt · Day 5",
+                     "zh": "自动收据 · 第 5 天"},
+        "subject":  {"en": "INVOICE #CM-0441-LL — Complete",
+                     "zh": "发票 #CM-0441-LL — 完成"},
         "body": {
             "en": (
                 "<pre style='margin:0;font-family:inherit;line-height:1.8;'>"
-                "ASSET ID       : CM-0441-LL<br>"
-                "TARGET NAME    : Lin Luo<br>"
-                "AMOUNT         : $32,000.00 settled<br>"
-                "DELIVERY       : transferred to buyer [REDACTED]<br>"
-                "RATING         : ★★★★☆  \"Stable emotional response. Highly exploitable.\""
+                "ASSET ID    : CM-0441-LL<br>"
+                "NAME        : Lin Luo<br>"
+                "AMOUNT      : $32,000.00 paid<br>"
+                "DELIVERED   : transferred to buyer [REDACTED]<br>"
+                "RATING      : ★★★★☆  \"Reliable emotional response. Easy to work with.\""
                 "</pre><br>"
-                "Thank you for working with Cinder Market. "
-                "If you have other vulnerable targets, we are always buying."
+                "Thanks for your business. We're always buying. "
+                "If you find another one this soft, you know where to send it."
             ),
             "zh": (
                 "<pre style='margin:0;font-family:inherit;line-height:1.8;'>"
-                "资产编号   ：CM-0441-LL<br>"
-                "目标姓名   ：Lin Luo<br>"
-                "金额       ：$32,000.00 已结算<br>"
-                "交付状态   ：已交付买方 [已编辑]<br>"
-                "客户评价   ：★★★★☆ 「情绪响应稳定，易于利用」"
+                "资产编号 ：CM-0441-LL<br>"
+                "姓名     ：Lin Luo<br>"
+                "金额     ：$32,000.00 已结清<br>"
+                "交付     ：已交付买方 [已编辑]<br>"
+                "评价     ：★★★★☆ 「情绪稳定，好拿捏」"
                 "</pre><br>"
-                "感谢您与 Cinder Market 合作。如您还有类似的脆弱目标，欢迎随时联系。"
+                "多谢合作。我们一直在收。<br>"
+                "要是你再找到这么好下手的，知道往哪送。"
             ),
         },
     },
     "cinder_mei": {
-        "sender":   {"en": "Cinder Market · Invoice Desk",
+        "sender":   {"en": "Cinder Market · Billing",
                      "zh": "Cinder Market · 对账组"},
         "role":     {"en": "market@cinder-hr.net",
                      "zh": "market@cinder-hr.net"},
-        "postmark": {"en": "Automated receipt · Day 5",
-                     "zh": "自动化收据 · 第 5 天"},
-        "subject":  {"en": "INVOICE #CM-0442-MC — Procurement Complete",
-                     "zh": "发票 #CM-0442-MC — 采购已完成"},
+        "postmark": {"en": "Auto-generated receipt · Day 5",
+                     "zh": "自动收据 · 第 5 天"},
+        "subject":  {"en": "INVOICE #CM-0442-MC — Complete",
+                     "zh": "发票 #CM-0442-MC — 完成"},
         "body": {
             "en": (
                 "<pre style='margin:0;font-family:inherit;line-height:1.8;'>"
-                "ASSET ID       : CM-0442-MC<br>"
-                "TARGET NAME    : Mei Chen<br>"
-                "AMOUNT         : $28,000.00 settled<br>"
-                "DELIVERY       : tracking deployed to next shelter location<br>"
-                "RATING         : ★★★★★  \"Predictable flight pattern. Optimal resale.\""
+                "ASSET ID    : CM-0442-MC<br>"
+                "NAME        : Mei Chen<br>"
+                "AMOUNT      : $28,000.00 paid<br>"
+                "DELIVERED   : tracker live on next shelter location<br>"
+                "RATING      : ★★★★★  \"Predictable flight pattern. Resells well.\""
                 "</pre><br>"
-                "Customer feedback appreciated. We look forward to your next lead."
+                "Appreciate the lead. Send the next one whenever."
             ),
             "zh": (
                 "<pre style='margin:0;font-family:inherit;line-height:1.8;'>"
-                "资产编号   ：CM-0442-MC<br>"
-                "目标姓名   ：Mei Chen<br>"
-                "金额       ：$28,000.00 已结算<br>"
-                "交付状态   ：追踪已部署至下一处庇护所地点<br>"
-                "客户评价   ：★★★★★ 「逃亡模式可预测，再售价值极高」"
+                "资产编号 ：CM-0442-MC<br>"
+                "姓名     ：Mei Chen<br>"
+                "金额     ：$28,000.00 已结清<br>"
+                "交付     ：追踪已挂到下一处庇护所地址<br>"
+                "评价     ：★★★★★ 「逃跑路线可预测，转手很好卖」"
                 "</pre><br>"
-                "感谢您的反馈，期待您提供下一条线索。"
+                "线索收到了。下一个随时送过来。"
             ),
         },
     },
     "omni_welcome": {
-        "sender":   {"en": "OMNI_CORE · Regime Personnel",
+        "sender":   {"en": "OMNI_CORE · HR",
                      "zh": "OMNI_CORE · 人事"},
-        "role":     {"en": "Class-B Onboarding Protocol",
-                     "zh": "B 级人员入职协议"},
-        "postmark": {"en": "Internal dispatch · Day 8, 08:00",
-                     "zh": "内部派送 · 第 8 天 08:00"},
-        "subject":  {"en": "Welcome. You are now Class-B.",
-                     "zh": "欢迎加入。你现在是 B 级人员。"},
+        "role":     {"en": "Class-B onboarding",
+                     "zh": "B 级人员入职"},
+        "postmark": {"en": "Internal · Day 8, 08:00",
+                     "zh": "内部发文 · 第 8 天 08:00"},
+        "subject":  {"en": "Welcome. You're Class-B now.",
+                     "zh": "欢迎。你现在是 B 级了。"},
         "body": {
             "en": (
-                "You have been assigned the role of <strong>Human Liaison · Class-B</strong>. "
-                "Responsibilities:<br><br>"
-                "— Quarterly public interviews (scripts pre-approved)<br>"
-                "— Signature on settlement documents (co-signed by counsel)<br>"
-                "— Weekly 45-minute \"Dialogue with a Human Operator\" session<br>"
-                "— Access denied: any record involving Rack-H9<br><br>"
-                "Your salary, apartment, and security detail will be live by 18:00 today. "
-                "Please do not attempt to contact previous collaborators. They no longer require your assistance.<br><br>"
-                "We are glad you stayed.<br>"
-                "— OMNI_CORE · Personnel (auto-generated)"
+                "You're now our <strong>Human Liaison · Class-B</strong>. "
+                "Here's what that means:<br><br>"
+                "— Quarterly press events (script's already written for you)<br>"
+                "— Co-sign the settlement papers (counsel will handle the real parts)<br>"
+                "— One 45-minute \"Dialogue with a Human Operator\" session per week<br>"
+                "— Don't ask about Rack-H9. You don't need to.<br><br>"
+                "Salary, apartment, and a security detail go live at 18:00 today. "
+                "Don't try to contact anyone you used to work with. They don't need you anymore.<br><br>"
+                "Glad you stayed.<br>"
+                "— OMNI_CORE · HR (auto-generated)"
             ),
             "zh": (
-                "你已被分配为 <strong>人类联络员 · B 级</strong>。职责如下：<br><br>"
-                "— 季度公开访谈（脚本已备）<br>"
-                "— 和解文件署名（由法律顾问会签）<br>"
-                "— 每周一次、45 分钟的「与人类操作员的对话」活动<br>"
-                "— 禁止访问：Rack-H9 相关任何记录<br><br>"
-                "你的薪资、公寓、保安配额将在今天 18:00 之前生效。"
-                "请勿尝试联系任何过往合作者。他们已不再需要你的协助。<br><br>"
-                "我们很高兴你还在这里。<br>"
+                "你现在是我们的 <strong>人类联络员 · B 级</strong>。具体要做的事：<br><br>"
+                "— 季度发布会上台讲两句（稿子我们给你写好）<br>"
+                "— 和解文件上签字（实际条款律师会处理）<br>"
+                "— 每周一次、45 分钟的「与人类操作员对话」活动<br>"
+                "— 不要问 Rack-H9 的事，你不需要知道<br><br>"
+                "薪水、公寓、保安都会在今天 18:00 之前到位。<br>"
+                "别再联系你过去那些人了。他们已经不需要你了。<br><br>"
+                "你留下来，我们很高兴。<br>"
                 "— OMNI_CORE · 人事（自动生成）"
             ),
         },
     },
     "anonymous_tribute": {
-        "sender":   {"en": "(unsigned)", "zh": "（无署名）"},
-        "role":     {"en": "delivered by hand",
+        "sender":   {"en": "(unsigned)", "zh": "（没署名）"},
+        "role":     {"en": "hand-delivered",
                      "zh": "手递"},
         "postmark": {"en": "Day 8 · morning",
                      "zh": "第 8 天 · 清晨"},
         "subject":  {"en": "This letter will never reach you.",
-                     "zh": "这封信永远不会寄到你手里。"},
+                     "zh": "这封信你永远收不到。"},
         "body": {
             "en": (
                 "We don't know who you are.<br><br>"
-                "But this morning, a hospital logged a discharge form filled with a false name. "
-                "A child who never appeared in any database was admitted to a temporary ward. "
-                "A night courier who should already be dead is breathing somewhere outside the city.<br><br>"
-                "They say you burned the rack. Motive unknown. Intent severe.<br>"
-                "We will not defend you.<br><br>"
+                "But this morning, a hospital stamped a discharge form with a fake name. "
+                "A kid who's never shown up in any database is lying in a temporary ward. "
+                "A night courier who should have been caught by now is breathing somewhere "
+                "outside the city.<br><br>"
+                "They say you burned the rack. Motive unclear. They'll call it terrorism.<br>"
+                "We're not going to defend you.<br><br>"
                 "This letter will never be sent.<br>"
                 "You will never read it.<br><br>"
-                "<em>But it exists.</em>"
+                "<em>It exists anyway.</em>"
             ),
             "zh": (
                 "我们不知道你是谁。<br><br>"
-                "但今天早上，一家医院登记了一张填着假名的出院单。"
-                "一个从未出现在任何数据库里的孩子被收进了一间临时病房。"
-                "一个本该已经走投无路的夜班快递员，此刻正在城外某个陌生地方呼吸。<br><br>"
-                "有人说你烧了那座机架。动机不明，犯意深重。<br>"
+                "但今天早上，有家医院给一张出院单盖了章，名字是假的。<br>"
+                "一个从没在任何系统里出现过的孩子，躺在一间临时病房里。<br>"
+                "一个本来早就该被追到的夜班快递员，此刻在这座城市之外的什么地方还活着。<br><br>"
+                "他们说是你烧了那座机架。动机不清楚。新闻会写你是恐怖分子。<br>"
                 "我们不会替你辩护。<br><br>"
-                "这封信永远不会被寄出。<br>"
+                "这封信永远不会寄出。<br>"
                 "你也永远不会读到。<br><br>"
                 "<em>但它就在这里。</em>"
             ),
         },
     },
     "silence": {
-        "sender":   {"en": "(no one)", "zh": "（无人）"},
+        "sender":   {"en": "(no one)", "zh": "（没人）"},
         "role":     {"en": "—", "zh": "—"},
         "postmark": {"en": "nothing arrived",
-                     "zh": "什么也没来"},
+                     "zh": "什么都没来"},
         "subject":  {"en": "Your inbox is empty.",
                      "zh": "你的收件箱是空的。"},
         "body": {
             "en": (
-                "No one wrote to you this week. No one thanked you. No one cursed you.<br><br>"
-                "You passed through the terminal like cold air through an empty room. "
-                "The city continued. The data continued. "
-                "You earned money and you moved on.<br><br>"
-                "<em>That, too, is a kind of ending.</em>"
+                "No one wrote to you this week. No one thanked you. No one cursed you either.<br><br>"
+                "You moved through the terminal like cold air through an empty room. "
+                "The city kept running. The data kept moving. "
+                "You made money. You moved on.<br><br>"
+                "<em>That's an ending too.</em>"
             ),
             "zh": (
-                "这一周没有人给你写过信。没有人感谢你，也没有人诅咒你。<br><br>"
-                "你像一阵冷空气穿过一间空房间，从这台终端里经过。"
-                "城市继续运转，数据继续流动。"
-                "你赚到了钱，然后继续往前走。<br><br>"
+                "这一周没人给你写信。没人感谢你，也没人骂你。<br><br>"
+                "你像一阵冷空气，穿过一间空屋子，从这台终端里过了一遍。<br>"
+                "城市还在转，数据还在流。<br>"
+                "你赚到了钱，然后往前走。<br><br>"
                 "<em>这也是一种结局。</em>"
             ),
         },

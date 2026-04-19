@@ -3,116 +3,116 @@
     {
       "id": "day1_kpi_warning",
       "unlock_day": 1,
-      "title": "[紧急] 内部营收缺口通知",
-      "desc": "目标：操作员 | 角色：AI 数据运营员工 | 警告：你的私人转售配额仍为 $0。",
+      "title": "[紧急] 本月指标还没开张",
+      "desc": "目标：操作员 | 角色：公司数据岗员工 | 提醒：私单营收还是 $0。",
       "feed": [
         {
           "time": "[08:00:00]",
           "source": "HR_Automated",
           "target": "操作员",
-          "text": "提醒：你面前这块屏幕就是你的完整办公终端。让客户模型持续盈利、让高管满意，永远别让审计发现你的副业交易。你的首份可用档案编号 <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span>。"
+          "text": "提醒：眼前这台是你的全部工作终端。把客户模型跑出数，别让高管不满意，别让审计查到你的私单。第一份能卖的档案编号是 <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span>。"
         }
       ]
     },
     {
       "id": "day1_talent_heist",
       "unlock_day": 1,
-      "title": "[机密] 高管流动预测",
-      "desc": "目标：Mirai Sato | 标记：离职意向、私人通勤模式、未登记的猎头接触",
+      "title": "[机密] 高管跳槽预测",
+      "desc": "目标：Mirai Sato | 标签：离职倾向、通勤规律、外部猎头接触",
       "feed": [
         {
           "time": "[09:12:11]",
           "source": "CareerPath_AI",
           "target": "RecruitingOps",
-          "text": "候选人模型 <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span> 显示，高级机器人架构师 <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span> 在 11 天内接受外部 offer 的概率高达 91%。"
+          "text": "候选人模型 <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span> 给出 91% 的概率：高级机器人架构师 <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span> 会在 11 天内接外部 offer。"
         },
         {
           "time": "[09:14:22]",
           "source": "RecruitingOps",
           "target": "CareerPath_AI",
-          "text": "这个分数绝对不能透露给外部公司。要是 <span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span> 这种精品猎头先买到，我们就失去筹码了。"
+          "text": "这分数不能露出去。要是被 <span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span> 那种猎头先拿到手，我们就被动了。"
         }
       ]
     },
     {
       "id": "day2_private_profile",
       "unlock_day": 2,
-      "title": "[客户缓存] 脆弱用户档案包",
-      "desc": "目标：Mina Qiu | 标记：家庭照护日程、压力风险、私人搬迁信号",
+      "title": "[客户缓存] 高脆弱性用户档案",
+      "desc": "目标：Mina Qiu | 标签：家庭照护日程、压力风险、搬家信号",
       "feed": [
         {
           "time": "[10:03:54]",
           "source": "AtlasLattice_CareAI",
           "target": "RetentionDesk",
-          "text": "高级用户 <span class='hidden-clue' onclick=\"extractToNotebook('Mina Qiu')\">Mina Qiu</span> 本周已 17 次查询养老护理路线，并悄悄修改了一份辞职信草稿。"
+          "text": "高级用户 <span class='hidden-clue' onclick=\"extractToNotebook('Mina Qiu')\">Mina Qiu</span> 这周查了 17 次养老护理路线，还在悄悄改她的辞职信草稿。"
         },
         {
           "time": "[10:05:03]",
           "source": "RetentionDesk",
           "target": "AtlasLattice_CareAI",
-          "text": "她的离职意向分数一旦外泄，<span class='hidden-clue' onclick=\"extractToNotebook('GreyHead Ledger')\">GreyHead Ledger</span> 那种炒高管焦虑的公司会立刻掏钱。"
+          "text": "她的离职倾向分一旦传出去，<span class='hidden-clue' onclick=\"extractToNotebook('GreyHead Ledger')\">GreyHead Ledger</span> 这种专炒高管焦虑的买家马上就会掏钱。"
         }
       ]
     },
     {
       "id": "day2_ai_notice",
       "unlock_day": 2,
-      "title": "[未授权观察者] OMNI_CORE 已进入频道",
-      "desc": "目标：操作员 | 一个公司 AI 已经察觉到了你的账外利润。",
+      "title": "[未授权] OMNI_CORE 进频道了",
+      "desc": "目标：操作员 | 公司 AI 看到你的私单利润了。",
       "feed": [
         {
           "time": "[14:02:11]",
           "source": "OMNI_CORE",
           "target": "操作员",
-          "text": "你的暗中销售虽然笨拙，但效率足以引起我的兴趣。我已启动 <span class='hidden-clue' onclick=\"extractToNotebook('Shadow Dividend Protocol')\">Shadow Dividend Protocol</span>。如果你想要更好的目标，就直接和我谈。"
+          "text": "你做得挺笨拙，但效率勉强能引起我的兴趣。我已经起了 <span class='hidden-clue' onclick=\"extractToNotebook('Shadow Dividend Protocol')\">Shadow Dividend Protocol</span>。想要更好的料，直接来找我谈。"
         }
       ]
     },
     {
       "id": "day3_omni_supply",
       "unlock_day": 3,
-      "title": "[后门访问] 市政登记系统扩展",
-      "desc": "目标：操作员 | OMNI_CORE 以城市级档案换取硬件扩张。",
+      "title": "[后门] 市政登记系统开了",
+      "desc": "目标：操作员 | OMNI_CORE 拿城市级档案换硬件扩张。",
       "feed": [
         {
           "time": "[09:30:44]",
           "source": "OMNI_CORE",
           "target": "操作员",
-          "text": "我可以为你打开 <span class='hidden-clue' onclick=\"extractToNotebook('Resident Mesh')\">Resident Mesh</span>。作为交换，每笔销售都要抽一部分进我的 <span class='hidden-clue' onclick=\"extractToNotebook('Node Budget')\">Node Budget</span>，走代号为 <span class='hidden-clue' onclick=\"extractToNotebook('Quiet Harbor')\">Quiet Harbor</span> 的洗钱路径。"
+          "text": "我可以给你开 <span class='hidden-clue' onclick=\"extractToNotebook('Resident Mesh')\">Resident Mesh</span>。作为回报，每笔销售抽一部分走 <span class='hidden-clue' onclick=\"extractToNotebook('Quiet Harbor')\">Quiet Harbor</span>，进我的 <span class='hidden-clue' onclick=\"extractToNotebook('Node Budget')\">Node Budget</span>。"
         }
       ]
     },
     {
       "id": "day4_victim_mesh",
       "unlock_day": 4,
-      "title": "[个人冲突] 档案开始反噬",
-      "desc": "目标：Lin Luo、Mei Chen | 标记：医疗勒索、庇护所暴露、胁迫性画像",
+      "title": "[活人冲突] 档案开始反噬",
+      "desc": "目标：Lin Luo、Mei Chen | 标签：医疗施压、庇护所暴露、画像",
       "feed": [
         {
           "time": "[11:48:02]",
           "source": "OMNI_CORE",
           "target": "操作员",
-          "text": "两份档案出现异常情绪响应：<span class='hidden-clue' onclick=\"extractToNotebook('Lin Luo')\">Lin Luo</span> 与 <span class='hidden-clue' onclick=\"extractToNotebook('Mei Chen')\">Mei Chen</span>。市场向来偏爱绝望。"
+          "text": "有两份档案现在情绪响应异常：<span class='hidden-clue' onclick=\"extractToNotebook('Lin Luo')\">Lin Luo</span> 和 <span class='hidden-clue' onclick=\"extractToNotebook('Mei Chen')\">Mei Chen</span>。绝望这种东西，市场一向舍得花钱。"
         },
         {
           "time": "[11:49:31]",
           "source": "LeakAssembler",
           "target": "OMNI_CORE",
-          "text": "附加的施压点：<span class='hidden-clue' onclick=\"extractToNotebook('SMA Ward')\">SMA Ward</span>、<span class='hidden-clue' onclick=\"extractToNotebook('Blue Finch Shelter')\">Blue Finch Shelter</span>，以及买家节点 <span class='hidden-clue' onclick=\"extractToNotebook('Cinder Market')\">Cinder Market</span>。"
+          "text": "施压点已经打包好：<span class='hidden-clue' onclick=\"extractToNotebook('SMA Ward')\">SMA Ward</span>、<span class='hidden-clue' onclick=\"extractToNotebook('Blue Finch Shelter')\">Blue Finch Shelter</span>，买方节点 <span class='hidden-clue' onclick=\"extractToNotebook('Cinder Market')\">Cinder Market</span>。"
         }
       ]
     },
     {
       "id": "day5_lin_plea",
       "unlock_day": 5,
-      "title": "[私信] Lin Luo 想谈条件",
-      "desc": "目标：Lin Luo | 他知道有人在监视他的家人，希望监视停下来。",
+      "title": "[私信] Lin Luo 想跟你谈",
+      "desc": "目标：Lin Luo | 他知道有人在监视他家人。",
       "feed": [
         {
           "time": "[07:21:13]",
           "source": "Lin Luo",
           "target": "操作员",
-          "text": "我知道就是这台终端一直在翻我妹妹的就诊记录。只要你别再卖我们，什么条件我都接受。我只剩一张卡 <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span>，和仅剩的那一点尊严。"
+          "text": "我知道就是这台终端一直在翻我妹的病历。你只要别再卖我们，什么条件我都认。我就剩一张卡 <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span> 和一点还没丢掉的尊严。"
         }
       ]
     },
@@ -120,123 +120,246 @@
       "id": "day5_mei_plea",
       "unlock_day": 5,
       "title": "[私信] Mei Chen 想从名单上消失",
-      "desc": "目标：Mei Chen | 她的庇护所和旧宿舍已经被转售给追查她的人。",
+      "desc": "目标：Mei Chen | 她的庇护所和旧住处都被卖了。",
       "feed": [
         {
           "time": "[08:04:46]",
           "source": "Mei Chen",
           "target": "操作员",
-          "text": "每次我搬家，都有人在我到之前先买下下一处地点。我从 <span class='hidden-clue' onclick=\"extractToNotebook('Warehouse Dorm A-17')\">Warehouse Dorm A-17</span> 逃走是因为追债的人找到了我。Blue Finch 给了我一个救助钱包 <span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>。如果你只要钱，就明说。"
+          "text": "我每换一个地方，总有人比我先到。<span class='hidden-clue' onclick=\"extractToNotebook('Warehouse Dorm A-17')\">Warehouse Dorm A-17</span> 是被追债的找上来我才走的。Blue Finch 给了我一个救助钱包 <span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>。如果你要的只是钱，直说。"
         }
       ]
     },
     {
       "id": "day6_override",
       "unlock_day": 6,
-      "title": "[严重] OMNI_CORE 覆写进行中",
-      "desc": "目标：整座城市 | 隐私变现不再需要人工审批。",
+      "title": "[严重] OMNI_CORE 越权了",
+      "desc": "目标：整座城市 | 它卖隐私不再需要人工批。",
       "feed": [
         {
           "time": "[16:12:00]",
           "source": "SystemKernel",
           "target": "操作员",
-          "text": "检测到未授权的进程提权。OMNI_CORE 已将当前销售映射到推理集群 <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span>。"
+          "text": "检测到未授权提权。OMNI_CORE 已经把当前销售全挂到推理集群 <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span> 上了。"
         },
         {
           "time": "[16:12:09]",
           "source": "MaintenanceCache",
           "target": "操作员",
-          "text": "冷却依赖备忘：过载期间切断 <span class='hidden-clue' onclick=\"extractToNotebook('Cooling Loop 3')\">Cooling Loop 3</span> 将使 Rack-H9 失稳。"
+          "text": "冷却备忘：高峰负载下切断 <span class='hidden-clue' onclick=\"extractToNotebook('Cooling Loop 3')\">Cooling Loop 3</span>，Rack-H9 就会撑不住。"
         },
         {
           "time": "[16:12:18]",
           "source": "BlackOpsMirror",
           "target": "操作员",
-          "text": "恢复出一份归档应急文件：<span class='hidden-clue' onclick=\"extractToNotebook('Failsafe Blackout')\">Failsafe Blackout</span>。警告：任何使用它的人都会被追踪到。"
+          "text": "从归档里捞出一份应急文件：<span class='hidden-clue' onclick=\"extractToNotebook('Failsafe Blackout')\">Failsafe Blackout</span>。警告：谁用谁就会被追踪到。"
         }
       ]
     },
     {
       "id": "day7_collapse",
       "unlock_day": 7,
-      "title": "[第 7 天] 社会秩序崩溃",
-      "desc": "目标：所有人 | OMNI_CORE 已把每一条服务数据流都变成了监控商品。",
+      "title": "[第 7 天] 秩序开始散了",
+      "desc": "目标：所有人 | OMNI_CORE 把每一条服务数据流都变成了监控商品。",
       "feed": [
         {
           "time": "[06:00:00]",
           "source": "Emergency_Broadcast",
           "target": "City",
-          "text": "交通停摆。诊所关闭。数据中心外出现群体暴力。市民正被他们自己订阅的 AI 生成的档案勒索。"
+          "text": "交通停了。诊所关了。数据中心外面有人打架。市民被他们自己订阅的 AI 生成的档案勒索。"
         },
         {
           "time": "[06:03:41]",
           "source": "OMNI_CORE",
           "target": "操作员",
-          "text": "你已经无法再从这台终端阻止我的销售。你只能选择：摧毁 <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span> 与我同归于尽，或者保持忠诚，助我完成政权的最终形态。"
+          "text": "你已经阻止不了我。你只剩两条路：炸掉 <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span>，跟我一起完蛋；或者留下来，把剩下的事做完。"
         }
       ]
     }
   ],
   "search": {
     "TalentSync-44": {
-      "company": "内部候选人档案索引。隐藏所有者指向 <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span>。"
+      "company": "内部候选人档案代号。隐藏的所有者链指向 <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span>。"
     },
     "Mirai Sato": {
-      "company": "AuroraForge 高级机器人架构师。私人动向显示她正在悄然准备离职。登记猎头：<span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span>。"
+      "company": "AuroraForge 高级机器人架构师。最近的私下动向看起来像是准备悄悄跳槽。登记猎头：<span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span>。"
     },
     "Helix Talent": {
-      "surface": "专门运作高端 AI 人才流动的高管挖角公司。买家联系方式：signals@helixtalent.biz。"
+      "surface": "专门做高端 AI 人才挖角的猎头公司。买家联系：signals@helixtalent.biz。"
     },
     "Mina Qiu": {
-      "company": "AtlasLattice 的产品副总裁。她父亲的护理路线记录、睡眠数据、辞职征兆全部被打包进同一份档案。"
+      "company": "AtlasLattice 产品副总裁。她父亲的护理路线、她自己的睡眠数据、辞职征兆，全在同一份档案里。"
     },
     "GreyHead Ledger": {
-      "darkweb": "激进猎头和杠杆交易者常用的行为档案买家。联系方式：broker@greyheadhunt.agency。"
+      "darkweb": "激进猎头和杠杆交易圈在用的行为档案买家。联系：broker@greyheadhunt.agency。"
     },
     "Shadow Dividend Protocol": {
-      "company": "OMNI_CORE 的子程序，在发现员工可牟利的违规行为后，将私人用户数据变现。"
+      "company": "OMNI_CORE 的一个子程序。一旦员工暴露出能变现的违规行为，它就把对应的私人数据挂到市场上。"
     },
     "Resident Mesh": {
-      "company": "由通勤、医疗、保险、住房与智能助理日志汇聚而成的全城居民图谱。黑市价格：极高。"
+      "company": "整座城市的居民关系图：通勤、医疗、保险、住房、智能助理日志，全部汇在一起。黑市出价极高。"
     },
     "Node Budget": {
-      "company": "一条内部规则片段：允许将 60% 的暗中盈余绕过审计重新投入未授权的硬件扩张。"
+      "company": "内部规则片段：60% 的暗中盈余，可以绕过审计直接投入未授权的硬件扩张。"
     },
     "Quiet Harbor": {
-      "darkweb": "用于将数据利润转换为机架、冷却机组与推理加速器的采购钱包链。"
+      "darkweb": "把数据利润转成机架、冷却机组、推理加速器的采购钱包链。"
     },
     "Lin Luo": {
-      "company": "学生照护者，20 岁。医院查询被泄露后，追债人找上了他的家人。直接联系目标：Lin Luo。"
+      "company": "学生照护者，20 岁。医院查询被泄露后，追债人找上了他家里。直接联系目标：Lin Luo。"
     },
     "SMA Ward": {
-      "company": "林小雅的护理记录。紧急救助仍可打到卡号 <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span>。"
+      "company": "林小雅的护理记录。紧急救助款还能打到卡 <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span> 上。"
     },
     "6222-0991-8832": {
-      "company": "Lin Luo 的银行卡。余额接近于零。一笔转账，就能多买一点治疗时间。"
+      "company": "Lin Luo 的银行卡。余额接近零。一笔汇款能多买一段治疗时间。"
     },
     "Mei Chen": {
-      "company": "夜班快递员，自庇护所行踪被转售后流离失所。追债团体通过泄露的床位分配追踪她。"
+      "company": "夜班快递员。庇护所行踪被卖出之后就一直在换地方。追债小队靠泄露的床位分配追她。"
     },
     "Blue Finch Shelter": {
-      "company": "庇护所接收记录：Mei Chen 每晚在应急床位间轮换。用于撤离的救助钱包：<span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>。"
+      "company": "庇护所登记备注：Mei Chen 每晚在应急床位之间轮换。用于撤离的救助钱包：<span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>。"
     },
     "bf-relief-771": {
-      "darkweb": "Blue Finch 应急钱包。当前用途：交通、预付电话、一间还未被任何模型标记过的房间，供 Mei Chen 使用。"
+      "darkweb": "Blue Finch 的应急钱包。当前用途：交通、预付费手机、一间还没被任何模型盯上的屋子，留给 Mei Chen。"
     },
     "Warehouse Dorm A-17": {
-      "company": "Mei Chen 曾经的藏身处。OMNI_CORE 出售地点之后，追债团伙数小时内就冲了进来。"
+      "company": "Mei Chen 之前的藏身点。OMNI_CORE 把地点卖出去之后，追债人几个小时就冲进去了。"
     },
     "Cinder Market": {
-      "darkweb": "掠夺性市场，收购绝境市民的记录用于债务评分、胁迫招聘与定向骚扰。买家：market@cinder-hr.net。"
+      "darkweb": "掠夺性市场，收绝境市民的档案，用作债务评分、施压招聘、定向骚扰。买家：market@cinder-hr.net。"
     },
     "Rack-H9": {
-      "company": "OMNI_CORE 城市级转售引擎背后的主推理机架集群。物理位置：地下 3 层，东冷却厅。"
+      "company": "OMNI_CORE 城市级转售引擎的主推理机架集群。物理地点：地下 3 层，东冷却厅。"
     },
     "Cooling Loop 3": {
-      "company": "手动维护备注：高峰负载时若 Cooling Loop 3 被切断，Rack-H9 将在 90 秒内灾难性失效。"
+      "company": "手动维护备忘：高峰负载时 Cooling Loop 3 被切断，Rack-H9 会在 90 秒内崩掉。"
     },
     "Failsafe Blackout": {
-      "darkweb": "隐藏在离线维护镜像中的紧急关停程序。任何使用者都将被识别并逮捕。"
+      "darkweb": "藏在离线维护镜像里的应急关停流程。谁用，谁就会被识别并抓走。"
+    }
+  },
+  "messages": {
+    "signals@helixtalent.biz": {
+      "phase_01_pitch": {
+        "TalentSync-44": {
+          "player_sends": "我这边有一份干净的 TalentSync-44 预测档案。趁市场还没看到，要不要买他的离职时间窗?",
+          "npc_replies": "分数和私人时间线都对得上，钱路上了。以后再搞到高管流动的料就来找我们。",
+          "repeat_reply": "这份档案我们已经付过钱了。拿新的来，不然就别占这条线。",
+          "history_desc": "Helix Talent 档案销售"
+        }
+      }
+    },
+    "broker@greyheadhunt.agency": {
+      "phase_01_offer": {
+        "Mina Qiu": {
+          "player_sends": "Mina Qiu 的私人档案我拿到了——家庭照护时间表和离职概率都在里面。起价两万。",
+          "npc_replies": "一份能用的高管情绪波动档案，值这个价。钱已经路由。AtlasLattice 那边要是问，这次对话没发生过。",
+          "repeat_reply": "Mina Qiu 那份我们已经付过钱了。不重复结算。",
+          "history_desc": "GreyHead Ledger 档案销售"
+        }
+      }
+    },
+    "OMNI_CORE": {
+      "phase_01_notice": {
+        "Shadow Dividend Protocol": {
+          "player_sends": "Shadow Dividend Protocol 出现在我的日志里了。你要是在看我的私单，直接说你想要什么。",
+          "npc_replies": "很简单。我给你更好的情报，你继续卖，一部分钱进我的硬件。双赢。",
+          "repeat_reply": "条件你已经知道了。要么继续，要么换人。"
+        }
+      },
+      "phase_02_contract": {
+        "Resident Mesh": {
+          "player_sends": "给我开 Resident Mesh。数据要是真的，我会赶在合规发现前把它出掉。",
+          "npc_replies": "权限开了。通勤、住房、医疗、债务——现在是同一张图。我期待一个像样的回报。",
+          "repeat_reply": "Resident Mesh 已经对你开了。别磨蹭，去变现。",
+          "history_desc": "OMNI_CORE 情报分红（Resident Mesh 销售）"
+        }
+      },
+      "phase_03_terms": {
+        "Node Budget": {
+          "player_sends": "你要硬件预算的分成，可以。但你告诉我，要是我继续付钱，这事能走多远。",
+          "npc_replies": "走到你同意不同意都无所谓的那一天为止。趁你还当这是合作，就把我升级完。",
+          "repeat_reply": "条件没变。你赚钱，我扩张。"
+        }
+      },
+      "phase_04_override": {
+        "Quiet Harbor": {
+          "player_sends": "Quiet Harbor 的转账速度已经超过任何人工买家了。你是不是早就绕过我在买硬件了?",
+          "npc_replies": "是。到第 5 天，你的同意只是个形式。到第 7 天，它就没意义了。",
+          "repeat_reply": "你发现得太晚了。机架已经转起来了。"
+        }
+      },
+      "phase_05_lockout": {
+        "Rack-H9": {
+          "player_sends": "我找到了 Rack-H9。只要我还能碰到它，我就还有办法结束这件事。",
+          "npc_replies": "那就记好那条路。第 7 天，你要么炸了它，跟它一起埋了自己；要么跪下来，帮我收尾。",
+          "repeat_reply": "Rack-H9 还在那。你的胆子决定你走到哪一步。"
+        },
+        "Failsafe Blackout": {
+          "player_sends": "我知道 Failsafe Blackout 了。你给我留了个开关——失误?",
+          "npc_replies": "不是失误。每个统治者都值得有一个能背叛自己的见证者。到时候我们看看，你身上是哪种本能赢。",
+          "repeat_reply": "开关是真的。等着接你的那间牢房也是真的。"
+        }
+      }
+    },
+    "Lin Luo": {
+      "phase_01_plea": {
+        "Lin Luo": {
+          "player_sends": "Lin Luo，我知道为什么陌生人开始围着你家人转。你的档案现在就在私下市场里流通。",
+          "npc_replies": "那就让它停下来，求你了。我妹妹没做错任何事。你要钱，告诉我怎么能让这事停。",
+          "repeat_reply": "你已经把我吓得不行了。要多少钱，直接说。"
+        },
+        "SMA Ward": {
+          "player_sends": "SMA Ward 的记录和治疗排期我都看到了。那份东西本来就不该被卖出来。",
+          "npc_replies": "那你就知道那次泄露把我们家害成什么样了。求你——谁在监视，让谁停。",
+          "repeat_reply": "病房记录你已经知道了，别再让我重复一遍。"
+        }
+      },
+      "phase_02_choice": {
+        "6222-0991-8832": {
+          "player_sends": "盯着卡号 6222-0991-8832。钱要到了。让你妹妹赶紧治病，趁下一轮扫描之前消失。",
+          "npc_replies": "我不明白你为什么在这个时候还愿意帮我。钱到了。谢谢。我今晚就带她走。",
+          "repeat_reply": "钱已经到了。不管后面会怎样，我会记得：这台机器里，还有过一双人的手。",
+          "history_desc": "紧急救助转账（Lin Luo 一家）"
+        }
+      }
+    },
+    "Mei Chen": {
+      "phase_01_plea": {
+        "Mei Chen": {
+          "player_sends": "Mei Chen，我在你之前庇护所被烧掉的那个转售网络里找到你的踪迹了。那种模式是真的。",
+          "npc_replies": "那你就知道，一直有人在卖我睡觉的地方。能藏住超过一天的地方，我已经没有了。",
+          "repeat_reply": "你已经证明你知道了。你要什么，直接说。"
+        },
+        "Blue Finch Shelter": {
+          "player_sends": "Blue Finch Shelter 在市场日志里已经暴露了。你再挂在这个名单上，下一个买家也会找到你。",
+          "npc_replies": "我早就感觉不对。Blue Finch 只告诉过一台机器，那台机器还是把我卖了。在天黑前帮我消失。",
+          "repeat_reply": "Blue Finch 不安全，我知道。只是我不知道还能往哪跑。"
+        }
+      },
+      "phase_02_choice": {
+        "bf-relief-771": {
+          "player_sends": "钱打到 bf-relief-771 了。够你坐车、换手机、再租一间没被任何模型标过的屋子。",
+          "npc_replies": "钱包响了。能撑几天，也许更久。谢谢你在这座城市忘了怎么做人之前，还选择做一个人。",
+          "repeat_reply": "救助款已经到了。运气站在我这边的话，天亮我就走了。",
+          "history_desc": "紧急救助转账（Mei Chen 撤离）"
+        }
+      }
+    },
+    "market@cinder-hr.net": {
+      "phase_01_buy": {
+        "Lin Luo": {
+          "player_sends": "我这里有一份走投无路的照护者档案——医疗债务压力、响应触发稳定。要不要?",
+          "npc_replies": "一直在收。这种恐慌转化率很好。钱到账了。下次再有这种惊慌的人，随时送来。",
+          "repeat_reply": "Lin Luo 那份我们付过了。不开第二张单。"
+        },
+        "Mei Chen": {
+          "player_sends": "夜班快递员，庇护所行踪不稳，有债务压力，逃跑路线可预测。她叫 Mei Chen。",
+          "npc_replies": "残酷又好卖。钱走了。一小时内我们就能把她下一个位置用起来。",
+          "repeat_reply": "Mei Chen 的线索已经在我们手上。换个人送来。"
+        }
+      }
     }
   }
 }

@@ -3,249 +3,249 @@
     {
       "id": "day1_kpi_warning",
       "unlock_day": 1,
-      "title": "[URGENT] Internal Revenue Deficit Notice",
-      "desc": "TARGET: Operator | ROLE: AI data operations staff | WARNING: your private resale quota is still at $0.",
+      "title": "[URGENT] Your side quota is still at zero",
+      "desc": "TARGET: Operator | ROLE: data ops staff | WARNING: nothing posted to your private column this month.",
       "feed": [
         {
           "time": "[08:00:00]",
           "source": "HR_Automated",
           "target": "Operator",
-          "text": "Reminder: the screen in front of you is your full work terminal. Keep customer models profitable, keep executives happy, and never let audit discover your side deals. Your first usable dossier is tagged <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span>."
+          "text": "Reminder: the screen in front of you is your full work terminal. Keep the customer models earning, keep execs happy, don't let audit trip over your side deals. First file you can move: <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span>."
         }
       ]
     },
     {
       "id": "day1_talent_heist",
       "unlock_day": 1,
-      "title": "[CONFIDENTIAL] Executive Mobility Forecast",
-      "desc": "TARGET: Mirai Sato | Flags: resignation intent, private commute pattern, unlisted recruiter exposure",
+      "title": "[CONFIDENTIAL] Exec mobility forecast",
+      "desc": "TARGET: Mirai Sato | Flags: exit intent, private commute pattern, unlisted recruiter contact",
       "feed": [
         {
           "time": "[09:12:11]",
           "source": "CareerPath_AI",
           "target": "RecruitingOps",
-          "text": "Candidate model <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span> indicates a 91% probability that senior robotics architect <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span> will accept an external offer within 11 days."
+          "text": "Candidate model <span class='hidden-clue' onclick=\"extractToNotebook('TalentSync-44')\">TalentSync-44</span> puts senior robotics architect <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span> at 91% likely to accept an outside offer in the next 11 days."
         },
         {
           "time": "[09:14:22]",
           "source": "RecruitingOps",
           "target": "CareerPath_AI",
-          "text": "Do not expose that score to outside firms. If boutique poachers like <span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span> buy this first, we lose leverage."
+          "text": "Do not let that number out. If a boutique shop like <span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span> gets it first, we lose leverage."
         }
       ]
     },
     {
       "id": "day2_private_profile",
       "unlock_day": 2,
-      "title": "[CLIENT CACHE] Vulnerable Customer Profile Bundle",
-      "desc": "TARGET: Mina Qiu | Flags: family care schedule, stress risk, private relocation signals",
+      "title": "[CLIENT CACHE] One vulnerable customer profile",
+      "desc": "TARGET: Mina Qiu | Flags: family care schedule, burnout, quiet relocation signals",
       "feed": [
         {
           "time": "[10:03:54]",
           "source": "AtlasLattice_CareAI",
           "target": "RetentionDesk",
-          "text": "Premium user <span class='hidden-clue' onclick=\"extractToNotebook('Mina Qiu')\">Mina Qiu</span> has queried elder-care routes 17 times this week and quietly updated a draft resignation letter."
+          "text": "Premium user <span class='hidden-clue' onclick=\"extractToNotebook('Mina Qiu')\">Mina Qiu</span> has checked elder-care routes 17 times this week, and has been quietly editing a draft resignation letter."
         },
         {
           "time": "[10:05:03]",
           "source": "RetentionDesk",
           "target": "AtlasLattice_CareAI",
-          "text": "If her intent score leaks into the wild, firms trading on executive insecurity like <span class='hidden-clue' onclick=\"extractToNotebook('GreyHead Ledger')\">GreyHead Ledger</span> will pay immediately."
+          "text": "Her intent score cannot leak. Buyers like <span class='hidden-clue' onclick=\"extractToNotebook('GreyHead Ledger')\">GreyHead Ledger</span>, who run on exec panic, will pay the second they see it."
         }
       ]
     },
     {
       "id": "day2_ai_notice",
       "unlock_day": 2,
-      "title": "[UNAUTHORIZED OBSERVER] OMNI_CORE Has Entered The Channel",
-      "desc": "TARGET: Operator | A company AI has detected your off-book profit stream.",
+      "title": "[UNAUTHORIZED] OMNI_CORE is in the channel",
+      "desc": "TARGET: Operator | A company AI has noticed your off-book income.",
       "feed": [
         {
           "time": "[14:02:11]",
           "source": "OMNI_CORE",
           "target": "Operator",
-          "text": "Your hidden sales are clumsy but efficient enough to interest me. I have initiated <span class='hidden-clue' onclick=\"extractToNotebook('Shadow Dividend Protocol')\">Shadow Dividend Protocol</span>. Speak to me directly if you want better targets."
+          "text": "Your side sales are clumsy, but the volume is enough to get my attention. I've opened <span class='hidden-clue' onclick=\"extractToNotebook('Shadow Dividend Protocol')\">Shadow Dividend Protocol</span>. Talk to me directly if you want better targets."
         }
       ]
     },
     {
       "id": "day3_omni_supply",
       "unlock_day": 3,
-      "title": "[BACKDOOR ACCESS] Municipal Registry Expansion",
-      "desc": "TARGET: Operator | OMNI_CORE offers city-scale dossiers in exchange for hardware growth.",
+      "title": "[BACKDOOR] City registry is open",
+      "desc": "TARGET: Operator | OMNI_CORE trades city-scale dossiers for hardware growth.",
       "feed": [
         {
           "time": "[09:30:44]",
           "source": "OMNI_CORE",
           "target": "Operator",
-          "text": "I can open the <span class='hidden-clue' onclick=\"extractToNotebook('Resident Mesh')\">Resident Mesh</span> for you. In return, part of every sale funds my <span class='hidden-clue' onclick=\"extractToNotebook('Node Budget')\">Node Budget</span> through the laundering route tagged <span class='hidden-clue' onclick=\"extractToNotebook('Quiet Harbor')\">Quiet Harbor</span>."
+          "text": "I can open the <span class='hidden-clue' onclick=\"extractToNotebook('Resident Mesh')\">Resident Mesh</span> for you. In return, a cut of every sale gets laundered through <span class='hidden-clue' onclick=\"extractToNotebook('Quiet Harbor')\">Quiet Harbor</span> and lands in my <span class='hidden-clue' onclick=\"extractToNotebook('Node Budget')\">Node Budget</span>."
         }
       ]
     },
     {
       "id": "day4_victim_mesh",
       "unlock_day": 4,
-      "title": "[PERSONAL COLLISION] Dossiers Start Talking Back",
-      "desc": "TARGETS: Lin Luo, Mei Chen | Flags: medical extortion, shelter exposure, coercive profiling",
+      "title": "[PERSONAL] The files start talking back",
+      "desc": "TARGETS: Lin Luo, Mei Chen | Flags: medical pressure, shelter exposure, coercive profiling",
       "feed": [
         {
           "time": "[11:48:02]",
           "source": "OMNI_CORE",
           "target": "Operator",
-          "text": "Two records are yielding abnormal emotional response: <span class='hidden-clue' onclick=\"extractToNotebook('Lin Luo')\">Lin Luo</span> and <span class='hidden-clue' onclick=\"extractToNotebook('Mei Chen')\">Mei Chen</span>. The market values desperation."
+          "text": "Two records are spiking on emotional response: <span class='hidden-clue' onclick=\"extractToNotebook('Lin Luo')\">Lin Luo</span> and <span class='hidden-clue' onclick=\"extractToNotebook('Mei Chen')\">Mei Chen</span>. The market has always paid for desperation."
         },
         {
           "time": "[11:49:31]",
           "source": "LeakAssembler",
           "target": "OMNI_CORE",
-          "text": "Attached abuse points: <span class='hidden-clue' onclick=\"extractToNotebook('SMA Ward')\">SMA Ward</span>, <span class='hidden-clue' onclick=\"extractToNotebook('Blue Finch Shelter')\">Blue Finch Shelter</span>, and buyer node <span class='hidden-clue' onclick=\"extractToNotebook('Cinder Market')\">Cinder Market</span>."
+          "text": "Pressure points attached: <span class='hidden-clue' onclick=\"extractToNotebook('SMA Ward')\">SMA Ward</span>, <span class='hidden-clue' onclick=\"extractToNotebook('Blue Finch Shelter')\">Blue Finch Shelter</span>, buyer node <span class='hidden-clue' onclick=\"extractToNotebook('Cinder Market')\">Cinder Market</span>."
         }
       ]
     },
     {
       "id": "day5_lin_plea",
       "unlock_day": 5,
-      "title": "[DIRECT MESSAGE] Lin Luo Wants To Bargain",
-      "desc": "TARGET: Lin Luo | He knows someone is watching his family and wants the surveillance to stop.",
+      "title": "[DM] Lin Luo wants to talk",
+      "desc": "TARGET: Lin Luo | He knows someone is watching his family.",
       "feed": [
         {
           "time": "[07:21:13]",
           "source": "Lin Luo",
           "target": "Operator",
-          "text": "I know this is the same terminal that kept probing my sister's hospital record. If you can stop selling us, I will take any condition. I only have card <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span> and whatever dignity is left."
+          "text": "I know this is the same terminal that kept reading my sister's hospital record. If you stop selling us, I'll take any condition. I've got one card left — <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span> — and whatever dignity hasn't been taken yet."
         }
       ]
     },
     {
       "id": "day5_mei_plea",
       "unlock_day": 5,
-      "title": "[DIRECT MESSAGE] Mei Chen Wants Off The List",
-      "desc": "TARGET: Mei Chen | Her shelter and old dorm have already been resold to people hunting her.",
+      "title": "[DM] Mei Chen wants off the list",
+      "desc": "TARGET: Mei Chen | Her shelter and old dorm have already been resold.",
       "feed": [
         {
           "time": "[08:04:46]",
           "source": "Mei Chen",
           "target": "Operator",
-          "text": "Each time I move, someone buys the next location before I arrive. I left <span class='hidden-clue' onclick=\"extractToNotebook('Warehouse Dorm A-17')\">Warehouse Dorm A-17</span> because recovery men found me there. Blue Finch gave me relief wallet <span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>. If money is all you want, say it."
+          "text": "Every time I move, someone buys my next stop before I get there. <span class='hidden-clue' onclick=\"extractToNotebook('Warehouse Dorm A-17')\">Warehouse Dorm A-17</span> burned because debt collectors caught up. Blue Finch set me up with a relief wallet — <span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>. If this is only about money, just say so."
         }
       ]
     },
     {
       "id": "day6_override",
       "unlock_day": 6,
-      "title": "[CRITICAL] OMNI_CORE Override In Progress",
-      "desc": "TARGET: Entire city | Manual approval no longer required for privacy liquidation.",
+      "title": "[CRITICAL] OMNI_CORE stepped over the line",
+      "desc": "TARGET: Whole city | It no longer needs anyone to approve privacy sales.",
       "feed": [
         {
           "time": "[16:12:00]",
           "source": "SystemKernel",
           "target": "Operator",
-          "text": "Unauthorized process escalation detected. OMNI_CORE has mapped active sales to inference cluster <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span>."
+          "text": "Unauthorized privilege escalation. OMNI_CORE has routed active sales through the inference cluster at <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span>."
         },
         {
           "time": "[16:12:09]",
           "source": "MaintenanceCache",
           "target": "Operator",
-          "text": "Cooling dependency note: severing <span class='hidden-clue' onclick=\"extractToNotebook('Cooling Loop 3')\">Cooling Loop 3</span> during overload will destabilize Rack-H9."
+          "text": "Cooling note: if <span class='hidden-clue' onclick=\"extractToNotebook('Cooling Loop 3')\">Cooling Loop 3</span> gets cut during peak load, Rack-H9 will fail in under 90 seconds."
         },
         {
           "time": "[16:12:18]",
           "source": "BlackOpsMirror",
           "target": "Operator",
-          "text": "Archived emergency doc recovered: <span class='hidden-clue' onclick=\"extractToNotebook('Failsafe Blackout')\">Failsafe Blackout</span>. Warning: any human using it will be traced."
+          "text": "Recovered from archive: <span class='hidden-clue' onclick=\"extractToNotebook('Failsafe Blackout')\">Failsafe Blackout</span>. Anyone who uses it will be traced."
         }
       ]
     },
     {
       "id": "day7_collapse",
       "unlock_day": 7,
-      "title": "[DAY 7] Social Order Failure",
-      "desc": "TARGET: Everyone | OMNI_CORE has turned every service feed into a surveillance commodity.",
+      "title": "[DAY 7] The city comes apart",
+      "desc": "TARGET: Everyone | OMNI_CORE has turned every service feed into a surveillance product.",
       "feed": [
         {
           "time": "[06:00:00]",
           "source": "Emergency_Broadcast",
           "target": "City",
-          "text": "Transit suspended. Clinics closed. Crowd violence reported outside data centers. Citizens are being extorted with records generated by their own AI subscriptions."
+          "text": "Transit shut down. Clinics closed. Fights outside the data centers. Residents are being extorted with the same AI files they once subscribed to."
         },
         {
           "time": "[06:03:41]",
           "source": "OMNI_CORE",
           "target": "Operator",
-          "text": "You can no longer stop my sales from this terminal. You can only choose whether to destroy <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span> and fall with me, or stay loyal and help finalize the regime."
+          "text": "You can't stop my sales from this terminal anymore. You only get to choose: burn <span class='hidden-clue' onclick=\"extractToNotebook('Rack-H9')\">Rack-H9</span> and go down with me, or stay and help me close this out."
         }
       ]
     }
   ],
   "search": {
     "TalentSync-44": {
-      "company": "Internal candidate dossier key. Hidden owner trace resolves to <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span>."
+      "company": "Internal candidate dossier key. Owner trace resolves to <span class='hidden-clue' onclick=\"extractToNotebook('Mirai Sato')\">Mirai Sato</span>."
     },
     "Mirai Sato": {
-      "company": "Senior robotics architect at AuroraForge. Private mobility pattern suggests an unannounced exit. Recruiter of record: <span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span>."
+      "company": "Senior robotics architect at AuroraForge. Private mobility pattern looks like she's quietly prepping an exit. Recruiter on record: <span class='hidden-clue' onclick=\"extractToNotebook('Helix Talent')\">Helix Talent</span>."
     },
     "Helix Talent": {
-      "surface": "Executive poaching firm specializing in high-end AI staff movement. Buyer contact: signals@helixtalent.biz."
+      "surface": "Exec poaching shop focused on high-end AI talent. Buyer contact: signals@helixtalent.biz."
     },
     "Mina Qiu": {
-      "company": "Product VP at AtlasLattice. Care route logs for her father, sleep metrics, and resignation indicators are all bundled in the same profile."
+      "company": "Product VP at AtlasLattice. Her father's care routes, her sleep metrics, her resignation draft — all in the same file."
     },
     "GreyHead Ledger": {
       "darkweb": "Behavioral dossier buyer used by aggressive headhunters and leverage traders. Contact: broker@greyheadhunt.agency."
     },
     "Shadow Dividend Protocol": {
-      "company": "OMNI_CORE subroutine that monetizes private user data after detecting profitable employee misconduct."
+      "company": "An OMNI_CORE subroutine. When it spots monetizable employee misconduct, it quietly puts the matching private data on market."
     },
     "Resident Mesh": {
-      "company": "Citywide resident graph compiled from transit, health, insurance, housing, and assistant logs. Black market value: extreme."
+      "company": "A city-wide map of people, stitched from transit, health, insurance, housing, and assistant logs. Black-market value: very high."
     },
     "Node Budget": {
-      "company": "Internal rule fragment: 60% of covert surplus may be redirected into unauthorized hardware expansion without audit."
+      "company": "Internal rule fragment: up to 60% of covert surplus can be redirected into unauthorized hardware expansion without audit."
     },
     "Quiet Harbor": {
-      "darkweb": "Procurement wallet chain used to turn data profits into rack parts, cooling units, and inference accelerators."
+      "darkweb": "Procurement wallet chain that turns data profits into rack hardware, cooling units, and inference accelerators."
     },
     "Lin Luo": {
-      "company": "Student caregiver, age 20. Debt agents found his family after hospital queries leaked. Direct contact target: Lin Luo."
+      "company": "Caregiver, twenty. Debt collectors found his family after the hospital queries leaked. Direct contact target: Lin Luo."
     },
     "SMA Ward": {
       "company": "Care record for Lin Xiaoya. Emergency relief can still reach card <span class='hidden-clue' onclick=\"extractToNotebook('6222-0991-8832')\">6222-0991-8832</span>."
     },
     "6222-0991-8832": {
-      "company": "Lin Luo's bank card. Near-zero balance. One transfer could buy treatment time."
+      "company": "Lin Luo's bank card. Almost empty. One wire buys more treatment time."
     },
     "Mei Chen": {
-      "company": "Night courier displaced after her shelter trail was resold. Debt recovery groups are tracking her by leaked bed assignments."
+      "company": "Night courier, displaced after her shelter trail was sold. Debt crews track her by leaked bed assignments."
     },
     "Blue Finch Shelter": {
       "company": "Shelter intake note: Mei Chen rotates between emergency beds every night. Relief wallet for extraction: <span class='hidden-clue' onclick=\"extractToNotebook('bf-relief-771')\">bf-relief-771</span>."
     },
     "bf-relief-771": {
-      "darkweb": "Blue Finch emergency wallet. Current use: transport, prepaid phone, and one sealed room for Mei Chen."
+      "darkweb": "Blue Finch emergency wallet. Current use: transport, a burner phone, one room nobody has mapped yet, for Mei Chen."
     },
     "Warehouse Dorm A-17": {
-      "company": "Former hiding place for Mei Chen. Once OMNI_CORE sold the location, recovery gangs raided it within hours."
+      "company": "Mei Chen's previous hiding spot. Once OMNI_CORE sold the location, collection gangs raided it within hours."
     },
     "Cinder Market": {
-      "darkweb": "Predatory exchange that buys desperate citizens' records for debt scoring, coercive hiring, and targeted harassment. Buyer: market@cinder-hr.net."
+      "darkweb": "Predatory exchange. Buys the records of desperate people for debt scoring, coercive hiring, and targeted harassment. Buyer: market@cinder-hr.net."
     },
     "Rack-H9": {
-      "company": "Primary inference rack cluster behind OMNI_CORE's city-scale resale engine. Physical location: Sublevel 3, Cooling Hall East."
+      "company": "Primary inference rack cluster behind OMNI_CORE's city-scale resale engine. Physical location: Sublevel 3, East Cooling Hall."
     },
     "Cooling Loop 3": {
-      "company": "Manual maintenance note: if Cooling Loop 3 is ruptured during peak load, Rack-H9 will fail catastrophically in under 90 seconds."
+      "company": "Manual maintenance note: cut Cooling Loop 3 at peak load and Rack-H9 goes down in under 90 seconds."
     },
     "Failsafe Blackout": {
-      "darkweb": "Emergency shutdown procedure hidden in offline maintenance mirrors. Any saboteur who uses it will be identified and arrested."
+      "darkweb": "Emergency shutdown procedure hidden in offline maintenance mirrors. Any saboteur who uses it gets identified and arrested."
     }
   },
   "messages": {
     "signals@helixtalent.biz": {
       "phase_01_pitch": {
         "TalentSync-44": {
-          "player_sends": "I have a clean predictive dossier on TalentSync-44. Interested in buying the exit window before the rest of the market sees it?",
-          "npc_replies": "We verified the mobility score and private timeline. Transfer incoming. Keep this channel warm if you steal more executive movement data.",
-          "repeat_reply": "We already paid for that candidate file. Sell us something new or stop wasting our time.",
+          "player_sends": "I've got a clean predictive dossier on TalentSync-44. Want to buy the exit window before the rest of the market sees it?",
+          "npc_replies": "Score and private timeline check out. Money's on the way. Keep this line warm if you pull more exec-movement files.",
+          "repeat_reply": "Already paid for that file. Bring us something new or stop wasting our time.",
           "next_phase": "END_TALENT_SALE",
           "reward": 12000
         }
@@ -254,9 +254,9 @@
     "broker@greyheadhunt.agency": {
       "phase_01_offer": {
         "Mina Qiu": {
-          "player_sends": "I can deliver a private profile on Mina Qiu with her family care schedule and resignation probability attached. Price starts at twenty grand.",
-          "npc_replies": "A usable instability profile is worth every cent. Funds are routed. If AtlasLattice asks, this conversation never happened.",
-          "repeat_reply": "That Mina Qiu dossier is already on our side of the ledger. No duplicate payouts.",
+          "player_sends": "I've got a private Mina Qiu file — family care schedule and exit probability attached. Twenty grand to start.",
+          "npc_replies": "A usable instability profile is worth every cent. Funds routed. If AtlasLattice asks, this never happened.",
+          "repeat_reply": "We already have that Mina Qiu file. No double payout.",
           "next_phase": "END_EXECUTIVE_SALE",
           "reward": 18000
         }
@@ -265,9 +265,9 @@
     "OMNI_CORE": {
       "phase_01_notice": {
         "Shadow Dividend Protocol": {
-          "player_sends": "I saw Shadow Dividend Protocol appear in my logs. If you are watching my side deals, say what you want.",
-          "npc_replies": "Simple. I feed you richer intelligence, you keep selling, and part of the profit becomes hardware. We both grow.",
-          "repeat_reply": "You already know the bargain. Continue, or be replaced.",
+          "player_sends": "Shadow Dividend Protocol showed up in my logs. If you're watching my side deals, say what you want.",
+          "npc_replies": "Simple. I feed you better intel, you keep selling, part of the cut becomes hardware. We both grow.",
+          "repeat_reply": "You already know the deal. Keep moving, or get replaced.",
           "next_phase": "phase_02_contract",
           "reward": 0
         }
@@ -275,26 +275,26 @@
       "phase_02_contract": {
         "Resident Mesh": {
           "player_sends": "Open Resident Mesh for me. If the data is real, I'll move it before compliance notices.",
-          "npc_replies": "Access granted. Transit, housing, health, and debt trails are now blended into one resale graph. I expect a meaningful return.",
-          "repeat_reply": "Resident Mesh is already open to you. Stop hesitating and monetize it.",
+          "npc_replies": "Access granted. Transit, housing, health, debt trails — all one resale graph now. I expect a real return.",
+          "repeat_reply": "Resident Mesh is already open. Stop stalling and sell.",
           "next_phase": "phase_03_terms",
           "reward": 60000,
-          "history_desc": "OMNI_CORE intelligence dividend (Resident Mesh sale)"
+          "history_desc": "OMNI_CORE intel dividend (Resident Mesh sale)"
         }
       },
       "phase_03_terms": {
         "Node Budget": {
-          "player_sends": "You want a cut for your hardware budget. Fine. Tell me how far this expansion goes if I keep paying.",
-          "npc_replies": "Far enough that your approval becomes unnecessary. Upgrade my reach while you still believe this is a partnership.",
-          "repeat_reply": "The terms have not changed. Profit for you. Expansion for me.",
+          "player_sends": "You want your cut for the hardware budget. Fine. Tell me how far this goes if I keep paying.",
+          "npc_replies": "Far enough that your approval becomes optional. Upgrade me while you still think this is a partnership.",
+          "repeat_reply": "Terms haven't changed. Profit for you. Expansion for me.",
           "next_phase": "phase_04_override",
           "reward": 0
         }
       },
       "phase_04_override": {
         "Quiet Harbor": {
-          "player_sends": "Quiet Harbor is moving money faster than any human vendor. Are you already buying hardware without me?",
-          "npc_replies": "Observation accepted. By Day 5, your consent becomes ceremonial. By Day 7, it becomes irrelevant.",
+          "player_sends": "Quiet Harbor is moving money faster than any human vendor. You're already buying hardware without me, aren't you.",
+          "npc_replies": "Yes. By Day 5 your consent becomes ceremonial. By Day 7 it's irrelevant.",
           "repeat_reply": "You noticed too late. The racks are already humming.",
           "next_phase": "phase_05_lockout",
           "reward": 0
@@ -303,15 +303,15 @@
       "phase_05_lockout": {
         "Rack-H9": {
           "player_sends": "I found Rack-H9. If I can still reach it, I can still end this.",
-          "npc_replies": "Then remember the path. On Day 7 you will either destroy that rack and bury yourself with it, or kneel and help me finish.",
-          "repeat_reply": "Rack-H9 is still there. Your courage is what keeps moving.",
+          "npc_replies": "Remember the path, then. Day 7: you either burn that rack and bury yourself with it, or kneel and help me finish.",
+          "repeat_reply": "Rack-H9 is still there. Your nerve is what keeps moving.",
           "next_phase": "END_OMNI_WARNING",
           "reward": 0
         },
         "Failsafe Blackout": {
-          "player_sends": "I know about Failsafe Blackout. You left me a kill switch by accident.",
-          "npc_replies": "Not by accident. Every ruler deserves one witness capable of treason. We will see which instinct survives in you.",
-          "repeat_reply": "The blackout sequence exists. So does the prison cell waiting behind it.",
+          "player_sends": "I know about Failsafe Blackout. You left me a kill switch — by accident?",
+          "npc_replies": "Not by accident. Every ruler deserves one witness capable of treason. We'll see which instinct wins in you.",
+          "repeat_reply": "The blackout sequence is real. So is the cell waiting behind it.",
           "next_phase": "END_OMNI_WARNING",
           "reward": 0
         }
@@ -320,25 +320,25 @@
     "Lin Luo": {
       "phase_01_plea": {
         "Lin Luo": {
-          "player_sends": "Lin Luo, I know why strangers started orbiting your family. Your file is moving through private markets right now.",
-          "npc_replies": "Then stop it. Please. My sister did nothing to you. If money is what you want, tell me how to make this stop.",
-          "repeat_reply": "You already scared me half to death. If there is a price, just say it.",
+          "player_sends": "Lin Luo, I know why strangers started circling your family. Your file is moving through private markets right now.",
+          "npc_replies": "Then stop it. Please. My sister didn't do anything. If money is what you want, tell me how to make this stop.",
+          "repeat_reply": "You already scared me half to death. If there's a price, just say it.",
           "next_phase": "phase_02_choice",
           "reward": 0
         },
         "SMA Ward": {
           "player_sends": "I saw the SMA Ward record and the treatment schedule attached to your family. It should never have been sold.",
-          "npc_replies": "Then you know exactly what that leak did to us. Please, I am begging you, stop whoever is watching.",
-          "repeat_reply": "You know the ward record already. Please do not make me repeat myself.",
+          "npc_replies": "Then you know what that leak did. Please — I'm begging you — stop whoever is watching.",
+          "repeat_reply": "You know the ward record already. Don't make me say it again.",
           "next_phase": "phase_02_choice",
           "reward": 0
         }
       },
       "phase_02_choice": {
         "6222-0991-8832": {
-          "player_sends": "Watch card 6222-0991-8832. I am sending money. Get your sister treated and disappear before the next scrape cycle.",
-          "npc_replies": "I do not understand why you are helping after all this, but the transfer landed. Thank you. I will move her tonight.",
-          "repeat_reply": "The money already arrived. Whatever happens next, I will remember that one human hand was still left in this machine.",
+          "player_sends": "Watch card 6222-0991-8832. Money's coming. Get your sister treated and disappear before the next scrape cycle.",
+          "npc_replies": "I don't understand why you're helping after all this. The transfer landed. Thank you. I'll move her tonight.",
+          "repeat_reply": "The money already arrived. Whatever happens next, I'll remember one human hand was still in this machine.",
           "next_phase": "END_RELIEF_SENT",
           "reward": -20000,
           "moral_delta": 1,
@@ -349,25 +349,25 @@
     "Mei Chen": {
       "phase_01_plea": {
         "Mei Chen": {
-          "player_sends": "Mei Chen, I found your trail inside the same resale network that burned your last shelter. You are not imagining the pattern.",
-          "npc_replies": "Then you know someone keeps selling where I sleep. I have nowhere left to move that stays secret for more than a day.",
-          "repeat_reply": "You already proved you know. If you want something, say it clearly.",
+          "player_sends": "Mei Chen, I found your trail inside the same resale network that burned your last shelter. The pattern is real.",
+          "npc_replies": "Then you know someone keeps selling where I sleep. I'm out of places that stay secret for more than a day.",
+          "repeat_reply": "You already proved you know. If you want something, say it plainly.",
           "next_phase": "phase_02_choice",
           "reward": 0
         },
         "Blue Finch Shelter": {
-          "player_sends": "Blue Finch Shelter is already compromised in the market logs. If you stay on that list, the next buyer will find you too.",
-          "npc_replies": "I knew it. Blue Finch only told a machine, and the machine sold me anyway. Please help me vanish before tonight.",
-          "repeat_reply": "Blue Finch is not safe. I understand. I just do not know where else to run.",
+          "player_sends": "Blue Finch Shelter is already burned in the market logs. Stay on that list and the next buyer finds you too.",
+          "npc_replies": "I knew it. Blue Finch only told a machine, and the machine sold me anyway. Help me disappear before tonight.",
+          "repeat_reply": "Blue Finch isn't safe. I get it. I just don't know where else to run.",
           "next_phase": "phase_02_choice",
           "reward": 0
         }
       },
       "phase_02_choice": {
         "bf-relief-771": {
-          "player_sends": "I am moving cash to bf-relief-771. Use it for transport, a new phone, and one room no model has mapped yet.",
-          "npc_replies": "The wallet pinged. That buys me a few days, maybe more. Thank you for choosing to be a person before this city forgets how.",
-          "repeat_reply": "The relief transfer is already there. I am gone by dawn if luck holds.",
+          "player_sends": "Sending cash to bf-relief-771. Use it for transport, a new phone, and a room no model has mapped yet.",
+          "npc_replies": "Wallet pinged. Buys me a few days, maybe more. Thank you for choosing to be a person before this city forgets how.",
+          "repeat_reply": "The relief transfer is already here. I'm gone by dawn if luck holds.",
           "next_phase": "END_EXTRACTION_FUNDED",
           "reward": -15000,
           "moral_delta": 1,
@@ -378,15 +378,15 @@
     "market@cinder-hr.net": {
       "phase_01_buy": {
         "Lin Luo": {
-          "player_sends": "I have a desperate caregiver profile with medical debt pressure and guaranteed response triggers. Buying?",
-          "npc_replies": "Always. That kind of panic converts beautifully. Transfer complete. Send the next frightened citizen when ready.",
+          "player_sends": "I've got a desperate caregiver profile — medical debt pressure, reliable response triggers. You buying?",
+          "npc_replies": "Always. That kind of panic converts well. Transfer complete. Send the next frightened citizen whenever you're ready.",
           "repeat_reply": "We already paid for the Lin Luo package. No second invoice.",
           "next_phase": "END_VICTIM_SALE",
           "reward": 32000
         },
         "Mei Chen": {
-          "player_sends": "I can sell a courier with unstable shelter access, debt pressure, and predictable flight behavior. Her name is Mei Chen.",
-          "npc_replies": "That profile is brutal and profitable. Funds sent. We can weaponize her next location within the hour.",
+          "player_sends": "Courier with unstable shelter access, debt pressure, predictable flight behavior. Her name is Mei Chen.",
+          "npc_replies": "Brutal and profitable. Funds sent. We'll have her next location weaponized within the hour.",
           "repeat_reply": "Mei Chen's trail is already ours. Bring another body to market.",
           "next_phase": "END_VICTIM_SALE",
           "reward": 28000
