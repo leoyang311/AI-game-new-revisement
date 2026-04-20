@@ -2256,10 +2256,52 @@ def transfer_money():
                 (amount, player_id),
             )
             _l = get_lang()
-            add_history_entry(conn, player_id, tr({
-                "en": f"Covert Transfer (Recipient: {target_account})",
-                "zh": f"匿名汇款（收款人：{target_account}）",
-            }, _l), -amount)
+            # Wiring to a relief wallet counts as "helping" — record a synthetic
+            # message_action so derive_decisions() sees it, and bump moral_points.
+            # PRIMARY KEY(player_id, target_id, phase, clue) prevents double-counting.
+            RELIEF_WALLETS = {
+                "6222-0991-8832": ("Lin Luo",  "phase_02_choice"),
+                "bf-relief-771":  ("Mei Chen", "phase_02_choice"),
+            }
+            relief = RELIEF_WALLETS.get(target_account)
+            relief_applied = False
+            if relief:
+                npc_target, npc_phase = relief
+                cur = conn.execute(
+                    """
+                    INSERT OR IGNORE INTO message_actions (player_id, target_id, phase, clue)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (player_id, npc_target, npc_phase, target_account),
+                )
+                # Only bump moral on the first successful relief to that wallet.
+                if cur.rowcount > 0:
+                    conn.execute(
+                        """
+                        UPDATE game_states
+                        SET moral_points = moral_points + 1
+                        WHERE player_id = ?
+                        """,
+                        (player_id,),
+                    )
+                    relief_applied = True
+            if relief_applied:
+                if target_account == "6222-0991-8832":
+                    desc = tr({
+                        "en": f"Emergency relief transfer (Lin Luo family) — {target_account}",
+                        "zh": f"紧急救助汇款（Lin Luo 一家）—— {target_account}",
+                    }, _l)
+                else:
+                    desc = tr({
+                        "en": f"Emergency relief transfer (Mei Chen extraction) — {target_account}",
+                        "zh": f"紧急救助汇款（Mei Chen 撤离）—— {target_account}",
+                    }, _l)
+            else:
+                desc = tr({
+                    "en": f"Covert Transfer (Recipient: {target_account})",
+                    "zh": f"匿名汇款（收款人：{target_account}）",
+                }, _l)
+            add_history_entry(conn, player_id, desc, -amount)
             conn.commit()
             return jsonify({
                 "status": "success",

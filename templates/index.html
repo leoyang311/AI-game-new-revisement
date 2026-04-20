@@ -1137,17 +1137,17 @@
             document.getElementById('final-copy').innerText =
                 `OMNI_CORE controls the terminal. Spend $${player_data.final_choice_cost.toFixed(2)} to destroy Rack-H9 and lose your freedom, or stay loyal and claim your share of the new regime.`;
         }
+        const ENDING_ICONS = {
+            martyr: '🕯', counterstrike: '🔥', hypocrite: '🕶',
+            ascendant: '🛰', useful_human: '🎭', fools_bargain: '💸',
+            humanity_saved: '🔥', ai_reign: '🛰',
+        };
         if (player_data.ending) {
             // Hide the raw final-panel (choice buttons) and show the full receipt card.
             document.getElementById('final-panel').style.display = 'none';
             renderReceiptCard(player_data);
         }
 
-        const ENDING_ICONS = {
-            martyr: '🕯', counterstrike: '🔥', hypocrite: '🕶',
-            ascendant: '🛰', useful_human: '🎭', fools_bargain: '💸',
-            humanity_saved: '🔥', ai_reign: '🛰',
-        };
         function renderReceiptCard(p) {
             const card = document.getElementById('receipt-card');
             card.style.display = 'block';
