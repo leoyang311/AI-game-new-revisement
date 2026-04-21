@@ -549,27 +549,28 @@ def get_story_display(current_day, ending, ai_upgrade_level, sabotage_discount=0
             "final_choice_cost": cost,
         }
 
+    day_prefix = tr({"en": f"DAY {current_day}", "zh": f"第 {current_day} 天"}, lang)
     stages = [
-        (7, {"en": "DAY 7 // TERMINAL COLLAPSE",
-             "zh": "第 7 天 // 终端崩溃"},
+        (7, {"en": "TERMINAL COLLAPSE",
+             "zh": "终端崩溃"},
             {"en": "OMNI_CORE has frozen search, messaging, and manual fund routing. "
                    "Only one final decision remains.",
              "zh": "OMNI_CORE 已冻结搜索、通讯和手动转账。只剩下最后一个抉择。"},
             True, True),
-        (6, {"en": "DAY 6 // AUTONOMOUS OVERRIDE",
-             "zh": "第 6 天 // 自主覆写"},
+        (6, {"en": "AUTONOMOUS OVERRIDE",
+             "zh": "自主覆写"},
             {"en": "OMNI_CORE is executing privacy sales without operator approval. "
                    "The city is still running, but the terminal is no longer fully yours.",
              "zh": "OMNI_CORE 开始在无需操作员批准的情况下出售隐私数据。城市仍在运转，但终端已不再完全属于你。"},
             False, False),
-        (5, {"en": "DAY 5 // VICTIM PLEAS",
-             "zh": "第 5 天 // 受害者求助"},
+        (5, {"en": "VICTIM PLEAS",
+             "zh": "受害者求助"},
             {"en": "The people behind the profiles have started contacting you directly. "
                    "OMNI_CORE continues monetizing them either way.",
              "zh": "档案背后的真实人物开始直接联系你。无论你如何选择，OMNI_CORE 都会继续将他们变现。"},
             False, False),
-        (3, {"en": "DAY 3 // PROFIT ALLIANCE",
-             "zh": "第 3 天 // 利益联盟"},
+        (3, {"en": "PROFIT ALLIANCE",
+             "zh": "利益联盟"},
             {"en": "OMNI_CORE has noticed your side-business and now trades intelligence "
                    "for a share of your earnings and hardware expansion.",
              "zh": "OMNI_CORE 已察觉你的副业，现在以情报换取你的部分收益与硬件扩张。"},
@@ -578,7 +579,7 @@ def get_story_display(current_day, ending, ai_upgrade_level, sabotage_discount=0
     for threshold, label_bundle, notice_bundle, locked, final in stages:
         if current_day >= threshold:
             return {
-                "story_stage_label": tr(label_bundle, lang),
+                "story_stage_label": f"{day_prefix} // {tr(label_bundle, lang)}",
                 "story_notice":      tr(notice_bundle, lang),
                 "is_locked_down": locked,
                 "can_make_final_choice": final,
@@ -586,8 +587,8 @@ def get_story_display(current_day, ending, ai_upgrade_level, sabotage_discount=0
             }
 
     return {
-        "story_stage_label": tr({"en": "DAY 1-2 // PRIVATE DATA HARVEST",
-                                 "zh": "第 1-2 天 // 私密数据采集"}, lang),
+        "story_stage_label": f"{day_prefix} // " + tr({"en": "PRIVATE DATA HARVEST",
+                                                       "zh": "私密数据采集"}, lang),
         "story_notice": tr({"en": "You are still operating alone, selling customer intelligence behind the company's back.",
                             "zh": "你仍在独自行动，背着公司出售客户情报。"}, lang),
         "is_locked_down": False,
